@@ -22,6 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.env
 
 # Playwright
 /test-results/
@@ -29,3 +30,11 @@ dist-ssr
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Test coverage
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+.vite/

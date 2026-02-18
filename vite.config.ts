@@ -1,14 +1,10 @@
-/// <reference types="vitest" />
-import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [
-    tailwindcss(), // O Tailwind deve vir ANTES do React para interceptar o CSS
-    react(),
-  ],
+  plugins: [tailwindcss(), react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -18,6 +14,21 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
-    css: true, // Importante para o Tailwind v4 ser processado nos testes
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/tests/**",
+      "**/*.spec.ts",
+    ],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 70,
+        statements: 80,
+      },
+    },
   },
 });
