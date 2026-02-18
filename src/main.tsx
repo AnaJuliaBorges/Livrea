@@ -5,7 +5,7 @@ const queryClient = new QueryClient();
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "@/features/auth/pages/LoginPage";
-import { protectedLoader } from "./routes/ProtectedRoute";
+// import { protectedLoader } from "./routes/ProtectedRoute";
 import App from "./App";
 
 import "./index.css";
@@ -22,7 +22,7 @@ export const router = createBrowserRouter([
       {
         path: "clubes",
         element: <>Lista de clubes</>,
-        loader: protectedLoader,
+        // loader: protectedLoader,
       },
     ],
   },

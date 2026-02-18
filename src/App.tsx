@@ -5,7 +5,7 @@ export default function App() {
     <div>
       <nav>
         <Link to="/">Home</Link>
-        <Link to="/clubes">Dashboard</Link>
+        <Link to="/clubes">Clubes</Link>
         <Link to="/login">Login</Link>
       </nav>
 

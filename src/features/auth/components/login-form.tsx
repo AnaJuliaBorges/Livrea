@@ -8,11 +8,18 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const navigate = useNavigate();
+
+  const submitLogin = () => {
+    navigate("/clubes");
+  };
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -44,7 +51,9 @@ export function LoginForm({
                 <Input id="password" type="password" required />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
+                <Button type="submit" onClick={submitLogin}>
+                  Login
+                </Button>
                 <Button variant="outline" type="button">
                   Login com o Google
                 </Button>
