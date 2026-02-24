@@ -1,16 +1,16 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header";
+import { Layout } from "./components/layoutWrapper";
 
 export default function App() {
   return (
     <div>
-      <nav>
-        <Link to="/">Home</Link>
-        <Link to="/clubes">Clubes</Link>
-        <Link to="/login">Login</Link>
-      </nav>
+      <Header />
 
       <main>
-        <Outlet />
+        <Layout>
+          <Outlet />
+        </Layout>
       </main>
     </div>
   );
