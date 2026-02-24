@@ -1,9 +1,12 @@
+import { supabase } from "@/lib/supabase";
 import { redirect } from "react-router-dom";
 
-export function protectedLoader() {
-  const isAuthenticated = false; // pegar de cookie, token, etc
+export async function protectedLoader() {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (!isAuthenticated) {
+  if (!session) {
     return redirect("/login");
   }
 

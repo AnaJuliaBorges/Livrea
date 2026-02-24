@@ -14,11 +14,12 @@ const queryClient = new QueryClient({
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "@/features/auth/pages/LoginPage";
-// import { protectedLoader } from "./routes/ProtectedRoute";
+import { protectedLoader } from "./routes/ProtectedRoute";
 import App from "./App";
 
 import "./index.css";
 import ListClubs from "./features/clubs/pages/listClubs";
+import Signup from "./features/auth/pages/SignUpPage";
 
 export const router = createBrowserRouter([
   {
@@ -30,9 +31,13 @@ export const router = createBrowserRouter([
         element: <Login />,
       },
       {
+        path: "cadastrar",
+        element: <Signup />,
+      },
+      {
         path: "clubes",
         element: <ListClubs />,
-        // loader: protectedLoader,
+        loader: protectedLoader,
       },
     ],
   },

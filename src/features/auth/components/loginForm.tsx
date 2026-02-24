@@ -1,4 +1,3 @@
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,26 +7,28 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useNavigate } from "react-router-dom";
+
+interface LoginFormProps {
+  onSubmit: (e: React.SubmitEvent) => void;
+  setEmail: (email: string) => void;
+  setPassword: (password: string) => void;
+  isLoading: boolean;
+}
 
 export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  const navigate = useNavigate();
-
-  const submitLogin = () => {
-    navigate("/clubes");
-  };
-
+  onSubmit,
+  setEmail,
+  setPassword,
+  isLoading,
+}: LoginFormProps) {
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className="flex flex-col gap-6">
       <Card>
         <CardHeader>
           <CardTitle>Logue com sua conta</CardTitle>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={onSubmit}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -36,6 +37,7 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </Field>
               <Field>
@@ -48,17 +50,22 @@ export function LoginForm({
                     Esqueceu sua senha?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                />
               </Field>
               <Field>
-                <Button type="submit" onClick={submitLogin}>
+                <Button type="submit" disabled={isLoading}>
                   Login
                 </Button>
                 <Button variant="outline" type="button">
                   Login com o Google
                 </Button>
                 <FieldDescription className="text-center">
-                  Não tem uma conta <a href="#">Cadastre-se</a>
+                  Não tem uma conta <a href="/cadastrar">Cadastre-se</a>
                 </FieldDescription>
               </Field>
             </FieldGroup>
