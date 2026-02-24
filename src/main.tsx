@@ -9,6 +9,7 @@ import Login from "@/features/auth/pages/LoginPage";
 import App from "./App";
 
 import "./index.css";
+import ListClubs from "./features/clubs/pages/listClubs";
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "clubes",
-        element: <>Lista de clubes</>,
+        element: <ListClubs />,
         // loader: protectedLoader,
       },
     ],
