@@ -1,55 +1,9 @@
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
+import type { Club } from "../dtos";
 
-export interface Genero {
-  id: number;
-  nome: string;
-}
-
-export interface Livro {
-  titulo: string;
-  autores: string[];
-  capa_url: string | null;
-}
-
-export interface LeituraAtual {
-  id: string;
-  status: string;
-  livro: Livro;
-}
-
-export interface Clube {
-  id: string;
-  nome: string;
-  descricao: string;
-  privacidade: boolean;
-  limite_participantes: number | null;
-  tipo: string;
-  frequencia: string | null;
-  leitura_atual: LeituraAtual | null;
-  generos: Genero[];
-  cidade_nome: string;
-  estado_sigla: string;
-  total_participantes: number;
-}
-
-export interface FiltrosClubes {
-  privacidade?: boolean;
-  genero_id?: number;
-  estado_id?: number;
-  cidade_id?: number;
-  pagina?: number;
-  por_pagina?: number;
-}
-
-const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL || "",
-  import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY || "",
-);
-
-export function useListarClubes(privacidade?: boolean) {
-  return useQuery<Clube[]>({
+export function useListClubs(privacidade?: boolean) {
+  return useQuery<Club[]>({
     queryKey: ["clubes", privacidade],
     queryFn: async () => {
       const { data, error } = await supabase.rpc("list_clubs", {
@@ -63,8 +17,7 @@ export function useListarClubes(privacidade?: boolean) {
         throw error;
       }
 
-      // Extrair o objeto 'clube' de cada linha
-      return (data || []).map((row: any) => row.clube as Clube);
+      return (data || []).map((row: any) => row.clube as Club);
     },
   });
 }
