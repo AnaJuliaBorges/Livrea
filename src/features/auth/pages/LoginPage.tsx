@@ -85,7 +85,7 @@ export default function Login() {
                 className="w-full"
                 onClick={() => handleSubmit}
               >
-                Login
+                Continuar
               </Button>
             </div>
           </form>
