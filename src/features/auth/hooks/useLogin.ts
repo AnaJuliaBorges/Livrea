@@ -18,7 +18,9 @@ export function useLogin() {
 
       if (error) throw error;
     } catch (err: any) {
-      setError(err.message);
+      if (err.code === "invalid_credentials")
+        setError("Email ou senha inválidos");
+      else setError(err.message);
       throw err;
     } finally {
       setLoading(false);

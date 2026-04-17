@@ -1,7 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { LoginForm } from "../components/loginForm";
+import logoText from "../../../assets/livrea_text_logo.png";
 import { useLogin } from "../hooks/useLogin";
 import { useState } from "react";
+import { Field, FieldGroup } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,29 +16,80 @@ export default function Login() {
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      navigate("/clubes");
-    } catch (err) {
-      // Erro já está em `error`
-    }
+    await login(email, password);
+    navigate("/clubes");
   };
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
-        {error && (
-          <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+    <div className="flex flex-col h-svh">
+      <header className="grid grid-cols-3 items-center h-16 px-4">
+        <div>
+          <Button
+            className="w-content"
+            variant="link"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeftIcon />
+          </Button>
+        </div>
 
-        <LoginForm
-          onSubmit={handleSubmit}
-          setEmail={setEmail}
-          setPassword={setPassword}
-          isLoading={loading}
-        />
+        <div className="justify-self-center">
+          <img src={logoText} alt="Logo" className="h-[44]" />
+        </div>
+      </header>
+
+      <Separator className="mb-8" />
+
+      <p className="text-center text-2xl mb-8">Que bom te ver novamente!</p>
+
+      <div className="flex w-full items-center justify-center">
+        <div className="w-full max-w-sm">
+          {error && (
+            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit}>
+            <FieldGroup className="flex flex-col gap-4">
+              <Field>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </Field>
+              <Field>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Senha"
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </Field>
+              <a
+                href="#"
+                className="inline-block text-sm underline-offset-4 hover:text-purple-800"
+              >
+                Esqueci minha senha
+              </a>
+            </FieldGroup>
+
+            <div className="fixed bottom-4 w-full max-w-sm">
+              <Button
+                type="submit"
+                disabled={loading || password === "" || email === ""}
+                className="w-full"
+                onClick={() => handleSubmit}
+              >
+                Login
+              </Button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
