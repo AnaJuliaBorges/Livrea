@@ -6,7 +6,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col gap-8 justify-center items-center h-[80vh]">
+    <div className="flex flex-col gap-8 justify-center items-center h-[90vh]">
       <img src={logo} alt="Logo" width={144} />
       <p className="text-center max-w-sm text-sm">
         Aqui você poderá participar de clubes do livro de acordo com seu gosto,
