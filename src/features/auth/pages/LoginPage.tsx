@@ -7,8 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { useAuthRedirect } from "@/hooks/useauthRedirect";
 
 export default function Login() {
+  useAuthRedirect("/clubes");
+
   const navigate = useNavigate();
   const { login, loading, error } = useLogin();
   const [email, setEmail] = useState("");
@@ -78,7 +81,7 @@ export default function Login() {
               </a>
             </FieldGroup>
 
-            <div className="fixed bottom-4 w-full max-w-sm">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md">
               <Button
                 type="submit"
                 disabled={loading || password === "" || email === ""}
