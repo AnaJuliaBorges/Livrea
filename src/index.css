@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -5,11 +6,12 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+  --font-sans: "Work Sans", sans-serif;
   /* Cores Principais do Livrea */
-  --color-primary: #6200ee;
+  --color-primary: #121212;
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #bb86fc;
+  --color-secondary: #ffffff;
   --color-secondary-foreground: #121212;
 
   --color-background: #f8f9fa;
