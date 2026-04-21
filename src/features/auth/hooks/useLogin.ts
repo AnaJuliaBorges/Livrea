@@ -1,4 +1,3 @@
-// src/hooks/useLogin.ts
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 

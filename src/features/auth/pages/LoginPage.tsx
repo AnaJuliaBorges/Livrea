@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useAuthRedirect } from "@/hooks/useauthRedirect";
+import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 
 export default function Login() {
   useAuthRedirect("/clubes");
