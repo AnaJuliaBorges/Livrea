@@ -27,7 +27,7 @@ export default function Signup() {
 
   return (
     <div className="flex flex-col h-svh mb-20">
-      <header className="grid grid-cols-3 items-center h-16 px-4">
+      <header className="flex items-center h-16 px-4 gap-4">
         <div>
           <Button
             className="w-content"
@@ -38,9 +38,7 @@ export default function Signup() {
           </Button>
         </div>
 
-        <div className="justify-self-center">
-          <Progress value={25 * (data.step - 1)} className="w-[60%]" />
-        </div>
+        <Progress value={30 * (data.step - 1)} />
       </header>
 
       <Separator className="mb-8" />
