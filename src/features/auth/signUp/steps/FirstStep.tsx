@@ -1,13 +1,8 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { z } from "zod";
 
-import {
-  signupFirstStepSchema,
-  type SignupFormData,
-  type SignupFormInput,
-} from "../schema";
+import { signupFirstStepSchema, type SignupFormInput } from "../schema";
 import { useSignup } from "../hooks/useSignUp";
 import {
   Button,
@@ -23,10 +18,11 @@ import {
   Textarea,
   FieldDescription,
 } from "@/components/ui";
-import { useSignUpWizard } from "../hooks/useSignUpWizard";
+import { useSignUpWizardContext } from "../context/useSignupWizardContext";
 
 export default function FirstStep() {
-  const { data, update, nextStep } = useSignUpWizard();
+  const { data, update, nextStep } = useSignUpWizardContext();
+  const { handleSignupFirstStep, useStates, useCities, error } = useSignup();
 
   const {
     control,
@@ -43,26 +39,25 @@ export default function FirstStep() {
       email: data.account.email,
       password: data.account.password,
       bio: data.account.bio,
-
-      state_id: data.account.state_id ? String(data.account.state_id) : "",
-      city_id: data.account.city_id ? String(data.account.city_id) : "",
+      state_id: data.account.state_id || undefined,
+      city_id: data.account.city_id || undefined,
     },
   });
 
-  const { handleSignupFirstStep, useStates, useCities, error } = useSignup();
-
-  const stateId = watch("state_id") as string;
+  const stateId = watch("state_id") as number | undefined;
 
   const { data: states } = useStates();
-  const { data: cities } = useCities(stateId ? Number(stateId) : undefined);
+  const { data: cities } = useCities(stateId!);
 
   useEffect(() => {
-    setValue("city_id", "");
+    setValue("city_id", 0);
   }, [stateId, setValue]);
 
-  const onSubmit = async (formData: SignupFormData) => {
-    await handleSignupFirstStep(formData);
-    update("account", formData);
+  const onSubmit = async (formData: SignupFormInput) => {
+    const authData = await handleSignupFirstStep(formData);
+    const userId = authData.user?.id;
+
+    update("account", { ...data.account, ...formData, user_id: userId! });
     nextStep();
   };
 
@@ -118,7 +113,7 @@ export default function FirstStep() {
             render={({ field }) => (
               <Field>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => field.onChange(Number(value))}
                   value={field.value ? String(field.value) : ""}
                 >
                   <SelectTrigger className="w-full ">
@@ -144,7 +139,7 @@ export default function FirstStep() {
             render={({ field }) => (
               <Field>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => field.onChange(Number(value))}
                   value={field.value ? String(field.value) : ""}
                   disabled={!stateId}
                 >

@@ -1,4 +1,3 @@
-import { useAuthRedirect } from "@/hooks/useAuthRedirect";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button, Progress, Separator } from "@/components/ui";
@@ -8,17 +7,16 @@ import SecondStep from "./steps/SecondStep";
 import FourthStep from "./steps/FourthStep";
 import ThirdStep from "./steps/ThirdStep";
 
-import { useSignUpWizard } from "./hooks/useSignUpWizard";
+import { useSignUpWizardContext } from "./context/useSignupWizardContext";
 
 export default function Signup() {
-  useAuthRedirect("/clubes");
   const navigate = useNavigate();
 
-  const { data } = useSignUpWizard();
+  const { data, update, nextStep } = useSignUpWizardContext();
 
   const steps = [FirstStep, SecondStep, ThirdStep, FourthStep];
 
-  const CurrentStep = steps[1];
+  const CurrentStep = steps[data.step - 1];
 
   const titleMap: Record<number, string> = {
     1: "Olá, boas vindas ao Livrea!",
@@ -50,8 +48,8 @@ export default function Signup() {
       <p className="text-center text-2xl mb-8">{titleMap[data.step]}</p>
 
       <div className="flex w-full items-center justify-center">
-        <div className="w-full max-w-sm">
-          <CurrentStep />
+        <div className="w-full max-w-sm mb-10">
+          <CurrentStep data={data} update={update} nextStep={nextStep} />
         </div>
       </div>
     </div>

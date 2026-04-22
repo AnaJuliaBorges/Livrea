@@ -14,6 +14,6 @@ export type SignupFormInput = {
   email: string;
   password: string;
   bio?: string;
-  state_id: string;
-  city_id: string;
+  state_id: number;
+  city_id: number;
 };

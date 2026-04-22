@@ -60,20 +60,26 @@ export function useSignup() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data: authData, error } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
         options: {
           data: {
             name: data.name,
             bio: data.bio,
-            state_id: parseInt(data.state_id, 10),
-            city_id: parseInt(data.city_id, 10),
+            state_id: data.state_id,
+            city_id: data.city_id,
           },
         },
       });
 
+      await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
+
       if (error) throw error;
+      return authData;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred");
       throw err;

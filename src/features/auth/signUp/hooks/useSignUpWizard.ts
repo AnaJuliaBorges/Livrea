@@ -8,6 +8,7 @@ export function useSignUpWizard() {
       loadWizard() || {
         step: 1,
         account: {
+          user_id: "",
           name: "",
           email: "",
           password: "",
@@ -33,9 +34,7 @@ export function useSignUpWizard() {
   }
 
   function nextStep() {
-    // console.log("Next step", { data }, data.step);
     setData((prev) => ({ ...prev, step: prev.step + 1 }));
-    // console.log(data, data.step);
   }
 
   function prevStep() {
@@ -47,6 +46,7 @@ export function useSignUpWizard() {
     setData({
       step: 1,
       account: {
+        user_id: "",
         name: "",
         email: "",
         password: "",

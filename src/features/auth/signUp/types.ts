@@ -2,6 +2,7 @@ export type SignUpWizardData = {
   step: number;
 
   account: {
+    user_id: string;
     name: string;
     email: string;
     password: string;
