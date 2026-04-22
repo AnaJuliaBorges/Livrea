@@ -1,6 +1,17 @@
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Login from "@/features/auth/pages/LoginPage";
+import { protectedLoader } from "./routes/ProtectedRoute";
+import App from "./App";
+
+import "./index.css";
+import ListClubs from "./features/clubs/pages/listClubs";
+import Home from "./features/auth/pages/Home";
+import Signup from "./features/auth/signUp/SignUpPage";
+import { SignUpWizardProvider } from "./features/auth/signUp/context/SignUpWizardProvider";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -11,16 +22,6 @@ const queryClient = new QueryClient({
     },
   },
 });
-
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Login from "@/features/auth/pages/LoginPage";
-import { protectedLoader } from "./routes/ProtectedRoute";
-import App from "./App";
-
-import "./index.css";
-import ListClubs from "./features/clubs/pages/listClubs";
-import Home from "./features/auth/pages/Home";
-import Signup from "./features/auth/pages/SignUpPage";
 
 export const router = createBrowserRouter([
   {
@@ -34,7 +35,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "cadastrar",
-        element: <Signup />,
+        element: (
+          <SignUpWizardProvider>
+            <Signup />
+          </SignUpWizardProvider>
+        ),
       },
       {
         path: "clubes",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
+import { type SignupFormInput } from "../schema";
 
 interface State {
   id: number;
@@ -53,14 +54,23 @@ export function useSignup() {
       queryFn: () => getCities(stateId!),
     });
   }
-  const signup = async (email: string, password: string) => {
+
+  const handleSignupFirstStep = async (data: SignupFormInput) => {
     setLoading(true);
     setError(null);
 
     try {
       const { error } = await supabase.auth.signUp({
-        email,
-        password,
+        email: data.email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name,
+            bio: data.bio,
+            state_id: parseInt(data.state_id, 10),
+            city_id: parseInt(data.city_id, 10),
+          },
+        },
       });
 
       if (error) throw error;
@@ -73,7 +83,7 @@ export function useSignup() {
   };
 
   return {
-    signup,
+    handleSignupFirstStep,
     useStates,
     useCities,
     loading,
