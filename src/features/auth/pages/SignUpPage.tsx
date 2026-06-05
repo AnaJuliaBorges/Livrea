@@ -1,18 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button, Progress, Separator } from "@/components/ui";
-
-import FirstStep from "./steps/FirstStep";
-import SecondStep from "./steps/SecondStep";
-import FourthStep from "./steps/FourthStep";
-import ThirdStep from "./steps/ThirdStep";
-
-import { useSignUpWizardContext } from "./context/useSignupWizardContext";
+import { useSignUpWizardContext } from "../signUp/context/useSignupWizardContext";
+import { FirstStep, SecondStep, ThirdStep, FourthStep } from "../signUp/steps";
 
 export default function Signup() {
   const navigate = useNavigate();
 
-  const { data, update, nextStep } = useSignUpWizardContext();
+  const { data } = useSignUpWizardContext();
 
   const steps = [FirstStep, SecondStep, ThirdStep, FourthStep];
 
@@ -46,8 +41,8 @@ export default function Signup() {
       <p className="text-center text-2xl mb-8">{titleMap[data.step]}</p>
 
       <div className="flex w-full items-center justify-center">
-        <div className="w-full max-w-sm mb-10">
-          <CurrentStep data={data} update={update} nextStep={nextStep} />
+        <div className="w-full max-w-sm mb-20">
+          <CurrentStep />
         </div>
       </div>
     </div>

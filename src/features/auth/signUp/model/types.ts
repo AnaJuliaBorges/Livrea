@@ -1,3 +1,5 @@
+import type { Book } from "@/features/books/types/book";
+
 export type SignUpWizardData = {
   step: number;
 
@@ -14,7 +16,7 @@ export type SignUpWizardData = {
   genres: number[];
 
   books: {
-    read: number[];
-    wantRead: number[];
+    read: Book[];
+    wantRead: Book[];
   };
 };

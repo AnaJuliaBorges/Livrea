@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import type { SignUpWizardData } from "../types";
+import type { SignUpWizardData } from "../model";
 
 export type SignUpWizardContextType = {
   data: SignUpWizardData;

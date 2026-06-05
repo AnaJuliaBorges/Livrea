@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { loadWizard, saveWizard, clearWizard } from "../storage/signUpStorage";
-import { type SignUpWizardData } from "../types";
+import type { SignUpWizardData } from "../model";
 
 export function useSignUpWizard() {
   const [data, setData] = useState<SignUpWizardData>(() => {
@@ -17,7 +17,7 @@ export function useSignUpWizard() {
           city_id: 0,
         },
         genres: [],
-        books: { read: [], reading: [] },
+        books: { read: [], wantRead: [] },
       }
     );
   });

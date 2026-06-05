@@ -9,8 +9,8 @@ import App from "./App";
 import "./index.css";
 import ListClubs from "./features/clubs/pages/listClubs";
 import Home from "./features/auth/pages/Home";
-import Signup from "./features/auth/signUp/SignUpPage";
 import { SignUpWizardProvider } from "./features/auth/signUp/context/SignUpWizardProvider";
+import Signup from "./features/auth/pages/SignUpPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {

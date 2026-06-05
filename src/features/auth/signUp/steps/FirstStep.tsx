@@ -2,7 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 
-import { signupFirstStepSchema, type SignupFormInput } from "../schema";
+import { signupFirstStepSchema } from "../model/schema";
 import { useSignup } from "../hooks/useSignUp";
 import {
   Button,
@@ -21,8 +21,8 @@ import {
 import { useSignUpWizardContext } from "../context/useSignupWizardContext";
 
 export default function FirstStep() {
-  const { data, update, nextStep } = useSignUpWizardContext();
-  const { handleSignupFirstStep, useStates, useCities, error } = useSignup();
+  const { data } = useSignUpWizardContext();
+  const { useStates, useCities, error, submitStep1 } = useSignup();
 
   const {
     control,
@@ -53,16 +53,8 @@ export default function FirstStep() {
     setValue("city_id", 0);
   }, [stateId, setValue]);
 
-  const onSubmit = async (formData: SignupFormInput) => {
-    const authData = await handleSignupFirstStep(formData);
-    const userId = authData.user?.id;
-
-    update("account", { ...data.account, ...formData, user_id: userId! });
-    nextStep();
-  };
-
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(submitStep1)}>
       <FieldGroup className="flex flex-col gap-4">
         <Field>
           <Input

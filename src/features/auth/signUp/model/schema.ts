@@ -9,6 +9,10 @@ export const signupFirstStepSchema = z.object({
   bio: z.string().max(200, "Máximo 200 caracteres").optional(),
 });
 
+export const SecondStepSchema = z.object({
+  genres: z.array(z.number()).min(3),
+});
+
 export type SignupFormInput = {
   name: string;
   email: string;
@@ -17,3 +21,5 @@ export type SignupFormInput = {
   state_id: number;
   city_id: number;
 };
+
+export type SecondStepFormData = z.infer<typeof SecondStepSchema>;

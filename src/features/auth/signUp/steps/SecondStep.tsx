@@ -11,27 +11,22 @@ import {
 } from "@/components/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGenres } from "@/features/books/hooks/useGenres";
-import { useSignUpWizardContext } from "../context/useSignupWizardContext";
-import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
-import { supabase } from "@/lib/supabase";
+import { useSignUp } from "../hooks";
 
 const secondStepSchema = z.object({
   genres: z.array(z.number()).min(3),
 });
 
-type SecondStepFormData = z.infer<typeof secondStepSchema>;
-
 export default function SecondStep() {
-  const { data, update, nextStep } = useSignUpWizardContext();
-  const { mutateAsync } = useSaveProfileGenres();
   const { data: genres, isLoading } = useGenres();
+  const { submitStep2 } = useSignUp();
 
   const {
     control,
     handleSubmit,
     watch,
     formState: { errors, isSubmitting, isValid },
-  } = useForm<SecondStepFormData>({
+  } = useForm({
     resolver: zodResolver(secondStepSchema),
     defaultValues: {
       genres: [],
@@ -40,24 +35,12 @@ export default function SecondStep() {
 
   const selectedGenres = watch("genres");
 
-  const onSubmit = async (formData: SecondStepFormData) => {
-    const genres = formData.genres.map(Number);
-
-    update("genres", genres);
-
-    await mutateAsync({
-      userId: data.account.user_id!,
-      genreIds: genres,
-    });
-
-    nextStep();
-  };
-
   if (isLoading) return <p>Carregando...</p>;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(submitStep2)}>
       <FieldSet>
+        submitStep2
         <FieldGroup>
           <FieldDescription
             className={errors.genres ? "text-red-500 mb-2" : "mb-2"}
@@ -66,7 +49,6 @@ export default function SecondStep() {
               `Selecionados: ${selectedGenres.length} de 3 necessários`}
           </FieldDescription>
         </FieldGroup>
-
         <FieldGroup className="grid grid-cols-2 gap-6 mb-8">
           {genres?.map((genre) => (
             <Controller
@@ -99,7 +81,6 @@ export default function SecondStep() {
             />
           ))}
         </FieldGroup>
-
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md">
           <Button
             type="submit"
