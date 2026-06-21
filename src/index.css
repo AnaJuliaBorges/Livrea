@@ -8,23 +8,14 @@
 @theme {
   --font-sans: "Work Sans", sans-serif;
   /* Cores Principais do Livrea */
-  --color-primary: #121212;
+  --color-primary: #8c11dc;
   --color-primary-foreground: #ffffff;
 
-  --color-secondary: #ffffff;
+  --color-secondary: #470d9d;
   --color-secondary-foreground: #121212;
 
   --color-background: #f8f9fa;
-  --color-foreground: #121212;
-
-  --color-card: #ffffff;
-  --color-card-foreground: #121212;
-
-  --color-popover: #ffffff;
-  --color-popover-foreground: #121212;
-
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #64748b;
+  --color-foreground: #19191b;
 
   --color-accent: #f1f5f9;
   --color-accent-foreground: #0f172a;
@@ -35,6 +26,15 @@
   --color-border: #e2e8f0;
   --color-input: #e2e8f0;
   --color-ring: #6200ee;
+
+  --color-success: #009966;
+  --color-success-light: #cdffd6;
+
+  --color-warning: #e9a934;
+  --color-warning-light: #fff6d2;
+
+  --color-info: #3aa5c3;
+  --color-info-light: #d2f5ff;
 
   /* Raio de borda padrão do shadcn */
   --radius-lg: 0.5rem;

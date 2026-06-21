@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 
-import { BookSearchInput } from "@/features/books/components/BookSearchInput";
 import { BookResults } from "@/features/books/components/BookResults";
 import { useFourthStepLogic } from "./useFourthStepLogic";
+import { SearchInput } from "@/components/SearchInput";
 
 export default function FourthStep() {
   const {
@@ -28,7 +28,7 @@ export default function FourthStep() {
         </p>
       </div>
 
-      <BookSearchInput
+      <SearchInput
         value={searchValue}
         onChange={(value) => form.setValue("search", value)}
         placeholder="Buscar livros..."

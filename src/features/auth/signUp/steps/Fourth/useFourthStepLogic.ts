@@ -11,6 +11,7 @@ import { getSelectedGenreNames } from "@/features/books/utils/genreUtils";
 import type { Book } from "@/features/books/types/book";
 import { useSignUpWizardContext } from "../../context/useSignupWizardContext";
 import { useSignUp } from "../../hooks";
+import { useNavigate } from "react-router-dom";
 
 const schema = z.object({
   search: z.string().optional(),
@@ -22,6 +23,7 @@ export function useFourthStepLogic() {
   const { data } = useSignUpWizardContext();
   const { data: allGenres = [] } = useGenres();
   const { submitStep4 } = useSignUp();
+  const navigate = useNavigate();
 
   const [selectedBooks, setSelectedBooks] = useState<Book[]>(
     data.books.wantRead || [],
@@ -81,7 +83,9 @@ export function useFourthStepLogic() {
     });
   }
   async function handleSubmit() {
-    submitStep4(selectedBooks);
+    await submitStep4(selectedBooks);
+
+    navigate("/clubes");
   }
 
   return {
