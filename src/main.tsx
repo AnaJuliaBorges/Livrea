@@ -11,6 +11,9 @@ import ListClubs from "./features/clubs/pages/listClubs";
 import Home from "./features/auth/pages/Home";
 import { SignUpWizardProvider } from "./features/auth/signUp/context/SignUpWizardProvider";
 import Signup from "./features/auth/pages/SignUpPage";
+import MyClubs from "./features/clubs/pages/myClubs";
+import Books from "./features/books/pages/books";
+import Profile from "./features/profile/pages/profile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,6 +47,21 @@ export const router = createBrowserRouter([
       {
         path: "clubes",
         element: <ListClubs />,
+        loader: protectedLoader,
+      },
+      {
+        path: "meus-clubes",
+        element: <MyClubs />,
+        loader: protectedLoader,
+      },
+      {
+        path: "livros",
+        element: <Books />,
+        loader: protectedLoader,
+      },
+      {
+        path: "perfil",
+        element: <Profile />,
         loader: protectedLoader,
       },
     ],
