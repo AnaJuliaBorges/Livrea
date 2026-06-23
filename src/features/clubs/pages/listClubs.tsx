@@ -74,6 +74,7 @@ export default function ListClubs() {
           onChange={function (value: string): void {
             throw new Error("Function not implemented.");
           }}
+          placeholder="Buscar clubes "
         />
       </div>
 
