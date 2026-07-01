@@ -5,7 +5,7 @@ import { useListClubs } from "../hooks/useListClubs";
 import placeholder from "../../../assets/placeholder.png";
 import { SearchInput } from "@/components/SearchInput";
 
-import { recommendedClubs, allClubs as clubs } from "../../../mocks.tsx";
+import { recommendedClubs, allClubs as clubs } from "../../../mocks/clubes";
 
 import {
   Carousel,
@@ -74,12 +74,12 @@ export default function ListClubs() {
           onChange={function (value: string): void {
             throw new Error("Function not implemented.");
           }}
-          placeholder="Buscar clubes "
+          placeholder="Buscar clubes"
         />
       </div>
 
       <div>
-        <p className="font-medium">Clubes indicados pra você</p>
+        <p className="font-medium mb-2">Clubes indicados pra você</p>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2">
             {recommendedClubs.map((item: Club) => (

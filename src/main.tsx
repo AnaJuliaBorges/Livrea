@@ -14,6 +14,7 @@ import Signup from "./features/auth/pages/SignUpPage";
 import MyClubs from "./features/clubs/pages/myClubs";
 import Books from "./features/books/pages/books";
 import Profile from "./features/profile/pages/profile";
+import CreateClub from "./features/clubs/pages/createClub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +48,11 @@ export const router = createBrowserRouter([
       {
         path: "clubes",
         element: <ListClubs />,
+        loader: protectedLoader,
+      },
+      {
+        path: "meus-clubes/criar",
+        element: <CreateClub />,
         loader: protectedLoader,
       },
       {

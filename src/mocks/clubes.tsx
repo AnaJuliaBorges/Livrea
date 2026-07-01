@@ -1,4 +1,4 @@
-import type { Club } from "./features/clubs/dtos";
+import type { Club } from "@/features/clubs/dtos";
 
 export const recommendedClubs: Club[] = [
   {
@@ -12,8 +12,8 @@ export const recommendedClubs: Club[] = [
     frequencia: "mensal",
     leitura_atual: null,
     generos: [
-      { id: 1, nome: "fantasy" },
-      { id: 2, nome: "adventure" },
+      { id: 1, nome: "Fantasia" },
+      { id: 2, nome: "Aventura" },
     ],
     cidade_nome: "Rio de Janeiro",
     estado_sigla: "RJ",
@@ -30,8 +30,8 @@ export const recommendedClubs: Club[] = [
     frequencia: "quinzenal",
     leitura_atual: null,
     generos: [
-      { id: 3, nome: "mystery" },
-      { id: 4, nome: "thriller" },
+      { id: 3, nome: "Mistério" },
+      { id: 4, nome: "Suspense" },
     ],
     cidade_nome: "São Paulo",
     estado_sigla: "SP",
@@ -46,7 +46,7 @@ export const recommendedClubs: Club[] = [
     tipo: "leitura",
     frequencia: "mensal",
     leitura_atual: null,
-    generos: [{ id: 5, nome: "romance" }],
+    generos: [{ id: 5, nome: "Romance" }],
     cidade_nome: "Belo Horizonte",
     estado_sigla: "MG",
     total_participantes: 1520,
@@ -65,7 +65,7 @@ export const allClubs: Club[] = [
     tipo: "leitura",
     frequencia: "mensal",
     leitura_atual: null,
-    generos: [{ id: 6, nome: "sci-fi" }],
+    generos: [{ id: 6, nome: "Ficção Científica" }],
     cidade_nome: "Curitiba",
     estado_sigla: "PR",
     total_participantes: 980,
@@ -79,7 +79,7 @@ export const allClubs: Club[] = [
     tipo: "leitura",
     frequencia: "semanal",
     leitura_atual: null,
-    generos: [{ id: 7, nome: "poetry" }],
+    generos: [{ id: 7, nome: "Poesia" }],
     cidade_nome: "Porto Alegre",
     estado_sigla: "RS",
     total_participantes: 430,
@@ -94,8 +94,8 @@ export const allClubs: Club[] = [
     frequencia: "mensal",
     leitura_atual: null,
     generos: [
-      { id: 8, nome: "classic" },
-      { id: 9, nome: "literature" },
+      { id: 8, nome: "Clássicos" },
+      { id: 9, nome: "Literatura" },
     ],
     cidade_nome: "Salvador",
     estado_sigla: "BA",
@@ -110,9 +110,60 @@ export const allClubs: Club[] = [
     tipo: "leitura",
     frequencia: "mensal",
     leitura_atual: null,
-    generos: [{ id: 10, nome: "horror" }],
+    generos: [{ id: 10, nome: "Terror" }],
     cidade_nome: "Recife",
     estado_sigla: "PE",
     total_participantes: 760,
+  },
+];
+
+export const myClubs: Club[] = [
+  {
+    id: "1",
+    nome: "Fantasia Sem Fronteiras",
+    descricao: "Para quem ama magia, criaturas fantásticas e jornadas épicas.",
+    privacidade: false,
+    limite_participantes: 100,
+    tipo: "presencial",
+    frequencia: "mensal",
+    leitura_atual: null,
+    generos: [
+      { id: 1, nome: "Fantasia" },
+      { id: 2, nome: "Aventura" },
+    ],
+    cidade_nome: "Rio de Janeiro",
+    estado_sigla: "RJ",
+    total_participantes: 87,
+  },
+  {
+    id: "2",
+    nome: "Mistérios à Meia-Noite",
+    descricao: "Discussões sobre thrillers, investigações e grandes mistérios.",
+    privacidade: false,
+    limite_participantes: 50,
+    tipo: "online",
+    frequencia: "quinzenal",
+    leitura_atual: null,
+    generos: [
+      { id: 3, nome: "Mistério" },
+      { id: 4, nome: "Suspense" },
+    ],
+    cidade_nome: "São Paulo",
+    estado_sigla: "SP",
+    total_participantes: 42,
+  },
+  {
+    id: "3",
+    nome: "Entre Páginas e Corações",
+    descricao: "Romances contemporâneos, históricos e tudo que faz suspirar.",
+    privacidade: false,
+    limite_participantes: null,
+    tipo: "híbrido",
+    frequencia: "mensal",
+    leitura_atual: null,
+    generos: [{ id: 5, nome: "Romance" }],
+    cidade_nome: "Belo Horizonte",
+    estado_sigla: "MG",
+    total_participantes: 124,
   },
 ];
