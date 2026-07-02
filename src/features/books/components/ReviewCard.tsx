@@ -2,7 +2,7 @@ import { Heart, Star } from "lucide-react";
 import type { BookReview } from "../types/book";
 import { formatDate } from "../utils/formatDate";
 
-export function BookReviewItem({ review }: { review: BookReview }) {
+export function ReviewCard({ review }: { review: BookReview }) {
   return (
     <div className="flex flex-col gap-2 border p-4 rounded-xl">
       <div className="flex justify-between">

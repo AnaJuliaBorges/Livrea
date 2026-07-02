@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { BookReviewItem } from "../components/BookReviewItem";
+import { ReviewCard } from "../components/ReviewCard";
 
 export function BookDetail() {
   const { id } = useParams();
@@ -96,7 +96,7 @@ export function BookDetail() {
           {book.reviews?.length ? (
             <>
               {book.reviews.map((review) => (
-                <BookReviewItem key={review.id} review={review} />
+                <ReviewCard key={review.id} review={review} />
               ))}
             </>
           ) : (
