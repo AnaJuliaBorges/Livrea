@@ -9,7 +9,7 @@ export const mockBooks: BookTemp[] = [
     subtitle: null,
     authors: ["J.K. Rowling"],
     synopsis:
-      "No segundo ano em Hogwarts, Harry precisa desvendar o mistério da Câmara Secreta antes que novos ataques aconteçam.",
+      "Harry Potter retorna para seu segundo ano em Hogwarts acreditando que finalmente terá um ano tranquilo. Porém, uma série de ataques misteriosos começa a assustar alunos e professores, enquanto uma antiga lenda sobre a Câmara Secreta volta à tona. Ao lado de Rony e Hermione, Harry precisa descobrir quem está por trás dos acontecimentos antes que mais vítimas apareçam, enfrentando criaturas perigosas, segredos do passado da escola e revelações que mudarão sua visão sobre Hogwarts.",
     publisher: "Rocco",
     publisher_date: "2017",
     total_pages: 224,
@@ -30,6 +30,74 @@ export const mockBooks: BookTemp[] = [
     global_count_rating: 3800000,
     local_average_rating: 4.8,
     local_count_rating: 124,
+
+    reviews: [
+      {
+        id: "review-1",
+        likes: 12,
+        user: {
+          id: "user-1",
+          name: "Ana Clara",
+          photo: "https://i.pravatar.cc/150?img=1",
+        },
+        created_at: "2026-06-28T14:30:00Z",
+        rating: 5,
+        comment:
+          "Uma releitura que continua tão mágica quanto da primeira vez. É impossível não se apaixonar por Hogwarts, pelos personagens e pelo início dessa jornada incrível. O livro consegue encantar leitores de todas as idades.",
+      },
+      {
+        id: "review-2",
+        user: {
+          id: "user-2",
+          name: "Carlos Eduardo",
+          photo: "https://i.pravatar.cc/150?img=12",
+        },
+        created_at: "2026-06-25T20:15:00Z",
+        rating: 4,
+        comment:
+          "Gostei bastante da construção do universo. A narrativa é leve e divertida, embora alguns acontecimentos sejam rápidos demais. Ainda assim, é um excelente começo para a série.",
+        likes: 5,
+      },
+      {
+        id: "review-3",
+        user: {
+          id: "user-3",
+          name: "Mariana Lima",
+          photo: "https://i.pravatar.cc/150?img=32",
+        },
+        created_at: "2026-06-20T09:40:00Z",
+        rating: 5,
+        comment:
+          "A amizade entre Harry, Rony e Hermione é um dos pontos mais bonitos da história. Sempre volto a esse livro quando quero uma leitura confortável e cheia de nostalgia.",
+        likes: 2,
+      },
+      {
+        id: "review-4",
+        user: {
+          id: "user-4",
+          name: "João Pedro",
+          photo: "https://i.pravatar.cc/150?img=15",
+        },
+        created_at: "2026-06-18T18:50:00Z",
+        rating: 4,
+        comment:
+          "Apesar de ser voltado para um público mais jovem, o livro prende do início ao fim. Os mistérios envolvendo a Pedra Filosofal deixam a leitura bastante envolvente.",
+        likes: 0,
+      },
+      {
+        id: "review-5",
+        user: {
+          id: "user-5",
+          name: "Fernanda Souza",
+          photo: "https://i.pravatar.cc/150?img=47",
+        },
+        created_at: "2026-06-15T11:20:00Z",
+        rating: 5,
+        comment:
+          "Um clássico da fantasia moderna. A escrita é simples, mas extremamente cativante. Foi o livro que despertou meu amor pela leitura e continua sendo um dos meus favoritos.",
+        likes: 10,
+      },
+    ],
   },
 
   {
@@ -40,7 +108,7 @@ export const mockBooks: BookTemp[] = [
     subtitle: null,
     authors: ["J.R.R. Tolkien"],
     synopsis:
-      "Bilbo Bolseiro embarca em uma jornada inesperada para recuperar um tesouro guardado por um dragão.",
+      "Bilbo Bolseiro leva uma vida tranquila até ser surpreendido pela visita do mago Gandalf e de uma companhia de treze anões. Relutante no início, ele embarca em uma jornada épica rumo à Montanha Solitária para recuperar um reino perdido e um tesouro guardado pelo temível dragão Smaug. Durante a aventura, Bilbo enfrenta trolls, aranhas gigantes, elfos e descobre um misterioso anel que mudará o destino da Terra-média.",
     publisher: "HarperCollins",
     publisher_date: "2019",
     total_pages: 336,
@@ -70,7 +138,7 @@ export const mockBooks: BookTemp[] = [
     subtitle: null,
     authors: ["Frank Herbert"],
     synopsis:
-      "Em Arrakis, o jovem Paul Atreides se vê no centro de uma disputa pelo recurso mais valioso do universo.",
+      "Paul Atreides, herdeiro da Casa Atreides, é levado para Arrakis, o planeta desértico conhecido como Duna, único lugar onde existe a especiaria melange, o recurso mais valioso do universo. Em meio a conspirações políticas, guerras entre grandes casas e profecias ancestrais, Paul precisará descobrir seu verdadeiro destino enquanto luta pela sobrevivência e pelo futuro de seu povo.",
     publisher: "Aleph",
     publisher_date: "2017",
     total_pages: 680,
@@ -100,7 +168,7 @@ export const mockBooks: BookTemp[] = [
     subtitle: null,
     authors: ["Agatha Christie"],
     synopsis:
-      "Dez pessoas são convidadas para uma ilha isolada e passam a ser assassinadas uma a uma.",
+      "Dez desconhecidos recebem um convite para passar alguns dias em uma ilha isolada. Sem qualquer ligação aparente entre si, eles logo descobrem que compartilham segredos obscuros do passado. Quando mortes começam a acontecer seguindo os versos de uma antiga cantiga infantil, a tensão aumenta e todos passam a desconfiar uns dos outros. Um dos maiores clássicos do mistério, com reviravoltas até a última página.",
     publisher: "HarperCollins",
     publisher_date: "2020",
     total_pages: 400,
@@ -130,7 +198,7 @@ export const mockBooks: BookTemp[] = [
     subtitle: null,
     authors: ["Jane Austen"],
     synopsis:
-      "A clássica história de Elizabeth Bennet e Mr. Darcy, marcada por orgulho, preconceitos e descobertas.",
+      "Elizabeth Bennet é uma jovem inteligente e determinada que vive em uma sociedade onde o casamento define o futuro das mulheres. Ao conhecer o reservado e rico Sr. Darcy, os dois desenvolvem uma relação marcada por julgamentos precipitados, orgulho e mal-entendidos. Ao longo da história, ambos precisam confrontar seus preconceitos e amadurecer para descobrir que as primeiras impressões nem sempre revelam a verdade.",
     publisher: "Martin Claret",
     publisher_date: "2018",
     total_pages: 424,

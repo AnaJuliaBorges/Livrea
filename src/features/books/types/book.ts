@@ -26,6 +26,19 @@ export interface Book {
   ratingsCount?: number;
 }
 
+export interface BookReview {
+  id: string;
+  user: {
+    id: string;
+    name: string;
+    photo: string;
+  };
+  created_at: string;
+  rating: number;
+  comment: string;
+  likes: number;
+}
+
 export interface BookTemp {
   id: string;
   isbn: string;
@@ -46,6 +59,8 @@ export interface BookTemp {
   image_thumbnail?: string;
   image_medium?: string;
   image_large?: string;
+
+  reviews?: BookReview[];
 
   primary_genre: {
     id: number;

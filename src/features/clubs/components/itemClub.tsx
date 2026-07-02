@@ -1,6 +1,7 @@
 import type { Club } from "../dtos";
 import placeholder from "../../../assets/placeholder.png";
 import { MapPin } from "lucide-react";
+import { Tag } from "@/components/tag";
 
 interface itemClubProps {
   club: Club;
@@ -27,12 +28,7 @@ export default function ItemClub({ club }: itemClubProps) {
         {club.generos && club.generos.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {club.generos.map((genero) => (
-              <span
-                key={genero.id}
-                className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm"
-              >
-                {genero.nome}
-              </span>
+              <Tag key={genero.id}>{genero.nome}</Tag>
             ))}
           </div>
         )}

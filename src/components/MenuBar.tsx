@@ -57,7 +57,7 @@ export default function MenuBar() {
         <div className="flex w-full justify-around md:hidden">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const active = location.pathname === item.link;
+            const active = location.pathname.includes(item.link);
 
             return (
               <Button

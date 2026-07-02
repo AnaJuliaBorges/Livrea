@@ -2,7 +2,13 @@ import { useState } from "react";
 import placeholderBook from "../../../assets/book-placeholder.png";
 import type { BookTemp } from "../types/book";
 
-export function BookImage({ book }: { book: BookTemp }) {
+export function BookImage({
+  book,
+  height,
+}: {
+  book: BookTemp;
+  height?: string;
+}) {
   const [imgSrc, setImgSrc] = useState(
     book.image_medium ||
       book.image_thumbnail ||
@@ -14,7 +20,7 @@ export function BookImage({ book }: { book: BookTemp }) {
     <img
       src={imgSrc}
       alt={book.title_original}
-      className="w-full aspect-2/3 overflow-hidden rounded-md bg-muted"
+      className={`w-full ${height ?? "aspect-2/3"} overflow-hidden rounded-md bg-muted`}
       onError={() => {
         setImgSrc(placeholderBook);
       }}

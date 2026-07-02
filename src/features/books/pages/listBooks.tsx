@@ -31,12 +31,12 @@ export default function ListBooks() {
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {mockBooks?.map((book: BookTemp) => (
               <Link
-                key={book.id ?? book.title_original}
-                className="flex flex-col gap-2 border border-gray-200 rounded-xl p-2 justify-between"
+                key={book.id ?? book.title_pt}
+                className="flex flex-col gap-2 border  rounded-xl p-2 justify-between"
                 to={`/livros/${book.id}`}
               >
                 <BookImage book={book} />
-                <p className="font-medium">{book.title_original}</p>
+                <p className="font-medium">{book.title_pt}</p>
                 <p className="flex items-center gap-1">
                   {book.global_average_rating ?? "0.0"}
                   <Star className="inline-block" size={16} />
