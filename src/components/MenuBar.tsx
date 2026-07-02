@@ -1,13 +1,12 @@
 import { BookText, House, MessageCircleMore, User } from "lucide-react";
 import { Button } from "./ui";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/livrea_logo_purple_sem_fundo.png";
 
 export default function MenuBar() {
   const navigate = useNavigate();
   const location = useLocation();
-
-  const sizeIcon = "size-6";
 
   const menuItems = [
     {
@@ -36,43 +35,79 @@ export default function MenuBar() {
     },
   ];
 
-  function goTo(link: string) {
-    navigate(link);
-  }
-
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background p-4">
-      <div className="mx-auto flex justify-around">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.link;
+    <nav
+      className={cn(
+        "fixed z-50 border-border bg-background",
+        // Mobile
+        "bottom-0 left-0 right-0 border-t p-4",
+        // Desktop
+        "md:top-0 md:bottom-auto md:border-b md:border-t-0 md:px-8 md:py-6",
+      )}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between">
+        <div
+          className="hidden cursor-pointer items-center gap-2 md:flex"
+          onClick={() => navigate("/clubes")}
+        >
+          <img src={logo} alt="Logo" width={48} />
+        </div>
 
-          const Icon = item.icon;
+        {/* Mobile */}
+        <div className="flex w-full justify-around md:hidden">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const active = location.pathname === item.link;
 
-          return (
-            <Button
-              key={item.id}
-              variant="ghost"
-              onClick={() => goTo(item.link)}
-              className="flex flex-col gap-1"
-            >
-              <Icon
+            return (
+              <Button
+                key={item.id}
+                variant="ghost"
+                onClick={() => navigate(item.link)}
+                className="flex flex-col gap-1"
+              >
+                <Icon
+                  className={cn(
+                    "size-6",
+                    active ? "text-violet-600" : "text-muted-foreground",
+                  )}
+                />
+
+                <span
+                  className={cn(
+                    "text-xs",
+                    active ? "text-violet-600" : "text-muted-foreground",
+                  )}
+                >
+                  {item.label}
+                </span>
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Desktop */}
+        <div className="hidden items-center gap-8 md:flex">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const active = location.pathname === item.link;
+
+            return (
+              <Button
+                key={item.id}
+                variant={"ghost"}
+                onClick={() => navigate(item.link)}
                 className={cn(
-                  sizeIcon,
-                  isActive ? "text-primary" : "text-muted-foreground",
-                )}
-              />
-
-              <span
-                className={cn(
-                  "text-xs",
-                  isActive ? "text-primary" : "text-muted-foreground",
+                  "flex items-center gap-4 px-4 py-2 transition-colors text-[#A2A2A2]",
+                  active && "text-primary",
                 )}
               >
-                {item.label}
-              </span>
-            </Button>
-          );
-        })}
+                <Icon className="size-7" />
+                <span>{item.label}</span>
+              </Button>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );

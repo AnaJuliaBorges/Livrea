@@ -8,9 +8,22 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-surface selection:bg-primary/20">
-      <main className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-6 mb-8">
+      <main
+        className="
+      mx-auto
+      max-w-3xl
+      px-4
+      py-6
+      pb-16
+      sm:px-6
+      lg:max-w-7xl
+      md:pt-32
+      lg:pb-6
+    "
+      >
         {children}
       </main>
+
       <MenuBar />
     </div>
   );
