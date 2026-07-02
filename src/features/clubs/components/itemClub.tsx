@@ -1,6 +1,5 @@
 import type { Club } from "../dtos";
 import placeholder from "../../../assets/placeholder.png";
-import { Separator } from "@/components/ui/separator";
 import { MapPin } from "lucide-react";
 
 interface itemClubProps {

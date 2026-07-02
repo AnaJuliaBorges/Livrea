@@ -12,9 +12,9 @@ import Home from "./features/auth/pages/Home";
 import { SignUpWizardProvider } from "./features/auth/signUp/context/SignUpWizardProvider";
 import Signup from "./features/auth/pages/SignUpPage";
 import MyClubs from "./features/clubs/pages/myClubs";
-import Books from "./features/books/pages/books";
 import Profile from "./features/profile/pages/profile";
 import CreateClub from "./features/clubs/pages/createClub";
+import ListBooks from "./features/books/pages/listBooks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,7 +62,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "livros",
-        element: <Books />,
+        element: <ListBooks />,
         loader: protectedLoader,
       },
       {

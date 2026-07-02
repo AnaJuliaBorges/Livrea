@@ -84,7 +84,7 @@ export default function ListClubs() {
           <CarouselContent className="-ml-2">
             {recommendedClubs.map((item: Club) => (
               <CarouselItem key={item.id} className="pl-2 basis-[256px]">
-                <div className="rounded-xl border-1 flex flex-col  p-2 gap-2">
+                <div className="rounded-xl border flex flex-col  p-2 gap-2">
                   <img
                     src={placeholder}
                     alt="Logo"
