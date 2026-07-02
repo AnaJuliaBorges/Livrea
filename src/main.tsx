@@ -15,6 +15,7 @@ import MyClubs from "./features/clubs/pages/myClubs";
 import Profile from "./features/profile/pages/profile";
 import CreateClub from "./features/clubs/pages/createClub";
 import ListBooks from "./features/books/pages/listBooks";
+import { BookDetail } from "./features/books/pages/bookDetail";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,6 +64,11 @@ export const router = createBrowserRouter([
       {
         path: "livros",
         element: <ListBooks />,
+        loader: protectedLoader,
+      },
+      {
+        path: "livros/:id",
+        element: <BookDetail />,
         loader: protectedLoader,
       },
       {

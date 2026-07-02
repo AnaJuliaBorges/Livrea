@@ -3,6 +3,7 @@ import { mockBooks } from "@/mocks/books";
 import { FileWarning, Star } from "lucide-react";
 import type { BookTemp } from "../types/book";
 import { BookImage } from "../components/BookImage";
+import { Link } from "react-router-dom";
 
 export default function ListBooks() {
   return (
@@ -29,9 +30,10 @@ export default function ListBooks() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {mockBooks?.map((book: BookTemp) => (
-              <div
+              <Link
                 key={book.id ?? book.title_original}
                 className="flex flex-col gap-2 border border-gray-200 rounded-xl p-2 justify-between"
+                to={`/livros/${book.id}`}
               >
                 <BookImage book={book} />
                 <p className="font-medium">{book.title_original}</p>
@@ -39,7 +41,7 @@ export default function ListBooks() {
                   {book.global_average_rating ?? "0.0"}
                   <Star className="inline-block" size={16} />
                 </p>
-              </div>
+              </Link>
             ))}
           </div>
         </>
