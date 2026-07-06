@@ -16,6 +16,7 @@ import Profile from "./features/profile/pages/profile";
 import CreateClub from "./features/clubs/pages/createClub";
 import ListBooks from "./features/books/pages/listBooks";
 import { BookDetail } from "./features/books/pages/bookDetail";
+import { EditProfile } from "./features/profile/pages/editProfile";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -74,6 +75,11 @@ export const router = createBrowserRouter([
       {
         path: "perfil",
         element: <Profile />,
+        loader: protectedLoader,
+      },
+      {
+        path: "perfil/editar",
+        element: <EditProfile />,
         loader: protectedLoader,
       },
     ],

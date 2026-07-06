@@ -1,11 +1,8 @@
 import { MapPin } from "lucide-react";
 import ItemClub from "../components/itemClub";
-import type { Club } from "../dtos";
 import { useListClubs } from "../hooks/useListClubs";
 import placeholder from "../../../assets/placeholder.png";
 import { SearchInput } from "@/components/SearchInput";
-
-import { recommendedClubs, allClubs as clubs } from "../../../mocks/clubes";
 
 import {
   Carousel,
@@ -13,6 +10,11 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/index.tsx";
+import type { ClubSummary } from "@/features/profile/dtos";
+import {
+  myClubSummaries,
+  recommendedClubSummaries,
+} from "@/mocks/clubsSummary";
 
 export default function ListClubs() {
   const { data: future, isLoading, error } = useListClubs();
@@ -33,7 +35,7 @@ export default function ListClubs() {
     );
   }
 
-  if (clubs && clubs.length === 0) {
+  if (myClubSummaries && myClubSummaries.length === 0) {
     content = (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -46,12 +48,12 @@ export default function ListClubs() {
     );
   }
 
-  if (clubs && clubs.length > 0) {
+  if (myClubSummaries && myClubSummaries.length > 0) {
     content = (
       <div className="flex flex-col">
         <p className="font-medium mb-6">Clubes perto de você</p>
 
-        {clubs?.map((club: Club) => (
+        {myClubSummaries?.map((club: ClubSummary) => (
           <>
             <ItemClub key={club.id} club={club} />
             <Separator className="my-4" />
@@ -82,8 +84,8 @@ export default function ListClubs() {
         <p className="font-medium mb-2">Clubes indicados pra você</p>
         <Carousel className="w-full">
           <CarouselContent className="-ml-2">
-            {recommendedClubs.map((item: Club) => (
-              <CarouselItem key={item.id} className="pl-2 basis-[256px]">
+            {recommendedClubSummaries.map((club: ClubSummary) => (
+              <CarouselItem key={club.id} className="pl-2 basis-[256px]">
                 <div className="rounded-xl border flex flex-col  p-2 gap-2">
                   <img
                     src={placeholder}
@@ -91,22 +93,19 @@ export default function ListClubs() {
                     className="h-40 w-60 border-2 rounded-md"
                   />
 
-                  <p className="text-sm font-medium">{item.nome}</p>
+                  <p className="text-sm font-medium">{club.nome}</p>
                   <p className="flex text-sm items-center">
                     <MapPin
                       className="inline-block mr-1 text-gray-500"
                       size={16}
                     />
-                    {item.cidade_nome}, {item.estado_sigla}
+                    {club.cidade}, {club.estado}
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    {item.generos.map((genero) => (
-                      <span
-                        key={genero.id}
-                        className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm"
-                      >
-                        {genero.nome}
+                    {club.generos.map((genero) => (
+                      <span className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm">
+                        {genero}
                       </span>
                     ))}
                   </div>

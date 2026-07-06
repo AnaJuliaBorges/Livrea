@@ -1,11 +1,11 @@
 import { SearchInput } from "@/components/SearchInput";
 import ItemClub from "../components/itemClub";
-import type { Club } from "../dtos";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { myClubs } from "@/mocks/clubes";
 import { Search } from "lucide-react";
+import { myClubSummaries } from "@/mocks/clubsSummary";
+import type { ClubSummary } from "@/features/profile/dtos";
 
 export default function MyClubs() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function MyClubs() {
         />
       </div>
 
-      {myClubs.length === 0 ? (
+      {myClubSummaries.length === 0 ? (
         <div className="flex flex-col h-[70vh] justify-center items-center text-center gap-5">
           <Search className="inline-block text-gray-300" size={86} />
           Você ainda não está em nenhum clube. <br />
@@ -33,7 +33,7 @@ export default function MyClubs() {
           <p className="font-medium">Meus clubes</p>
 
           <div>
-            {myClubs?.map((club: Club) => (
+            {myClubSummaries?.map((club: ClubSummary) => (
               <>
                 <ItemClub key={club.id} club={club} />
                 <Separator className="my-4" />

@@ -1,13 +1,14 @@
-import type { Club } from "../dtos";
 import placeholder from "../../../assets/placeholder.png";
-import { MapPin } from "lucide-react";
 import { Tag } from "@/components/tag";
+import { LocalizationPin } from "@/components/localizationPin";
+import type { ClubSummary } from "@/features/profile/dtos";
 
 interface itemClubProps {
-  club: Club;
+  club: ClubSummary;
+  admin?: boolean;
 }
 
-export default function ItemClub({ club }: itemClubProps) {
+export default function ItemClub({ club, admin }: itemClubProps) {
   return (
     <div key={club.id} className="flex  gap-4">
       <img
@@ -16,19 +17,19 @@ export default function ItemClub({ club }: itemClubProps) {
         className="w-24 h-24 rounded-md border-2 border-gray-300"
       />
       <div className="flex flex-col gap-2">
-        <h2 className="font-medium">{club.nome}</h2>
+        <div className="flex flex-col">
+          <h2 className="font-medium">{club.nome}</h2>
+          {admin && <span className="text-xs text-primary">administrador</span>}
+        </div>
 
-        {club.cidade_nome && club.estado_sigla && (
-          <div className="flex items-center gap-2 text-sm text-gray-500 ">
-            <MapPin className="inline-block text-gray-500" size={16} />
-            {club.cidade_nome}, {club.estado_sigla}
-          </div>
+        {club.cidade && club.estado && (
+          <LocalizationPin cidade={club.cidade} estado={club.estado} />
         )}
 
         {club.generos && club.generos.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {club.generos.map((genero) => (
-              <Tag key={genero.id}>{genero.nome}</Tag>
+            {club.generos.map((genero, index) => (
+              <Tag key={index}>{genero}</Tag>
             ))}
           </div>
         )}
