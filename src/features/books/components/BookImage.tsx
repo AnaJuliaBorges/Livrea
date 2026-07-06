@@ -20,7 +20,7 @@ export function BookImage({
     <img
       src={imgSrc}
       alt={book.title_original}
-      className={`w-full ${height ?? "aspect-2/3"} overflow-hidden rounded-md bg-muted`}
+      className={`w-auto ${height ?? "aspect-2/3"} overflow-hidden rounded-md bg-muted`}
       onError={() => {
         setImgSrc(placeholderBook);
       }}

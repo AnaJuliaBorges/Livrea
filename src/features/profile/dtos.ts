@@ -47,3 +47,33 @@ export interface UserProfile {
     quero_ler: UserBook[];
   };
 }
+
+export type ReadingFeeling = "não curti" | "meh" | "okay" | "gostei" | "amei";
+
+export interface ReadingLog {
+  pages_read: number;
+  feeling: ReadingFeeling;
+  created_at: string;
+}
+
+export interface BookHighlight {
+  page: number;
+  percentage: number;
+  quote: string;
+}
+
+export interface Review {
+  rating: number;
+  review: string;
+}
+
+export interface ReadingInteraction {
+  user_id: string;
+  book_id: string;
+  total_pages: number;
+  last_progress: number;
+
+  reading_logs: ReadingLog[];
+  highlights: BookHighlight[];
+  review: Review | null;
+}

@@ -1,4 +1,5 @@
 import type { BookTemp } from "@/features/books/types/book";
+import type { ReadingInteraction } from "@/features/profile/dtos";
 
 export const mockBooks: BookTemp[] = [
   {
@@ -493,3 +494,64 @@ export const mockBooks: BookTemp[] = [
     secondary_genres: ["Clássico", "Drama"],
   },
 ];
+
+export const mockReadingInteraction: ReadingInteraction = {
+  user_id: "user-1",
+  book_id: "book-1", // Harry Potter e a Câmara Secreta
+  total_pages: 224,
+  last_progress: 224,
+
+  reading_logs: [
+    {
+      pages_read: 32,
+      feeling: "gostei",
+      created_at: "2026-06-02T20:15:00",
+    },
+    {
+      pages_read: 74,
+      feeling: "amei",
+      created_at: "2026-06-04T22:10:00",
+    },
+    {
+      pages_read: 128,
+      feeling: "okay",
+      created_at: "2026-06-06T19:45:00",
+    },
+    {
+      pages_read: 176,
+      feeling: "gostei",
+      created_at: "2026-06-08T21:00:00",
+    },
+    {
+      pages_read: 224,
+      feeling: "amei",
+      created_at: "2026-06-10T23:15:00",
+    },
+  ],
+
+  highlights: [
+    {
+      quote:
+        "São as nossas escolhas que revelam o que realmente somos, muito mais do que as nossas qualidades.",
+      page: 87,
+      percentage: 39,
+    },
+    {
+      quote:
+        "Nunca confie em algo que possa pensar por si mesmo se você não consegue ver onde guarda o cérebro.",
+      page: 152,
+      percentage: 68,
+    },
+    {
+      quote: "O medo de um nome aumenta o medo da própria coisa.",
+      page: 210,
+      percentage: 94,
+    },
+  ],
+
+  review: {
+    rating: 5,
+    review:
+      "Uma releitura que continua incrível. A construção do mistério é excelente, o desenvolvimento dos personagens é muito melhor do que no primeiro livro e o final continua sendo extremamente satisfatório. O diário de Tom Riddle foi um dos elementos que mais gostei.",
+  },
+};

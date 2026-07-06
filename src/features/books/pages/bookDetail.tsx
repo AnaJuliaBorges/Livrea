@@ -1,7 +1,13 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { mockBooks } from "@/mocks/books";
+import { mockBooks, mockReadingInteraction } from "@/mocks/books";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageCircleMore, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  ClipboardList,
+  MessageCircleMore,
+  PencilLine,
+  Star,
+} from "lucide-react";
 import { BookImage } from "../components/BookImage";
 import { Tag } from "@/components/tag";
 import {
@@ -15,6 +21,9 @@ import {
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { ReviewCard } from "../components/ReviewCard";
+import { ProgressRead } from "@/components/ProgressRead";
+import { TrackRead } from "../components/TrackRead";
+import { formatDate, formatDateString } from "../utils/formatDate";
 
 export function BookDetail() {
   const { id } = useParams();
@@ -79,33 +88,66 @@ export function BookDetail() {
           </SelectContent>
         </Select>
 
-        <div className="flex flex-col gap-2 border p-4 rounded-xl">
-          <p className="text-xs font-medium">Sinopse</p>
-          <p className="text-xs">{book.synopsis}</p>
-          <div className="flex flex-wrap gap-2 ">
-            <Tag className="text-xs">{book.publisher}</Tag>
-            <Tag className="text-xs">{book.publisher_date}</Tag>
-            <Tag className="text-xs">{book.total_pages} páginas</Tag>
-            <Tag className="text-xs">{book.primary_genre.name}</Tag>
+        {status === "reading" && (
+          <div className="flex flex-col gap-4 border p-4 rounded-xl">
+            <p className="text-xs font-semibold">Sua leitura</p>
+            <ProgressRead value={60} />
+            <TrackRead bookId={book.id} />
           </div>
-        </div>
+        )}
 
-        <div className="flex flex-col gap-4 mb-10">
-          <p className="text-xs font-medium">Avaliações</p>
-
-          {book.reviews?.length ? (
-            <>
-              {book.reviews.map((review) => (
-                <ReviewCard key={review.id} review={review} />
-              ))}
-            </>
-          ) : (
-            <div className="flex flex-col gap-2 border p-4 rounded-xl items-center">
-              <MessageCircleMore className="size-8 text-gray-300" />
-              <p className="text-xs">Nenhuma avaliação ainda</p>
+        {status === "read" && (
+          <div className="flex flex-col gap-4 border p-4 rounded-xl">
+            <div className="flex justify-between items-center">
+              <p className="text-xs font-semibold">Sua leitura</p>
+              <p className="flex gap-1">
+                {mockReadingInteraction.review?.rating ?? "0.0"}
+                <Star className="inline-block" size={21} />
+              </p>
             </div>
-          )}
+            <TrackRead bookId={book.id} />
+            <p className="text-sm">
+              Lido de{" "}
+              {formatDateString(
+                mockReadingInteraction.reading_logs[0].created_at,
+              )}{" "}
+              a{" "}
+              {formatDateString(
+                mockReadingInteraction.reading_logs[
+                  mockReadingInteraction.reading_logs.length - 1
+                ].created_at,
+              )}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-col gap-2 border p-4 rounded-xl mt-7">
+        <p className="text-xs font-medium">Sinopse</p>
+        <p className="text-xs">{book.synopsis}</p>
+        <div className="flex flex-wrap gap-2 ">
+          <Tag className="text-xs">{book.publisher}</Tag>
+          <Tag className="text-xs">{book.publisher_date}</Tag>
+          <Tag className="text-xs">{book.total_pages} páginas</Tag>
+          <Tag className="text-xs">{book.primary_genre.name}</Tag>
         </div>
+      </div>
+
+      <div className="flex flex-col gap-4 mb-10 mt-7">
+        <p className="text-xs font-medium">Avaliações</p>
+
+        {book.reviews?.length ? (
+          <>
+            {book.reviews.map((review) => (
+              <ReviewCard key={review.id} review={review} />
+            ))}
+          </>
+        ) : (
+          <div className="flex flex-col gap-2 border p-4 rounded-xl items-center">
+            <MessageCircleMore className="size-8 text-gray-300" />
+            <p className="text-xs">Nenhuma avaliação ainda</p>
+          </div>
+        )}
       </div>
     </>
   );
