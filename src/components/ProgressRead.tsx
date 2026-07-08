@@ -17,7 +17,7 @@ function ProgressRead({
       <span
         className={cn(
           "absolute inset-0 flex items-center justify-center text-xs font-medium",
-          value < 60 ? "text-gray-950" : "text-white",
+          value < 55 ? "text-gray-950" : "text-white",
         )}
       >
         {value}% concluído
