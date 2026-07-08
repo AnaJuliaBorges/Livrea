@@ -1,3 +1,4 @@
+import { ContainerBorder } from "@/components/ContainerBorder";
 import { Button } from "@/components/ui";
 import type { ReadingInteraction } from "@/features/profile/dtos";
 import { Star } from "lucide-react";
@@ -11,7 +12,7 @@ export default function RegisterReadReview({ interaction }: Props) {
     <div>
       {interaction.review ? (
         <div>
-          <div className="flex flex-col gap-4 border p-4 rounded-xl mb-7">
+          <ContainerBorder className=" mb-7">
             <div className="flex justify-between items-center">
               <p className="text-sm font-medium">Sua avaliação</p>
               <p className="flex items-center gap-1">
@@ -27,7 +28,7 @@ export default function RegisterReadReview({ interaction }: Props) {
             >
               Editar avaliação
             </Button>
-          </div>
+          </ContainerBorder>
         </div>
       ) : (
         <div className="flex flex-col gap-4 border p-4 items-center rounded-xl mt-7">

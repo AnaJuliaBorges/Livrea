@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { formatDateString } from "../utils/formatDate";
 import { ProgressRead } from "@/components/ProgressRead";
+import { ContainerBorder } from "@/components/ContainerBorder";
 
 interface Props {
   interaction: ReadingInteraction;
@@ -35,7 +36,7 @@ export default function RegisterReadHistory({ interaction }: Props) {
   return (
     <div>
       {interaction.total_pages !== interaction.last_progress && (
-        <div className="flex flex-col gap-4 border p-4 rounded-xl">
+        <ContainerBorder>
           <p className="text-sm font-medium">Progresso da leitura</p>
           <div className="flex flex-col gap-5 bg-gray-200 p-4 rounded-xl">
             <div className="flex items-center justify-between">
@@ -91,7 +92,7 @@ export default function RegisterReadHistory({ interaction }: Props) {
             </div>
           </div>
           <Button variant="default">Salvar registro</Button>
-        </div>
+        </ContainerBorder>
       )}
 
       <div className="flex flex-col gap-4 mt-4 mb-8">
@@ -100,7 +101,7 @@ export default function RegisterReadHistory({ interaction }: Props) {
         {interaction.reading_logs.map((log) => {
           const detail = getDetails(log);
           return (
-            <div className="flex flex-col gap-4 border p-4 rounded-xl">
+            <ContainerBorder>
               <div className="flex justify-between items-center">
                 <p className="text-xl">{detail.feeling?.emoji}</p>
                 <p className="text-sm text-gray-600">{detail.date}</p>
@@ -111,7 +112,7 @@ export default function RegisterReadHistory({ interaction }: Props) {
                   {detail.pages} páginas lidas
                 </span>
               </div>
-            </div>
+            </ContainerBorder>
           );
         })}
       </div>

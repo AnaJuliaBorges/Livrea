@@ -24,6 +24,7 @@ import { ReviewCard } from "../components/ReviewCard";
 import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
 import { formatDate, formatDateString } from "../utils/formatDate";
+import { ContainerBorder } from "@/components/ContainerBorder";
 
 export function BookDetail() {
   const { id } = useParams();
@@ -89,15 +90,15 @@ export function BookDetail() {
         </Select>
 
         {status === "reading" && (
-          <div className="flex flex-col gap-4 border p-4 rounded-xl">
+          <ContainerBorder>
             <p className="text-xs font-semibold">Sua leitura</p>
             <ProgressRead value={60} />
             <TrackRead bookId={book.id} />
-          </div>
+          </ContainerBorder>
         )}
 
         {status === "read" && (
-          <div className="flex flex-col gap-4 border p-4 rounded-xl">
+          <ContainerBorder>
             <div className="flex justify-between items-center">
               <p className="text-xs font-semibold">Sua leitura</p>
               <p className="flex gap-1">
@@ -118,7 +119,7 @@ export function BookDetail() {
                 ].created_at,
               )}
             </p>
-          </div>
+          </ContainerBorder>
         )}
       </div>
 

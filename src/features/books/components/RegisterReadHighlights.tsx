@@ -1,3 +1,4 @@
+import { ContainerBorder } from "@/components/ContainerBorder";
 import { Button, Input, Textarea } from "@/components/ui";
 import type { ReadingInteraction } from "@/features/profile/dtos";
 import { useState } from "react";
@@ -30,7 +31,7 @@ export default function RegisterReadHighlights({ interaction }: Props) {
 
   return (
     <div>
-      <div className="flex flex-col gap-4 border p-4 rounded-xl mb-7">
+      <ContainerBorder className="mb-7">
         <p className="text-sm font-medium">Destaques</p>
         {highlights.map((highlight, idx) => (
           <div
@@ -77,7 +78,7 @@ export default function RegisterReadHighlights({ interaction }: Props) {
         >
           {showRegisterHighlight ? "Cancelar" : "Adicionar"}
         </Button>
-      </div>
+      </ContainerBorder>
     </div>
   );
 }
