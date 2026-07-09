@@ -2,6 +2,7 @@ import placeholder from "../../../assets/placeholder.png";
 import { Tag } from "@/components/tag";
 import { LocalizationPin } from "@/components/localizationPin";
 import type { ClubSummary } from "@/features/profile/dtos";
+import { useNavigate } from "react-router-dom";
 
 interface itemClubProps {
   club: ClubSummary;
@@ -9,8 +10,14 @@ interface itemClubProps {
 }
 
 export default function ItemClub({ club, admin }: itemClubProps) {
+  const navigate = useNavigate();
+
   return (
-    <div key={club.id} className="flex  gap-4">
+    <div
+      key={club.id}
+      className="flex gap-4"
+      onClick={() => navigate(`/clubes/${club.id}`)}
+    >
       <img
         src={placeholder}
         alt={club.nome}

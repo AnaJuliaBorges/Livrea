@@ -20,7 +20,7 @@ export default function RegisterReadReview({ interaction }: Props) {
                 <Star className="inline-block" size={21} />
               </p>
             </div>
-            <p>"{interaction.review?.review}"</p>
+            <p className="text-sm">"{interaction.review?.review}"</p>
             <Button
               className="mt-2 self-start pl-0 text-sm"
               size="sm"

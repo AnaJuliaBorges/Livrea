@@ -15,9 +15,11 @@ import {
   myClubSummaries,
   recommendedClubSummaries,
 } from "@/mocks/clubsSummary";
+import { useNavigate } from "react-router-dom";
 
 export default function ListClubs() {
   const { data: future, isLoading, error } = useListClubs();
+  const navigate = useNavigate();
 
   let content;
 
@@ -85,7 +87,11 @@ export default function ListClubs() {
         <Carousel className="w-full">
           <CarouselContent className="-ml-2">
             {recommendedClubSummaries.map((club: ClubSummary) => (
-              <CarouselItem key={club.id} className="pl-2 basis-[256px]">
+              <CarouselItem
+                key={club.id}
+                className="pl-2 basis-[256px]"
+                onClick={() => navigate(`/clubes/${club.id}`)}
+              >
                 <div className="rounded-xl border flex flex-col  p-2 gap-2">
                   <img
                     src={placeholder}

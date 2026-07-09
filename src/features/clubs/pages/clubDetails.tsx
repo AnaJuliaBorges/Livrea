@@ -1,0 +1,74 @@
+import { Button } from "@/components/ui";
+import { allClubs } from "@/mocks/clubes";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import placeholder from "../../../assets/placeholder.png";
+import { LocalizationPin } from "@/components/localizationPin";
+import { Tag } from "@/components/tag";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+import OverviewSection from "../components/OverviewSection";
+import MembersSection from "../components/MemberSection";
+import ReadingSection from "../components/ReadingSection";
+
+export default function ClubDetails() {
+  const { id } = useParams();
+  const club = allClubs.find((item) => item.id === id);
+  const navigate = useNavigate();
+
+  return (
+    <>
+      <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-linear-to-br from-violet-800 via-purple-900 to-slate-950">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => navigate(-1)}
+          className="absolute left-4 top-4 z-10 rounded-full text-accent-foreground hover:bg-white/20 hover:text-white"
+        >
+          <ArrowLeft className="size-6" />
+        </Button>
+
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-lg ">
+          <img
+            src={placeholder}
+            alt="Logo"
+            className="h-35 w-50 border-2 rounded-lg brightness-95"
+          />
+        </div>
+      </div>
+      <div className="flex flex-col gap-2 items-center mt-24">
+        <h2 className="font-medium text-lg">{club?.nome}</h2>
+        <LocalizationPin
+          cidade={club?.cidade_nome}
+          estado={club?.estado_sigla}
+        />
+        <div className="flex gap-2">
+          {club?.generos.map((genero) => (
+            <Tag>{genero.nome}</Tag>
+          ))}
+        </div>
+      </div>
+
+      <Tabs defaultValue="overview" className="w-full mt-6">
+        <TabsList className="w-full mb-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="members">Participantes</TabsTrigger>
+          <TabsTrigger value="reading">Leitura</TabsTrigger>
+        </TabsList>
+        {club && (
+          <>
+            <TabsContent value="overview">
+              <OverviewSection club={club} />
+            </TabsContent>
+            <TabsContent value="members">
+              <MembersSection clubId={club.id} />
+            </TabsContent>
+            <TabsContent value="reading">
+              <ReadingSection club={club} />
+            </TabsContent>
+          </>
+        )}
+      </Tabs>
+    </>
+  );
+}

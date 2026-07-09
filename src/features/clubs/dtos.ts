@@ -11,8 +11,7 @@ export interface Book {
 
 export interface Reading {
   id: string;
-  status: string;
-  livro: Book;
+  titulo: string;
 }
 
 export interface Club {
@@ -28,6 +27,19 @@ export interface Club {
   cidade_nome: string;
   estado_sigla: string;
   total_participantes: number;
+  descricao_encontros: string;
+  proximo_encontro: {
+    local: string;
+    data: string;
+    horario: string;
+    confirmedMembers: number;
+  } | null;
+  regras: string[];
+
+  historico_leituras: {
+    id: string;
+    capa: string | null;
+  }[];
 }
 
 export interface FiltrosClubes {
@@ -37,4 +49,11 @@ export interface FiltrosClubes {
   cidade_id?: number;
   pagina?: number;
   por_pagina?: number;
+}
+
+export interface ClubParticipant {
+  id: string;
+  nome: string;
+  foto: string | null;
+  entrou_em: string;
 }

@@ -26,11 +26,6 @@ export function ReviewCard({ review }: { review: BookReview }) {
       </div>
 
       <p className="text-xs">{review.comment}</p>
-
-      <div className="flex items-center gap-1 text-xs">
-        <Heart className="inline-block mr-1" size={16} />
-        <span className="text-xs">{review.likes} curtidas</span>
-      </div>
     </div>
   );
 }

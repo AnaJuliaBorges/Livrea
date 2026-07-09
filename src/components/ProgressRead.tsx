@@ -5,8 +5,9 @@ import { cn } from "@/lib/utils";
 
 function ProgressRead({
   value,
+  label = "concluído",
   ...props
-}: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+}: React.ComponentProps<typeof ProgressPrimitive.Root> & { label?: string }) {
   return (
     <ProgressPrimitive.Root className="relative h-6 w-full overflow-hidden rounded-full bg-gray-100">
       <ProgressPrimitive.Indicator
@@ -20,7 +21,7 @@ function ProgressRead({
           value < 55 ? "text-gray-950" : "text-white",
         )}
       >
-        {value}% concluído
+        {value}% {label}
       </span>
     </ProgressPrimitive.Root>
   );

@@ -23,7 +23,7 @@ import { useState } from "react";
 import { ReviewCard } from "../components/ReviewCard";
 import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
-import { formatDate, formatDateString } from "../utils/formatDate";
+import { formatDateString } from "../utils/formatDate";
 import { ContainerBorder } from "@/components/ContainerBorder";
 
 export function BookDetail() {
