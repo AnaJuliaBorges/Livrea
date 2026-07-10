@@ -1,5 +1,5 @@
 import { SearchInput } from "@/components/SearchInput";
-import ItemClub from "../components/itemClub";
+import ItemClub from "../components/ItemClub";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";

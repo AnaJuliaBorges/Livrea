@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon } from "lucide-react";
 import { Button, Progress, Separator } from "@/components/ui";
-import { useSignUpWizardContext } from "../signUp/context/useSignupWizardContext";
+import { useSignUpWizardStore } from "../signUp/store/useSignUpWizardStore";
 import { FirstStep, SecondStep, ThirdStep, FourthStep } from "../signUp/steps";
 
 export default function Signup() {
   const navigate = useNavigate();
 
-  const { data } = useSignUpWizardContext();
+  const data = useSignUpWizardStore((state) => state.data);
 
   const steps = [FirstStep, SecondStep, ThirdStep, FourthStep];
 

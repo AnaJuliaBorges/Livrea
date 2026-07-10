@@ -2,7 +2,7 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
 import { type SecondStepFormData, type SignupFormInput } from "../model/schema";
-import { useSignUpWizardContext } from "../context/useSignupWizardContext";
+import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
 import type { Book } from "@/features/books/types/book";
 
@@ -22,7 +22,9 @@ export function useSignup() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const { data, update, nextStep } = useSignUpWizardContext();
+  const data = useSignUpWizardStore((state) => state.data);
+  const update = useSignUpWizardStore((state) => state.update);
+  const nextStep = useSignUpWizardStore((state) => state.nextStep);
   const { mutateAsync } = useSaveProfileGenres();
 
   async function getStates(): Promise<State[]> {

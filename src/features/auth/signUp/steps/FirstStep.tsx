@@ -18,10 +18,12 @@ import {
   Textarea,
   FieldDescription,
 } from "@/components/ui";
-import { useSignUpWizardContext } from "../context/useSignupWizardContext";
+import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Download } from "lucide-react";
 
 export default function FirstStep() {
-  const { data } = useSignUpWizardContext();
+  const data = useSignUpWizardStore((state) => state.data);
   const { useStates, useCities, error, submitStep1 } = useSignup();
 
   const {
@@ -55,6 +57,17 @@ export default function FirstStep() {
 
   return (
     <form onSubmit={handleSubmit(submitStep1)}>
+      <div className="flex flex-col items-center gap-2 mb-6">
+        <Avatar className="h-28 w-28">
+          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+          <AvatarFallback className="bg-gray-300">AJ</AvatarFallback>
+        </Avatar>
+
+        <Button variant="link">
+          <Download />
+          Alterar foto de perfil
+        </Button>
+      </div>
       <FieldGroup className="flex flex-col gap-4">
         <Field>
           <Input
@@ -153,11 +166,13 @@ export default function FirstStep() {
           />
         </Field>
         <Field>
-          <Textarea {...register("bio")} placeholder="Biografia" />
+          <Textarea
+            {...register("bio")}
+            placeholder="Biografia (opcional)"
+            className="h-32"
+          />
           <FieldDescription className={errors.bio ? "text-red-500" : ""}>
-            {errors.bio
-              ? errors.bio.message
-              : "Opcional. Máximo 200 caracteres."}
+            {errors.bio && errors.bio.message}
           </FieldDescription>
         </Field>
       </FieldGroup>

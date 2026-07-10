@@ -1,8 +1,8 @@
-import { LocalizationPin } from "@/components/localizationPin";
+import { LocalizationPin } from "@/components/LocalizationPin";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ItemClub from "@/features/clubs/components/itemClub";
+import ItemClub from "@/features/clubs/components/ItemClub";
 import { mockProfile } from "@/mocks/profile";
 import {
   ArrowLeft,
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Tag } from "../components/tag";
+import { Tag } from "../components/Tag";
 import { BookImage } from "@/features/books/components/BookImage";
 
 export default function Profile() {

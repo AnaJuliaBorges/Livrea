@@ -1,6 +1,6 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import type { Club } from "../dtos";
-import { LocalizationPin } from "@/components/localizationPin";
+import { LocalizationPin } from "@/components/LocalizationPin";
 import { UsersRound } from "lucide-react";
 import { Button } from "@/components/ui";
 import { BookImage } from "@/features/books/components/BookImage";

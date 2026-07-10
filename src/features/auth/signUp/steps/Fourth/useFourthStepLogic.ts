@@ -9,7 +9,7 @@ import { useGenres } from "@/features/books/hooks/useGenres";
 import { getSelectedGenreNames } from "@/features/books/utils/genreUtils";
 
 import type { Book } from "@/features/books/types/book";
-import { useSignUpWizardContext } from "../../context/useSignupWizardContext";
+import { useSignUpWizardStore } from "../../store/useSignUpWizardStore";
 import { useSignUp } from "../../hooks";
 import { useNavigate } from "react-router-dom";
 
@@ -20,7 +20,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export function useFourthStepLogic() {
-  const { data } = useSignUpWizardContext();
+  const data = useSignUpWizardStore((state) => state.data);
   const { data: allGenres = [] } = useGenres();
   const { submitStep4 } = useSignUp();
   const navigate = useNavigate();

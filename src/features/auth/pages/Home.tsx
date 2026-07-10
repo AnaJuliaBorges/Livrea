@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { GoogleIcon } from "@/components/GoogleIcon";
 import logo from "../../../assets/livrea_logo_purple_sem_fundo.png";
 import { useNavigate } from "react-router-dom";
 
@@ -20,8 +21,12 @@ export default function Home() {
         </Button>
       </div>
       <p className="text-sm">Ou continue com</p>
-      <Button variant="outline" className="w-full max-w-sm ">
-        Entrar com o Google
+      <Button
+        variant="outline"
+        className="w-full max-w-sm"
+        aria-label="Entrar com o Google"
+      >
+        <GoogleIcon />
       </Button>
     </div>
   );

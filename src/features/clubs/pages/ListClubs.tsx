@@ -1,5 +1,5 @@
 import { MapPin } from "lucide-react";
-import ItemClub from "../components/itemClub";
+import ItemClub from "../components/ItemClub";
 import { useListClubs } from "../hooks/useListClubs";
 import placeholder from "../../../assets/placeholder.png";
 import { SearchInput } from "@/components/SearchInput";

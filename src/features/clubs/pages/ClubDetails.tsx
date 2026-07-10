@@ -3,8 +3,8 @@ import { allClubs } from "@/mocks/clubes";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import placeholder from "../../../assets/placeholder.png";
-import { LocalizationPin } from "@/components/localizationPin";
-import { Tag } from "@/components/tag";
+import { LocalizationPin } from "@/components/LocalizationPin";
+import { Tag } from "@/components/Tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import OverviewSection from "../components/OverviewSection";

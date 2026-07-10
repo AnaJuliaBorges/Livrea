@@ -73,12 +73,9 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </Field>
-              <a
-                href="#"
-                className="inline-block text-sm underline-offset-4 hover:text-purple-800"
-              >
+              <Button className="self-start text-sm " variant="link">
                 Esqueci minha senha
-              </a>
+              </Button>
             </FieldGroup>
 
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md">

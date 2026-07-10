@@ -9,7 +9,7 @@ import {
   Star,
 } from "lucide-react";
 import { BookImage } from "../components/BookImage";
-import { Tag } from "@/components/tag";
+import { Tag } from "@/components/Tag";
 import {
   Select,
   SelectContent,
