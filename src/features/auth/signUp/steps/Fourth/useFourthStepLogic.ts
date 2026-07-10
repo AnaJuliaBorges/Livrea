@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -21,8 +21,10 @@ type FormData = z.infer<typeof schema>;
 
 export function useFourthStepLogic() {
   const data = useSignUpWizardStore((state) => state.data);
+  const resetWizard = useSignUpWizardStore((state) => state.reset);
+  const setStepButton = useSignUpWizardStore((state) => state.setStepButton);
   const { data: allGenres = [] } = useGenres();
-  const { submitStep4 } = useSignUp();
+  const { submitStep4, loading: isSaving } = useSignUp();
   const navigate = useNavigate();
 
   const [selectedBooks, setSelectedBooks] = useState<Book[]>(
@@ -69,6 +71,13 @@ export function useFourthStepLogic() {
     return new Set(selectedBooks.map((book) => book.google_id));
   }, [selectedBooks]);
 
+  useEffect(() => {
+    setStepButton({
+      label: isSaving ? "Salvando..." : "Finalizar",
+      disabled: selectedIds.size === 0 || isSaving,
+    });
+  }, [selectedIds, isSaving, setStepButton]);
+
   function toggleBook(book: Book) {
     setSelectedBooks((prev) => {
       const exists = prev.some(
@@ -86,6 +95,7 @@ export function useFourthStepLogic() {
     await submitStep4(selectedBooks);
 
     navigate("/clubes");
+    resetWizard();
   }
 
   return {
@@ -94,6 +104,7 @@ export function useFourthStepLogic() {
     books,
     selectedIds,
     isLoading,
+    isSaving,
     hasNextPage,
     isFetchingNextPage,
     toggleBook,

@@ -13,8 +13,8 @@ export function Layout({ children }: LayoutProps) {
       mx-auto
       max-w-3xl
       px-4
-      py-6
-      pb-16
+      pt-4
+      pb-10
       sm:px-6
       lg:max-w-7xl
       md:pt-32

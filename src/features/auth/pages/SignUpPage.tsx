@@ -8,6 +8,7 @@ export default function Signup() {
   const navigate = useNavigate();
 
   const data = useSignUpWizardStore((state) => state.data);
+  const stepButton = useSignUpWizardStore((state) => state.stepButton);
 
   const steps = [FirstStep, SecondStep, ThirdStep, FourthStep];
 
@@ -21,7 +22,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex flex-col h-svh mb-20">
+    <div className="flex flex-col h-svh mb-10">
       <header className="flex items-center h-16 px-4 gap-4">
         <div>
           <Button
@@ -44,6 +45,17 @@ export default function Signup() {
         <div className="w-full max-w-sm mb-20">
           <CurrentStep />
         </div>
+      </div>
+
+      <div className="fixed bottom-24 left-1/2 -translate-x-1/2 w-[90%]">
+        <Button
+          type="submit"
+          form="signup-step-form"
+          disabled={stepButton.disabled}
+          className="w-full"
+        >
+          {stepButton.label ?? "Continuar"}
+        </Button>
       </div>
     </div>
   );

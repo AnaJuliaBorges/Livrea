@@ -4,6 +4,8 @@ import { useQuery } from "@tanstack/react-query";
 import { type SecondStepFormData, type SignupFormInput } from "../model/schema";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
+import { uploadAvatar } from "@/features/profile/services/uploadAvatar";
+import { useSaveUserBooks } from "@/features/books/hooks/useSaveUserBooks";
 import type { Book } from "@/features/books/types/book";
 
 interface State {
@@ -26,6 +28,7 @@ export function useSignup() {
   const update = useSignUpWizardStore((state) => state.update);
   const nextStep = useSignUpWizardStore((state) => state.nextStep);
   const { mutateAsync } = useSaveProfileGenres();
+  const { mutateAsync: saveBooks } = useSaveUserBooks();
 
   async function getStates(): Promise<State[]> {
     const { data, error } = await supabase
@@ -85,12 +88,15 @@ export function useSignup() {
         },
       });
 
-      await supabase.auth.signInWithPassword({
+      if (error) throw error;
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       });
 
-      if (error) throw error;
+      if (signInError) throw signInError;
+
       return authData;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -100,9 +106,18 @@ export function useSignup() {
     }
   };
 
-  const submitStep1 = async (formData: SignupFormInput) => {
+  const submitStep1 = async (formData: SignupFormInput, avatarFile?: File) => {
     const authData = await handleSignupFirstStep(formData);
     const userId = authData.user?.id;
+
+    if (avatarFile && userId) {
+      // a conta já foi criada; falha no avatar não deve travar o cadastro
+      try {
+        await uploadAvatar(userId, avatarFile);
+      } catch (err) {
+        console.error("Error uploading avatar:", err);
+      }
+    }
 
     update("account", { ...data.account, ...formData, user_id: userId! });
     nextStep();
@@ -133,8 +148,21 @@ export function useSignup() {
   const submitStep4 = async (selectedBooks: Book[]) => {
     update("books", {
       ...data.books,
-      read: selectedBooks,
+      wantRead: selectedBooks,
     });
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await saveBooks({ books: data.books.read, status: "read" });
+      await saveBooks({ books: selectedBooks, status: "want_to_read" });
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   return {

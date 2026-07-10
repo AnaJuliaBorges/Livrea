@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -20,6 +20,7 @@ type FormData = z.infer<typeof schema>;
 
 export function useThirdStepLogic() {
   const data = useSignUpWizardStore((state) => state.data);
+  const setStepButton = useSignUpWizardStore((state) => state.setStepButton);
   const { data: allGenres = [] } = useGenres();
   const { submitStep3 } = useSignUp();
 
@@ -60,6 +61,10 @@ export function useThirdStepLogic() {
   const selectedIds = useMemo(() => {
     return new Set(selectedBooks.map((book) => book.google_id));
   }, [selectedBooks]);
+
+  useEffect(() => {
+    setStepButton({ disabled: selectedIds.size === 0 });
+  }, [selectedIds, setStepButton]);
 
   function toggleBook(book: Book) {
     setSelectedBooks((prev) => {

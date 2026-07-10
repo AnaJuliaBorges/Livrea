@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,11 +8,11 @@ import {
   FieldLabel,
   FieldSet,
   FieldDescription,
-  Button,
 } from "@/components/ui";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useGenres } from "@/features/books/hooks/useGenres";
 import { useSignUp } from "../hooks";
+import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 
 const secondStepSchema = z.object({
   genres: z.array(z.number()).min(3),
@@ -20,6 +21,7 @@ const secondStepSchema = z.object({
 export default function SecondStep() {
   const { data: genres, isLoading } = useGenres();
   const { submitStep2 } = useSignUp();
+  const setStepButton = useSignUpWizardStore((state) => state.setStepButton);
 
   const {
     control,
@@ -35,12 +37,15 @@ export default function SecondStep() {
 
   const selectedGenres = watch("genres");
 
+  useEffect(() => {
+    setStepButton({ disabled: !isValid || isSubmitting });
+  }, [isValid, isSubmitting, setStepButton]);
+
   if (isLoading) return <p>Carregando...</p>;
 
   return (
-    <form onSubmit={handleSubmit(submitStep2)}>
+    <form id="signup-step-form" onSubmit={handleSubmit(submitStep2)}>
       <FieldSet>
-        submitStep2
         <FieldGroup>
           <FieldDescription
             className={errors.genres ? "text-red-500 mb-2" : "mb-2"}
@@ -81,15 +86,6 @@ export default function SecondStep() {
             />
           ))}
         </FieldGroup>
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md">
-          <Button
-            type="submit"
-            disabled={!isValid || isSubmitting}
-            className="w-full"
-          >
-            Continuar
-          </Button>
-        </div>
       </FieldSet>
     </form>
   );
