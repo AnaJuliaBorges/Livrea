@@ -23,6 +23,28 @@ export async function searchGoogleBooks(query: string, startIndex: number = 0) {
   return data.items ?? [];
 }
 
+export async function getGoogleBookById(volumeId: string) {
+  try {
+    const params = new URLSearchParams({
+      key: GOOGLE_BOOKS_API_KEY || "",
+      country: "BR",
+    });
+
+    const response = await fetch(
+      `${GOOGLE_BOOKS_API_URL}/${volumeId}?${params}`,
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`Erro ao buscar detalhes do livro ${volumeId}:`, error);
+    return null;
+  }
+}
+
 export async function searchGoogleBooksByISBN(isbn: string) {
   try {
     const params = new URLSearchParams({

@@ -1,13 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { mockBooks, mockReadingInteraction } from "@/mocks/books";
+import { mockReadingInteraction } from "@/mocks/books";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  ClipboardList,
-  MessageCircleMore,
-  PencilLine,
-  Star,
-} from "lucide-react";
+import { ArrowLeft, MessageCircleMore, Star } from "lucide-react";
 import { BookImage } from "../components/BookImage";
 import { Tag } from "@/components/Tag";
 import {
@@ -25,6 +19,7 @@ import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
 import { formatDateString } from "../utils/formatDate";
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { useBook } from "../hooks/useBook";
 
 export function BookDetail() {
   const { id } = useParams();
@@ -32,10 +27,22 @@ export function BookDetail() {
 
   const [status, setStatus] = useState("");
 
-  const book = mockBooks.find((book) => book.id === id);
+  const { data: book, isLoading, isError } = useBook(id);
 
-  if (!book) {
-    return <p>Livro não encontrado.</p>;
+  if (isLoading) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Carregando livro...
+      </p>
+    );
+  }
+
+  if (isError || !book) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Livro não encontrado.
+      </p>
+    );
   }
 
   return (
@@ -57,8 +64,10 @@ export function BookDetail() {
       <div className="flex flex-col gap-6 mt-28">
         <div className="flex justify-between">
           <div className="flex flex-col gap-1 max-w-2/3">
-            <h1 className="text-lg font-medium">{book.title_pt}</h1>
-            <p className="text-sm">{book.authors}</p>
+            <h1 className="text-lg font-medium">
+              {book.title_pt ?? book.title_original}
+            </h1>
+            <p className="text-sm">{book.authors.join(", ")}</p>
           </div>
           <p className="flex items-center gap-1">
             {book.global_average_rating ?? "0.0"}
@@ -127,10 +136,16 @@ export function BookDetail() {
         <p className="text-xs font-medium">Sinopse</p>
         <p className="text-xs">{book.synopsis}</p>
         <div className="flex flex-wrap gap-2 ">
-          <Tag className="text-xs">{book.publisher}</Tag>
-          <Tag className="text-xs">{book.publisher_date}</Tag>
-          <Tag className="text-xs">{book.total_pages} páginas</Tag>
-          <Tag className="text-xs">{book.primary_genre.name}</Tag>
+          {book.publisher && <Tag className="text-xs">{book.publisher}</Tag>}
+          {book.publisher_date && (
+            <Tag className="text-xs">{book.publisher_date}</Tag>
+          )}
+          {book.total_pages > 0 && (
+            <Tag className="text-xs">{book.total_pages} páginas</Tag>
+          )}
+          {book.primary_genre && (
+            <Tag className="text-xs">{book.primary_genre.name}</Tag>
+          )}
         </div>
       </div>
 

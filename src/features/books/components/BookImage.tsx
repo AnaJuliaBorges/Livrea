@@ -1,12 +1,18 @@
 import { useState } from "react";
 import placeholderBook from "../../../assets/book-placeholder.png";
-import type { BookTemp } from "../types/book";
+
+type BookImageData = {
+  title_original: string;
+  image_thumbnail?: string | null;
+  image_medium?: string | null;
+  image_large?: string | null;
+};
 
 export function BookImage({
   book,
   height,
 }: {
-  book: BookTemp;
+  book: BookImageData;
   height?: string;
 }) {
   const [imgSrc, setImgSrc] = useState(

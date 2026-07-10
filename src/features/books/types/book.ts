@@ -62,12 +62,14 @@ export interface BookTemp {
 
   reviews?: BookReview[];
 
-  primary_genre: {
+  primary_genre?: {
     id: number;
     name: string;
   };
 
   secondary_genres: string[];
+
+  subjects?: string[];
 
   global_average_rating?: number;
   global_count_rating?: number;

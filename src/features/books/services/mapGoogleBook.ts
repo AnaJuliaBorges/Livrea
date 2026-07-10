@@ -25,14 +25,41 @@ export type GoogleBooksItem = {
   id: string;
 };
 
+// "General" é preenchimento do BISAC ("Fantasy / General") e casa com
+// gênero errado no banco — nunca identifica um gênero de verdade
+const IGNORED_CATEGORIES = new Set(["general"]);
+
+// As categorias do Google vêm como "Fiction / Fantasy / Epic";
+// divide por "/", achata e deduplica sem diferenciar maiúsculas.
+function normalizeCategories(categories: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const category of categories) {
+    for (const part of category.split("/")) {
+      const name = part.trim();
+      const key = name.toLowerCase();
+
+      if (name && !IGNORED_CATEGORIES.has(key) && !seen.has(key)) {
+        seen.add(key);
+        result.push(name);
+      }
+    }
+  }
+
+  return result;
+}
+
 export function mapGoogleBook(item: GoogleBooksItem): Book {
   const volumeInfo = item.volumeInfo ?? {};
   const identifiers = volumeInfo.industryIdentifiers ?? [];
   const isbn = identifiers.find(
     (id: { type: string; identifier: string }) => id.type === "ISBN_13",
   )?.identifier;
-  const categories = volumeInfo.categories ?? [];
+  const categories = normalizeCategories(volumeInfo.categories ?? []);
   const imageLinks = volumeInfo.imageLinks ?? {};
+
+  const mainGenre = volumeInfo.mainCategory ?? categories[0];
 
   return {
     google_id: item.id,
@@ -45,8 +72,8 @@ export function mapGoogleBook(item: GoogleBooksItem): Book {
       pageCount: volumeInfo.pageCount,
     },
     genre: {
-      main: volumeInfo.mainCategory,
-      secondary: categories.slice(1),
+      main: mainGenre,
+      secondary: categories.filter((category) => category !== mainGenre),
     },
     publisher: {
       publisherDate: volumeInfo.publishedDate ?? "",

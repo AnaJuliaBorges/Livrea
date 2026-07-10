@@ -27,10 +27,12 @@ export function mapIsbndb(item: IsbndbBook): Book {
       publisher: item.publisher || "",
     },
     image: {
+      // ISBNDB fornece uma única imagem; medium/large ficam vazios
+      // para o enriquecimento via Google Books poder preenchê-los
       smallThumbnail: item.image,
       thumbnail: item.image,
-      medium: item.image,
-      large: item.image,
+      medium: undefined,
+      large: undefined,
     },
     averageRating: undefined,
     ratingsCount: undefined,
