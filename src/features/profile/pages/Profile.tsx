@@ -21,18 +21,18 @@ export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
   const navigate = useNavigate();
 
-  const qntyReadBooks = mockProfile.biblioteca.lidos.length;
-  const qntyClubs = mockProfile.clubes.length;
-  const qntyFriends = mockProfile.amigos.length;
+  const qntyReadBooks = mockProfile.library.read.length;
+  const qntyClubs = mockProfile.clubs.length;
+  const qntyFriends = mockProfile.friends.length;
 
   function bookActive() {
     switch (tagActive) {
       case "read":
-        return mockProfile.biblioteca.lidos;
+        return mockProfile.library.read;
       case "reading":
-        return mockProfile.biblioteca.lendo;
+        return mockProfile.library.reading;
       case "want-to-read":
-        return mockProfile.biblioteca.quero_ler;
+        return mockProfile.library.wantToRead;
       default:
         return [];
     }
@@ -61,7 +61,7 @@ export default function Profile() {
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
           <img
-            src={mockProfile.foto}
+            src={mockProfile.photo}
             className="rounded-full w-32 shadow-xl border-2 border-gray-400"
           />
         </div>
@@ -70,12 +70,12 @@ export default function Profile() {
       <div className="mt-16 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-medium">{mockProfile.nome}</h2>
+            <h2 className="text-lg font-medium">{mockProfile.name}</h2>
             <div className="flex gap-4 text-xs">
               <p>{mockProfile.username}</p>
               <LocalizationPin
-                cidade={mockProfile.cidade}
-                estado={mockProfile.estado}
+                city={mockProfile.city}
+                state={mockProfile.state}
                 color="text-foreground"
                 size="text-xs"
               />
@@ -99,9 +99,9 @@ export default function Profile() {
           </TabsList>
           <TabsContent value="clubs">
             <div className="mt-6 ">
-              {mockProfile.clubes.map((club) => (
+              {mockProfile.clubs.map((club) => (
                 <>
-                  <ItemClub club={club} admin={club.administrador} />
+                  <ItemClub club={club} admin={club.isAdmin} />
                   <Separator className="my-4" />
                 </>
               ))}
@@ -135,14 +135,14 @@ export default function Profile() {
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                 {bookActive().map((book) => (
                   <Link
-                    key={book.id ?? book.titulo}
+                    key={book.id ?? book.title}
                     className="flex flex-col gap-2 border  rounded-xl p-2 justify-between"
                     to={`/livros/${book.id}`}
                   >
                     <BookImage book={book} />
-                    <p className="font-medium">{book.titulo}</p>
+                    <p className="font-medium">{book.title}</p>
                     <p className="flex items-center gap-1">
-                      {book.avaliacao_geral ?? "0.0"}
+                      {book.overallRating ?? "0.0"}
                       <Star className="inline-block" size={16} />
                     </p>
                   </Link>

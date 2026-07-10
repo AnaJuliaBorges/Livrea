@@ -39,14 +39,11 @@ export default function ClubDetails() {
         </div>
       </div>
       <div className="flex flex-col gap-2 items-center mt-24">
-        <h2 className="font-medium text-lg">{club?.nome}</h2>
-        <LocalizationPin
-          cidade={club?.cidade_nome}
-          estado={club?.estado_sigla}
-        />
+        <h2 className="font-medium text-lg">{club?.name}</h2>
+        <LocalizationPin city={club?.cityName} state={club?.stateAbbreviation} />
         <div className="flex gap-2">
-          {club?.generos.map((genero) => (
-            <Tag>{genero.nome}</Tag>
+          {club?.genres.map((genre) => (
+            <Tag>{genre.name}</Tag>
           ))}
         </div>
       </div>

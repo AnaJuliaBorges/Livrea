@@ -41,13 +41,13 @@ function HighlightsSection({
         </button>
       </div>
       <div className="flex flex-col gap-2">
-        {interactions.destaques.map((destaque) => (
+        {interactions.highlights.map((highlight) => (
           <ContainerBorder className="text-xs">
-            "{destaque.texto}"
+            "{highlight.text}"
             <div className="flex justify-between">
-              <p>Página {destaque.pagina}</p>
+              <p>Página {highlight.page}</p>
               <p className="font-semibold">
-                {destaque.total_marcacoes} marcações
+                {highlight.highlightCount} marcações
               </p>
             </div>
           </ContainerBorder>
@@ -75,20 +75,20 @@ function ReviewsSection({
           <h3 className="text-xs font-medium">Resenhas</h3>
         </button>
       </div>
-      {interactions.avaliacoes.map((review) => (
+      {interactions.reviews.map((review) => (
         <ContainerBorder>
           <div className="flex items-center justify-between">
             <div className="flex gap-3 items-center">
               <UserRound size={20} />
-              <p className="text-xs font-medium">{review.usuario.nome}</p>
+              <p className="text-xs font-medium">{review.user.name}</p>
             </div>
 
             <p className="text-xs flex font-semibold gap-1">
-              {review.nota} <Star size={16} />
+              {review.rating} <Star size={16} />
             </p>
           </div>
 
-          <p className="text-xs">{review.resenha}</p>
+          <p className="text-xs">{review.review}</p>
         </ContainerBorder>
       ))}
     </div>
@@ -113,28 +113,28 @@ function ReadersSection({
       </button>
 
       <div className="flex flex-col gap-2">
-        {interactions.progresso_participantes
-          .sort((a, b) => b.progresso - a.progresso)
+        {interactions.participantsProgress
+          .sort((a, b) => b.progress - a.progress)
           .map((member) => (
             <ContainerBorder className="text-xs flex-row justify-between items-center">
               <div className="flex gap-2 items-center">
                 <UserRound size={20} />
                 <div className="flex flex-col">
-                  <p className="text-xs font-medium">{member.usuario.nome}</p>
+                  <p className="text-xs font-medium">{member.user.name}</p>
                   <p className="text-[10px] text-gray-500">
-                    {member.administrador
+                    {member.isAdmin
                       ? "Administrador"
-                      : `Membro desde ${member.entrou_em}`}
+                      : `Membro desde ${member.joinedAt}`}
                   </p>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                {member.progresso === 100 && (
+                {member.progress === 100 && (
                   <p className="text-xs flex items-center font-semibold gap-1">
-                    {member.nota} <Star size={16} />
+                    {member.rating} <Star size={16} />
                   </p>
                 )}
-                <p className="text-[10px]">{member.progresso}% lido</p>
+                <p className="text-[10px]">{member.progress}% lido</p>
               </div>
             </ContainerBorder>
           ))}
@@ -144,7 +144,7 @@ function ReadersSection({
 }
 
 export default function ReadingSection({ club }: Props) {
-  const book = mockBooks.find((book) => book.id === club.leitura_atual?.id);
+  const book = mockBooks.find((book) => book.id === club.currentReading?.id);
   const interactions = mockClubInteractions;
 
   const [activeTab, setActiveTab] = useState("");

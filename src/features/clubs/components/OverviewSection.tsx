@@ -25,33 +25,33 @@ export default function OverviewSection({ club }: Props) {
     <div className="flex flex-col gap-4 mb-8">
       <ContainerBorder className="text-xs gap-2">
         <p className="font-medium">Descrição</p>
-        <p>{club.descricao}</p>
+        <p>{club.description}</p>
       </ContainerBorder>
 
       <ContainerBorder className="text-xs gap-2">
         <p className="font-medium">Regras de participação</p>
         <ul>
-          {club.regras.map((regra) => (
-            <li>{regra}</li>
+          {club.rules.map((rule) => (
+            <li>{rule}</li>
           ))}
         </ul>
       </ContainerBorder>
 
       <ContainerBorder className="text-xs gap-1">
         <p className="font-medium mb-1">Encontros</p>
-        <p>{club.descricao_encontros}</p>
+        <p>{club.meetingDescription}</p>
         <p>
-          Próximo encontro: {club.proximo_encontro?.data},{" "}
-          {club.proximo_encontro?.local} às {club.proximo_encontro?.horario}
+          Próximo encontro: {club.nextMeeting?.date},{" "}
+          {club.nextMeeting?.location} às {club.nextMeeting?.time}
         </p>
         <div className="flex justify-between mt-2">
           <LocalizationPin
-            estado={club.estado_sigla}
-            cidade={club.cidade_nome}
+            state={club.stateAbbreviation}
+            city={club.cityName}
             size="text-xs"
           />
           <p className="flex gap-2">
-            {club.proximo_encontro?.confirmedMembers}/{club.total_participantes}{" "}
+            {club.nextMeeting?.confirmedMembers}/{club.totalParticipants}{" "}
             <UsersRound size={14} />
           </p>
         </div>
@@ -68,7 +68,7 @@ export default function OverviewSection({ club }: Props) {
         <div className="flex gap-2">
           <Carousel className="w-full">
             <CarouselContent className="-ml-2">
-              {club.historico_leituras.map((book) => (
+              {club.readingHistory.map((book) => (
                 <CarouselItem
                   key={book.id}
                   className="pl-2 basis-23"
@@ -91,23 +91,22 @@ export default function OverviewSection({ club }: Props) {
               <div className="flex justify-between text-xs">
                 <p className="font-medium">Próximo encontro</p>
                 <p className="flex gap-2">
-                  {club.proximo_encontro?.confirmedMembers}/
-                  {club.total_participantes} <UsersRound size={14} />
+                  {club.nextMeeting?.confirmedMembers}/
+                  {club.totalParticipants} <UsersRound size={14} />
                 </p>
               </div>
 
               <div className="text-xs flex flex-col gap-1">
-                <p>Leitura: {club.leitura_atual?.titulo}</p>
-                <p>{club.proximo_encontro?.data}</p>
+                <p>Leitura: {club.currentReading?.title}</p>
+                <p>{club.nextMeeting?.date}</p>
                 <p>
-                  {club.proximo_encontro?.local} ás{" "}
-                  {club.proximo_encontro?.horario}
+                  {club.nextMeeting?.location} ás {club.nextMeeting?.time}
                 </p>
               </div>
 
               <LocalizationPin
-                estado={club.estado_sigla}
-                cidade={club.cidade_nome}
+                state={club.stateAbbreviation}
+                city={club.cityName}
                 size="text-xs"
               />
             </div>

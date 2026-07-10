@@ -3,82 +3,82 @@ import type { UserProfile } from "@/features/profile/dtos";
 export const mockProfile: UserProfile = {
   id: "user-1",
 
-  nome: "Ana Júlia Borges",
+  name: "Ana Júlia Borges",
   username: "@anajborges",
 
-  foto: "https://i.pravatar.cc/300?img=32",
+  photo: "https://i.pravatar.cc/300?img=32",
 
-  cidade: "Recife",
-  estado: "PE",
+  city: "Recife",
+  state: "PE",
 
   bio: "Apaixonada por fantasia, ficção científica e um bom mistério. Sempre em busca da próxima leitura que vai me prender madrugada adentro. 📚✨",
 
-  amigos: [
+  friends: [
     {
       id: "user-2",
-      nome: "Marina Alves",
+      name: "Marina Alves",
       username: "@marinaalves",
-      foto: "https://i.pravatar.cc/300?img=45",
+      photo: "https://i.pravatar.cc/300?img=45",
     },
     {
       id: "user-3",
-      nome: "Lucas Martins",
+      name: "Lucas Martins",
       username: "@lucasm",
-      foto: "https://i.pravatar.cc/300?img=12",
+      photo: "https://i.pravatar.cc/300?img=12",
     },
     {
       id: "user-4",
-      nome: "Beatriz Costa",
+      name: "Beatriz Costa",
       username: "@bia.costa",
-      foto: "https://i.pravatar.cc/300?img=23",
+      photo: "https://i.pravatar.cc/300?img=23",
     },
     {
       id: "user-5",
-      nome: "João Pedro",
+      name: "João Pedro",
       username: "@jpreads",
-      foto: "https://i.pravatar.cc/300?img=18",
+      photo: "https://i.pravatar.cc/300?img=18",
     },
   ],
 
-  clubes: [
+  clubs: [
     {
       id: "1", // myClubs[0]
-      nome: "Fantasia Sem Fronteiras",
-      cidade: "Rio de Janeiro",
-      estado: "RJ",
-      generos: ["Fantasia", "Aventura"],
-      administrador: true,
-      participantes: 87,
-      limite_participantes: 100,
+      name: "Fantasia Sem Fronteiras",
+      city: "Rio de Janeiro",
+      state: "RJ",
+      genres: ["Fantasia", "Aventura"],
+      isAdmin: true,
+      participants: 87,
+      participantLimit: 100,
     },
     {
       id: "2", // myClubs[1]
-      nome: "Mistérios à Meia-Noite",
-      cidade: "São Paulo",
-      estado: "SP",
-      generos: ["Mistério", "Suspense"],
-      administrador: false,
-      participantes: 42,
-      limite_participantes: 50,
+      name: "Mistérios à Meia-Noite",
+      city: "São Paulo",
+      state: "SP",
+      genres: ["Mistério", "Suspense"],
+      isAdmin: false,
+      participants: 42,
+      participantLimit: 50,
     },
     {
       id: "3", // myClubs[2]
-      nome: "Entre Páginas e Corações",
-      cidade: "Belo Horizonte",
-      estado: "MG",
-      generos: ["Romance"],
-      administrador: false,
-      participantes: 124,
-      limite_participantes: null,
+      name: "Entre Páginas e Corações",
+      city: "Belo Horizonte",
+      state: "MG",
+      genres: ["Romance"],
+      isAdmin: false,
+      participants: 124,
+      participantLimit: null,
     },
   ],
 
-  biblioteca: {
-    lidos: [
+  library: {
+    read: [
       {
         id: "book-5",
-        titulo: "Orgulho e Preconceito",
-        avaliacao_geral: 4.3,
+        title: "Orgulho e Preconceito",
+        overallRating: 4.3,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,
@@ -88,8 +88,8 @@ export const mockProfile: UserProfile = {
       },
       {
         id: "book-6",
-        titulo: "1984",
-        avaliacao_geral: 4.19,
+        title: "1984",
+        overallRating: 4.19,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,
@@ -99,11 +99,11 @@ export const mockProfile: UserProfile = {
       },
     ],
 
-    lendo: [
+    reading: [
       {
         id: "book-1",
-        titulo: "Harry Potter e a Câmara Secreta",
-        avaliacao_geral: 4.45,
+        title: "Harry Potter e a Câmara Secreta",
+        overallRating: 4.45,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,
@@ -113,11 +113,11 @@ export const mockProfile: UserProfile = {
       },
     ],
 
-    quero_ler: [
+    wantToRead: [
       {
         id: "book-2",
-        titulo: "O Hobbit",
-        avaliacao_geral: 4.3,
+        title: "O Hobbit",
+        overallRating: 4.3,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,
@@ -127,8 +127,8 @@ export const mockProfile: UserProfile = {
       },
       {
         id: "book-3",
-        titulo: "Duna",
-        avaliacao_geral: 4.28,
+        title: "Duna",
+        overallRating: 4.28,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,
@@ -138,8 +138,8 @@ export const mockProfile: UserProfile = {
       },
       {
         id: "book-4",
-        titulo: "E Não Sobrou Nenhum",
-        avaliacao_geral: 4.27,
+        title: "E Não Sobrou Nenhum",
+        overallRating: 4.27,
         image: {
           smallThumbnail: undefined,
           thumbnail: undefined,

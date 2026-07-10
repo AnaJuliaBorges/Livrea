@@ -1,59 +1,59 @@
-export interface Gender {
+export interface Genre {
   id: number;
-  nome: string;
+  name: string;
 }
 
 export interface Book {
-  titulo: string;
-  autores: string[];
-  capa_url: string | null;
+  title: string;
+  authors: string[];
+  coverUrl: string | null;
 }
 
 export interface Reading {
   id: string;
-  titulo: string;
+  title: string;
 }
 
 export interface Club {
   id: string;
-  nome: string;
-  descricao: string;
-  privacidade: boolean;
-  limite_participantes: number | null;
-  tipo: string;
-  frequencia: string | null;
-  leitura_atual: Reading | null;
-  generos: Gender[];
-  cidade_nome: string;
-  estado_sigla: string;
-  total_participantes: number;
-  descricao_encontros: string;
-  proximo_encontro: {
-    local: string;
-    data: string;
-    horario: string;
+  name: string;
+  description: string;
+  isPrivate: boolean;
+  participantLimit: number | null;
+  type: string;
+  frequency: string | null;
+  currentReading: Reading | null;
+  genres: Genre[];
+  cityName: string;
+  stateAbbreviation: string;
+  totalParticipants: number;
+  meetingDescription: string;
+  nextMeeting: {
+    location: string;
+    date: string;
+    time: string;
     confirmedMembers: number;
   } | null;
-  regras: string[];
+  rules: string[];
 
-  historico_leituras: {
+  readingHistory: {
     id: string;
-    capa: string | null;
+    cover: string | null;
   }[];
 }
 
-export interface FiltrosClubes {
-  privacidade?: boolean;
-  genero_id?: number;
-  estado_id?: number;
-  cidade_id?: number;
-  pagina?: number;
-  por_pagina?: number;
+export interface ClubFilters {
+  isPrivate?: boolean;
+  genreId?: number;
+  stateId?: number;
+  cityId?: number;
+  page?: number;
+  perPage?: number;
 }
 
 export interface ClubParticipant {
   id: string;
-  nome: string;
-  foto: string | null;
-  entrou_em: string;
+  name: string;
+  photo: string | null;
+  joinedAt: string;
 }

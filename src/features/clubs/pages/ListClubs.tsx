@@ -99,19 +99,19 @@ export default function ListClubs() {
                     className="h-40 w-60 border-2 rounded-md"
                   />
 
-                  <p className="text-sm font-medium">{club.nome}</p>
+                  <p className="text-sm font-medium">{club.name}</p>
                   <p className="flex text-sm items-center">
                     <MapPin
                       className="inline-block mr-1 text-gray-500"
                       size={16}
                     />
-                    {club.cidade}, {club.estado}
+                    {club.city}, {club.state}
                   </p>
 
                   <div className="flex flex-wrap gap-2">
-                    {club.generos.map((genero) => (
+                    {club.genres.map((genre) => (
                       <span className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm">
-                        {genero}
+                        {genre}
                       </span>
                     ))}
                   </div>

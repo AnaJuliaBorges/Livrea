@@ -1,25 +1,25 @@
 export interface FriendProfile {
   id: string;
-  nome: string;
+  name: string;
   username: string;
-  foto: string;
+  photo: string;
 }
 
 export interface ClubSummary {
   id: string;
-  nome: string;
-  cidade: string;
-  estado: string;
-  generos: string[];
-  administrador: boolean;
-  participantes: number;
-  limite_participantes: number | null;
+  name: string;
+  city: string;
+  state: string;
+  genres: string[];
+  isAdmin: boolean;
+  participants: number;
+  participantLimit: number | null;
 }
 
 export interface UserBook {
   id: string;
-  titulo: string;
-  avaliacao_geral: number;
+  title: string;
+  overallRating: number;
   image: {
     smallThumbnail?: string;
     thumbnail?: string;
@@ -30,21 +30,21 @@ export interface UserBook {
 
 export interface UserProfile {
   id: string;
-  nome: string;
+  name: string;
   username: string;
-  foto: string;
-  cidade: string;
-  estado: string;
+  photo: string;
+  city: string;
+  state: string;
   bio: string;
 
-  amigos: FriendProfile[];
+  friends: FriendProfile[];
 
-  clubes: ClubSummary[];
+  clubs: ClubSummary[];
 
-  biblioteca: {
-    lidos: UserBook[];
-    lendo: UserBook[];
-    quero_ler: UserBook[];
+  library: {
+    read: UserBook[];
+    reading: UserBook[];
+    wantToRead: UserBook[];
   };
 }
 

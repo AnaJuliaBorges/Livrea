@@ -14,9 +14,9 @@ export default function MembersSection({ clubId }: Props) {
           <div className="flex gap-2">
             <UserRound />
             <div>
-              <p className="text-xs font-medium">{member.nome}</p>
+              <p className="text-xs font-medium">{member.name}</p>
               <p className="text-[10px] text-gray-500">
-                Membro desde {member.entrou_em}
+                Membro desde {member.joinedAt}
               </p>
             </div>
           </div>

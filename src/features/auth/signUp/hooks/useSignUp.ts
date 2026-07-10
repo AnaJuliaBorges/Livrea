@@ -9,7 +9,7 @@ import type { Book } from "@/features/books/types/book";
 interface State {
   id: number;
   name: string;
-  sigla: string;
+  abbreviation: string;
 }
 
 interface City {
@@ -34,7 +34,11 @@ export function useSignup() {
       .order("name");
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []).map((state) => ({
+      id: state.id,
+      name: state.name,
+      abbreviation: state.sigla,
+    }));
   }
 
   function useStates() {

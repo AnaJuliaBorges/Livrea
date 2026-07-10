@@ -4,12 +4,12 @@ import { LocalizationPin } from "@/components/LocalizationPin";
 import type { ClubSummary } from "@/features/profile/dtos";
 import { useNavigate } from "react-router-dom";
 
-interface itemClubProps {
+interface ItemClubProps {
   club: ClubSummary;
   admin?: boolean;
 }
 
-export default function ItemClub({ club, admin }: itemClubProps) {
+export default function ItemClub({ club, admin }: ItemClubProps) {
   const navigate = useNavigate();
 
   return (
@@ -20,23 +20,23 @@ export default function ItemClub({ club, admin }: itemClubProps) {
     >
       <img
         src={placeholder}
-        alt={club.nome}
+        alt={club.name}
         className="w-24 h-24 rounded-md border-2 border-gray-300"
       />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">
-          <h2 className="font-medium">{club.nome}</h2>
+          <h2 className="font-medium">{club.name}</h2>
           {admin && <span className="text-xs text-primary">administrador</span>}
         </div>
 
-        {club.cidade && club.estado && (
-          <LocalizationPin cidade={club.cidade} estado={club.estado} />
+        {club.city && club.state && (
+          <LocalizationPin city={club.city} state={club.state} />
         )}
 
-        {club.generos && club.generos.length > 0 && (
+        {club.genres && club.genres.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {club.generos.map((genero, index) => (
-              <Tag key={index}>{genero}</Tag>
+            {club.genres.map((genre, index) => (
+              <Tag key={index}>{genre}</Tag>
             ))}
           </div>
         )}
