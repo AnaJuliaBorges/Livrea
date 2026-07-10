@@ -1,34 +1,203 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   Button,
   Field,
+  FieldDescription,
   Input,
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
   Textarea,
 } from "@/components/ui";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Download, LogOut } from "lucide-react";
+import { ArrowLeft, Camera, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/lib/supabase";
+import { useStates, useCities } from "@/hooks/useLocations";
+import { useMyProfile } from "../hooks/useMyProfile";
+import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { uploadAvatar } from "../services/uploadAvatar";
+import type { UserProfile } from "../dtos";
 
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
+const editProfileSchema = z.object({
+  name: z.string().min(2, "Nome muito curto"),
+  email: z.email("Email inválido"),
+  password: z
+    .string()
+    .min(6, "Mínimo 6 caracteres")
+    .optional()
+    .or(z.literal("")),
+  state_id: z.coerce.number().min(1, "Selecione um estado"),
+  city_id: z.coerce.number().min(1, "Selecione uma cidade"),
+  bio: z.string().max(200, "Máximo 200 caracteres").optional(),
+});
+
+type EditProfileFormData = z.infer<typeof editProfileSchema>;
+
+// O wrapper só libera o form quando os dados existem — assim o
+// useForm nasce com defaultValues corretos e não precisa de reset()
+// tardio (que vive brigando com cache, autofill e ordem das queries).
 export function EditProfile() {
-  const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [state, setState] = useState("");
-  const [city, setCity] = useState("");
-  const [biography, setBiography] = useState("");
+  const { data: profile, isLoading } = useMyProfile();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-  };
+  const { data: authUser, isLoading: isLoadingAuth } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+  });
+
+  if (isLoading || isLoadingAuth) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Carregando perfil...
+      </p>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Não foi possível carregar o perfil. Tente novamente.
+      </p>
+    );
+  }
+
+  return <EditProfileForm profile={profile} email={authUser?.email ?? ""} />;
+}
+
+function EditProfileForm({
+  profile,
+  email,
+}: {
+  profile: UserProfile;
+  email: string;
+}) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { mutateAsync: saveProfile } = useUpdateProfile();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const avatarPreview = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : undefined),
+    [avatarFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
+  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Selecione um arquivo de imagem");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      setAvatarError("A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    setAvatarError(null);
+    setAvatarFile(file);
+  }
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm<EditProfileFormData>({
+    resolver: zodResolver(editProfileSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: profile.name,
+      email,
+      password: "",
+      state_id: profile.stateId ?? 0,
+      city_id: profile.cityId ?? 0,
+      bio: profile.bio ?? "",
+    },
+  });
+
+  const stateId = watch("state_id") as number | undefined;
+
+  const { data: states } = useStates();
+  const { data: cities } = useCities(stateId || undefined);
+
+  const initials = profile.name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  async function onSubmit(data: EditProfileFormData) {
+    try {
+      await saveProfile({
+        userId: profile.id,
+        name: data.name,
+        bio: data.bio || null,
+        stateId: data.state_id,
+        cityId: data.city_id,
+      });
+
+      if (avatarFile) {
+        await uploadAvatar(profile.id, avatarFile);
+      }
+
+      if (data.email && data.email !== email) {
+        const { error } = await supabase.auth.updateUser({
+          email: data.email,
+        });
+        if (error) throw error;
+        toast.info("Confira sua caixa de entrada para confirmar o novo email");
+      }
+
+      if (data.password) {
+        const { error } = await supabase.auth.updateUser({
+          password: data.password,
+        });
+        if (error) throw error;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+
+      toast.success("Perfil atualizado!");
+      navigate("/perfil");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Erro ao salvar o perfil",
+      );
+    }
+  }
+
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    queryClient.clear();
+    navigate("/login");
+  }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 mb-10">
       <button
         type="button"
         className="mb-5 flex items-center gap-4 border-b py-5 text-left"
@@ -40,86 +209,177 @@ export function EditProfile() {
 
       <div className="flex flex-col items-center gap-2">
         <Avatar className="h-32 w-32">
-          <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-          <AvatarFallback>AJ</AvatarFallback>
+          <AvatarImage
+            src={avatarPreview ?? profile.avatarUrl ?? undefined}
+            alt={profile.name}
+            className="object-cover"
+          />
+          <AvatarFallback className="bg-gray-300 text-3xl">
+            {initials || <Camera className="h-8 w-8 text-gray-500" />}
+          </AvatarFallback>
         </Avatar>
 
-        <Button variant="link">
-          <Download />
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
+
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera />
           Alterar foto de perfil
         </Button>
+
+        {avatarError && (
+          <FieldDescription className="text-red-500">
+            {avatarError}
+          </FieldDescription>
+        )}
       </div>
 
-      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+      <form
+        id="edit-profile-form"
+        className="flex flex-col gap-4"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Field>
-          <Input
-            placeholder="Nome"
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-          />
+          <Input {...register("name")} placeholder="Nome" />
+          {errors.name && (
+            <FieldDescription className="text-red-500">
+              {errors.name.message}
+            </FieldDescription>
+          )}
+        </Field>
+
+        <Field>
+          <Input {...register("email")} type="email" placeholder="Email" />
+          {errors.email && (
+            <FieldDescription className="text-red-500">
+              {errors.email.message}
+            </FieldDescription>
+          )}
         </Field>
 
         <Field>
           <Input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
-        </Field>
-
-        <Field>
-          <Input
+            {...register("password")}
             type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Nova senha (deixe em branco para manter)"
           />
+          {errors.password && (
+            <FieldDescription className="text-red-500">
+              {errors.password.message}
+            </FieldDescription>
+          )}
         </Field>
 
         <div className="grid gap-4 grid-cols-2">
-          <Field>
-            <Select value={state} onValueChange={setState}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sp">São Paulo</SelectItem>
-                <SelectItem value="rj">Rio de Janeiro</SelectItem>
-                <SelectItem value="mg">Minas Gerais</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
+          <Controller
+            control={control}
+            name="state_id"
+            render={({ field }) => (
+              <Field>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(value) => {
+                    field.onChange(Number(value));
+                    setValue("city_id", 0);
+                  }}
+                >
+                  <SelectTrigger className="w-full">
+                    {/* lookup manual: o Radix não resolve o rótulo de um
+                        valor controlado antes do dropdown abrir */}
+                    <SelectValue placeholder="Estado">
+                      {field.value
+                        ? states?.find(
+                            (state) => String(state.id) === String(field.value),
+                          )?.name
+                        : undefined}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {states?.map((state) => (
+                        <SelectItem key={state.id} value={String(state.id)}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
 
-          <Field>
-            <Select value={city} onValueChange={setCity}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Cidade" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sao-paulo">São Paulo</SelectItem>
-                <SelectItem value="rio">Rio de Janeiro</SelectItem>
-                <SelectItem value="belo-horizonte">Belo Horizonte</SelectItem>
-              </SelectContent>
-            </Select>
-          </Field>
+          <Controller
+            control={control}
+            name="city_id"
+            render={({ field }) => (
+              <Field>
+                <Select
+                  value={field.value ? String(field.value) : ""}
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  disabled={!stateId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Cidade">
+                      {field.value
+                        ? cities?.find(
+                            (city) => String(city.id) === String(field.value),
+                          )?.name
+                        : undefined}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {cities?.map((city) => (
+                        <SelectItem key={city.id} value={String(city.id)}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
         </div>
 
         <Field>
           <Textarea
+            {...register("bio")}
             placeholder="Biografia"
-            value={biography}
-            onChange={(event) => setBiography(event.target.value)}
             className="min-h-28"
           />
+          {errors.bio && (
+            <FieldDescription className="text-red-500">
+              {errors.bio.message}
+            </FieldDescription>
+          )}
         </Field>
       </form>
 
       <div className="flex flex-col gap-2">
-        <Button type="submit" className="h-12">
-          Salvar alterações
+        <Button
+          type="submit"
+          form="edit-profile-form"
+          className="h-12"
+          disabled={!isValid || isSubmitting}
+        >
+          {isSubmitting ? "Salvando..." : "Salvar alterações"}
         </Button>
-        <Button variant="link" className="text-destructive self-start text-sm">
+        <Button
+          type="button"
+          variant="link"
+          className="text-destructive self-start text-sm"
+          onClick={handleLogout}
+        >
           Sair da conta
           <LogOut />
         </Button>

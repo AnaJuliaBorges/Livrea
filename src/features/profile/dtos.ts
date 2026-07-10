@@ -1,10 +1,3 @@
-export interface FriendProfile {
-  id: string;
-  name: string;
-  username: string;
-  photo: string;
-}
-
 export interface ClubSummary {
   id: string;
   name: string;
@@ -19,25 +12,21 @@ export interface ClubSummary {
 export interface UserBook {
   id: string;
   title: string;
-  overallRating: number;
-  image: {
-    smallThumbnail?: string;
-    thumbnail?: string;
-    medium?: string;
-    large?: string;
-  };
+  rating: number | null;
+  imageThumbnail: string | null;
+  imageMedium: string | null;
+  imageLarge: string | null;
 }
 
 export interface UserProfile {
   id: string;
   name: string;
-  username: string;
-  photo: string;
-  city: string;
-  state: string;
-  bio: string;
-
-  friends: FriendProfile[];
+  bio: string | null;
+  avatarUrl: string | null;
+  city: string | null;
+  state: string | null;
+  stateId: number | null;
+  cityId: number | null;
 
   clubs: ClubSummary[];
 

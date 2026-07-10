@@ -1,24 +1,12 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useQuery } from "@tanstack/react-query";
 import { type SecondStepFormData, type SignupFormInput } from "../model/schema";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
 import { uploadAvatar } from "@/features/profile/services/uploadAvatar";
 import { useSaveUserBooks } from "@/features/books/hooks/useSaveUserBooks";
+import { useStates, useCities } from "@/hooks/useLocations";
 import type { Book } from "@/features/books/types/book";
-
-interface State {
-  id: number;
-  name: string;
-  abbreviation: string;
-}
-
-interface City {
-  id: number;
-  name: string;
-  state_id: number;
-}
 
 export function useSignup() {
   const [loading, setLoading] = useState(false);
@@ -29,46 +17,6 @@ export function useSignup() {
   const nextStep = useSignUpWizardStore((state) => state.nextStep);
   const { mutateAsync } = useSaveProfileGenres();
   const { mutateAsync: saveBooks } = useSaveUserBooks();
-
-  async function getStates(): Promise<State[]> {
-    const { data, error } = await supabase
-      .from("states")
-      .select("id, name, sigla")
-      .order("name");
-
-    if (error) throw error;
-    return (data ?? []).map((state) => ({
-      id: state.id,
-      name: state.name,
-      abbreviation: state.sigla,
-    }));
-  }
-
-  function useStates() {
-    return useQuery({
-      queryKey: ["states"],
-      queryFn: getStates,
-    });
-  }
-
-  async function getCities(stateId: number): Promise<City[]> {
-    const { data, error } = await supabase
-      .from("cities")
-      .select("id, name, state_id")
-      .eq("state_id", stateId)
-      .order("name");
-
-    if (error) throw error;
-    return data ?? [];
-  }
-
-  function useCities(stateId?: number) {
-    return useQuery({
-      queryKey: ["cities", stateId],
-      enabled: !!stateId,
-      queryFn: () => getCities(stateId!),
-    });
-  }
 
   const handleSignupFirstStep = async (data: SignupFormInput) => {
     setLoading(true);
@@ -96,6 +44,24 @@ export function useSignup() {
       });
 
       if (signInError) throw signInError;
+
+      // garante os dados do perfil mesmo que o trigger handle_new_user
+      // não grave todos os campos do metadata
+      if (authData.user?.id) {
+        const { error: profileError } = await supabase
+          .from("profiles")
+          .update({
+            name: data.name,
+            bio: data.bio ?? null,
+            state_id: data.state_id,
+            city_id: data.city_id,
+          })
+          .eq("id", authData.user.id);
+
+        if (profileError) {
+          console.error("Error saving profile details:", profileError);
+        }
+      }
 
       return authData;
     } catch (err: unknown) {

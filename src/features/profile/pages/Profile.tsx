@@ -2,8 +2,8 @@ import { LocalizationPin } from "@/components/LocalizationPin";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ItemClub from "@/features/clubs/components/ItemClub";
-import { mockProfile } from "@/mocks/profile";
 import {
   ArrowLeft,
   Bookmark,
@@ -14,25 +14,51 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Tag } from "../components/Tag";
 import { BookImage } from "@/features/books/components/BookImage";
+import { Tag } from "../components/tag";
+import { useMyProfile } from "../hooks/useMyProfile";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
   const navigate = useNavigate();
+  const { data: profile, isLoading, isError } = useMyProfile();
 
-  const qntyReadBooks = mockProfile.library.read.length;
-  const qntyClubs = mockProfile.clubs.length;
-  const qntyFriends = mockProfile.friends.length;
+  if (isLoading) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Carregando perfil...
+      </p>
+    );
+  }
+
+  if (isError || !profile) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Não foi possível carregar o perfil. Tente novamente.
+      </p>
+    );
+  }
+
+  const qntyReadBooks = profile.library.read.length;
+  const qntyClubs = profile.clubs.length;
+
+  const initials = profile.name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 
   function bookActive() {
+    if (!profile) return [];
+
     switch (tagActive) {
       case "read":
-        return mockProfile.library.read;
+        return profile.library.read;
       case "reading":
-        return mockProfile.library.reading;
+        return profile.library.reading;
       case "want-to-read":
-        return mockProfile.library.wantToRead;
+        return profile.library.wantToRead;
       default:
         return [];
     }
@@ -60,36 +86,42 @@ export default function Profile() {
         </Button>
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
-          <img
-            src={mockProfile.photo}
-            className="rounded-full w-32 shadow-xl border-2 border-gray-400"
-          />
+          <Avatar className="w-32 h-32 shadow-xl border-2 border-gray-400">
+            <AvatarImage
+              src={profile.avatarUrl ?? undefined}
+              alt={profile.name}
+              className="object-cover"
+            />
+            <AvatarFallback className="bg-gray-300 text-3xl">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
         </div>
       </div>
 
       <div className="mt-16 flex flex-col gap-4">
         <div className="flex justify-between items-center">
           <div className="flex flex-col gap-1">
-            <h2 className="text-lg font-medium">{mockProfile.name}</h2>
-            <div className="flex gap-4 text-xs">
-              <p>{mockProfile.username}</p>
+            <h2 className="text-lg font-medium">{profile.name}</h2>
+            {profile.city && profile.state && (
               <LocalizationPin
-                city={mockProfile.city}
-                state={mockProfile.state}
+                city={profile.city}
+                state={profile.state}
                 color="text-foreground"
-                size="text-xs"
+                size="text-sm"
               />
-            </div>
+            )}
           </div>
           <Settings onClick={() => navigate("/perfil/editar")} />
         </div>
 
-        <p className="text-xs">"{mockProfile.bio}"</p>
+        {profile.bio && <p>"{profile.bio}"</p>}
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-2 my-2">
           {qntyComponent(qntyReadBooks, "livros lidos")}
           {qntyComponent(qntyClubs, "clubes")}
-          {qntyComponent(qntyFriends, "amigos")}
+          {/* amizades ainda não existem no schema */}
+          {qntyComponent(0, "amigos")}
         </div>
 
         <Tabs defaultValue="clubs" className="w-full">
@@ -98,12 +130,17 @@ export default function Profile() {
             <TabsTrigger value="books">Meus livros</TabsTrigger>
           </TabsList>
           <TabsContent value="clubs">
-            <div className="mt-6 ">
-              {mockProfile.clubs.map((club) => (
-                <>
+            <div className="mt-6">
+              {profile.clubs.length === 0 && (
+                <p className="text-center text-sm text-muted-foreground">
+                  Você ainda não participa de nenhum clube.
+                </p>
+              )}
+              {profile.clubs.map((club) => (
+                <div key={club.id}>
                   <ItemClub club={club} admin={club.isAdmin} />
                   <Separator className="my-4" />
-                </>
+                </div>
               ))}
             </div>
           </TabsContent>
@@ -132,17 +169,29 @@ export default function Profile() {
               />
             </div>
             <div>
+              {bookActive().length === 0 && (
+                <p className="mt-6 text-center text-sm text-muted-foreground">
+                  Nenhum livro nesta lista ainda.
+                </p>
+              )}
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                 {bookActive().map((book) => (
                   <Link
-                    key={book.id ?? book.title}
-                    className="flex flex-col gap-2 border  rounded-xl p-2 justify-between"
+                    key={book.id}
+                    className="flex flex-col gap-2 border rounded-xl p-2 justify-between"
                     to={`/livros/${book.id}`}
                   >
-                    <BookImage book={book} />
+                    <BookImage
+                      book={{
+                        title_original: book.title,
+                        image_thumbnail: book.imageThumbnail,
+                        image_medium: book.imageMedium,
+                        image_large: book.imageLarge,
+                      }}
+                    />
                     <p className="font-medium">{book.title}</p>
                     <p className="flex items-center gap-1">
-                      {book.overallRating ?? "0.0"}
+                      {book.rating?.toFixed(1) ?? "0.0"}
                       <Star className="inline-block" size={16} />
                     </p>
                   </Link>
