@@ -25,7 +25,6 @@ export function EditProfile() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log({ name, email, password, state, city, biography });
   };
 
   return (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
 
@@ -22,10 +23,14 @@ export function useLogin() {
       if (data.user) {
         await getUser(data);
       }
-    } catch (err: any) {
-      if (err.code === "invalid_credentials")
+    } catch (err) {
+      if (err instanceof AuthError && err.code === "invalid_credentials") {
         setError("Email ou senha inválidos");
-      else setError(err.message);
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred");
+      }
       throw err;
     } finally {
       setLoading(false);

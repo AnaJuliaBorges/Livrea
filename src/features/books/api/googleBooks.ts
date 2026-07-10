@@ -38,7 +38,6 @@ export async function searchGoogleBooksByISBN(isbn: string) {
     }
 
     const data = await response.json();
-    console.log("searchGoogleBooksByISBN - data:", data);
 
     return data.items ?? [];
   } catch (error) {

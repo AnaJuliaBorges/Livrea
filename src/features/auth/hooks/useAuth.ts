@@ -4,20 +4,9 @@ import { supabase } from "@/lib/supabase";
 
 export type AuthUser = {
   id: string;
-  email: string;
-
+  email?: string;
   name: string;
   bio: string | null;
-
-  city: {
-    id: number;
-    name: string;
-  };
-
-  state: {
-    id: number;
-    name: string;
-  };
 };
 
 export function useAuth() {
@@ -27,14 +16,21 @@ export function useAuth() {
   const [error, setError] = useState<string | null>(null);
 
   async function getUser(data: { user: User; session: Session }) {
-    console.log({ data });
-    const { data: profile, error } = await supabase
+    setSession(data.session);
+
+    const { data: profiles, error: profileError } = await supabase
       .from("profiles")
       .select("id,name,bio")
       .eq("id", data.user.id)
       .limit(1);
 
-    console.log("Profile data:", profile);
+    if (profileError || !profiles?.[0]) {
+      setError(profileError?.message ?? "Perfil não encontrado");
+    } else {
+      setUser({ ...profiles[0], email: data.user.email });
+    }
+
+    setLoading(false);
   }
 
   return { user, session, loading, error, getUser };

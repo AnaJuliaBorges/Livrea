@@ -3,34 +3,18 @@ import { searchIsbndbByGenre, searchIsbndbByQuery } from "../api/isbndb";
 import { mapIsbndb } from "../services/mapIsbndb";
 
 export function useSearchBooks(genres: string[], query?: string) {
-  console.log("useSearchBooks called with genres:", genres, "query:", query);
-
   const queryFn = async ({ pageParam = 1 }) => {
-    console.log(
-      "useSearchBooks queryFn executing with genres:",
-      genres,
-      "query:",
-      query,
-      "page:",
-      pageParam,
-    );
     const allBooks: ReturnType<typeof mapIsbndb>[] = [];
 
     // Se houver query (busca customizada), usar apenas ela
     if (query && query.length > 2) {
-      console.log("Searching by query:", query, "page:", pageParam);
       const books = await searchIsbndbByQuery(query, 20, pageParam);
       allBooks.push(...books.map(mapIsbndb));
     } else if (genres.length > 0) {
       // Fazer requests paralelas para cada gênero
       const genreRequests = genres.map((genre) =>
         searchIsbndbByGenre(genre, 20, pageParam)
-          .then((books) => {
-            console.log(
-              `Got ${books.length} books for genre: ${genre} page: ${pageParam}`,
-            );
-            return books.map(mapIsbndb);
-          })
+          .then((books) => books.map(mapIsbndb))
           .catch((error) => {
             console.error(`Erro ao buscar gênero "${genre}":`, error);
             return [];

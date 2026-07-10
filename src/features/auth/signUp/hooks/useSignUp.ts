@@ -135,8 +135,6 @@ export function useSignup() {
       ...data.books,
       read: selectedBooks,
     });
-
-    console.log(data);
   };
 
   return {
