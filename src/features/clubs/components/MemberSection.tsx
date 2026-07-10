@@ -20,7 +20,7 @@ export default function MembersSection({ clubId }: Props) {
               </p>
             </div>
           </div>
-          <SquarePlus className="text-primary" size={20} />
+          <SquarePlus className="text-secondary" size={20} />
         </ContainerBorder>
       ))}
     </div>

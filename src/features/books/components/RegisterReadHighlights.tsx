@@ -46,7 +46,7 @@ export default function RegisterReadHighlights({ interaction }: Props) {
         ))}
 
         {showRegisterHighlight && (
-          <div className="bg-gray-200 flex flex-col gap-3 p-4 border-l-3 border-primary rounded-xl">
+          <div className="bg-gray-200 flex flex-col gap-3 p-4 border-l-3 border-secondary rounded-xl">
             <Textarea
               className="bg-white"
               placeholder="Citação"
@@ -60,7 +60,7 @@ export default function RegisterReadHighlights({ interaction }: Props) {
               onChange={(e) => setNewQuotePage(e.target.value)}
             />
             <Button
-              className="self-start text-sm text-primary"
+              className="self-start text-sm text-secondary"
               variant="ghost"
               size="sm"
               onClick={() => saveQuote()}

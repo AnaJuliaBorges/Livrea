@@ -69,14 +69,14 @@ export default function MenuBar() {
                 <Icon
                   className={cn(
                     "size-6",
-                    active ? "text-primary" : "text-[#A2A2A2]",
+                    active ? "text-secondary" : "text-[#A2A2A2]",
                   )}
                 />
 
                 <span
                   className={cn(
                     "text-xs",
-                    active ? "text-primary" : "text-[#A2A2A2]",
+                    active ? "text-secondary" : "text-[#A2A2A2]",
                   )}
                 >
                   {item.label}

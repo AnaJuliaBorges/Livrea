@@ -99,7 +99,7 @@ export default function CreateClub() {
 
   if (isSuccess) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-primary">
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-secondary">
         <div className="flex flex-col w-full items-center justify-center px-4 text-center gap-6 text-white">
           <SquareCheck size={62} />
           <div>
@@ -133,7 +133,7 @@ export default function CreateClub() {
             onClick={() => setStep((prev) => Math.max(prev - 1, 1))}
             disabled={step === 1}
           >
-            <ArrowLeftIcon className="text-accent-foreground" />
+            <ArrowLeftIcon className="text-secondary" />
           </Button>
         </div>
 

@@ -16,6 +16,8 @@ export default function ClubDetails() {
   const club = allClubs.find((item) => item.id === id);
   const navigate = useNavigate();
 
+  const admin = true;
+
   return (
     <>
       <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-linear-to-br from-violet-800 via-purple-900 to-slate-950">
@@ -49,7 +51,9 @@ export default function ClubDetails() {
         </div>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full mt-6">
+      <Button className="w-full my-6">Pedir para participar</Button>
+
+      <Tabs defaultValue="overview" className="w-full">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Participantes</TabsTrigger>
