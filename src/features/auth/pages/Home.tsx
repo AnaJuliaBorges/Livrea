@@ -37,7 +37,7 @@ export default function Home() {
       <p className="text-sm">Ou continue com</p>
       <Button
         variant="outline"
-        className="w-full max-w-sm"
+        className="w-full max-w-sm cursor-pointer"
         aria-label="Entrar com o Google"
         onClick={handleGoogleLogin}
       >
