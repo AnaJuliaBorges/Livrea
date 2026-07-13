@@ -7,17 +7,17 @@ import { protectedLoader } from "./routes/ProtectedRoute";
 import App from "./App";
 
 import "./index.css";
-import ListClubs from "./features/clubs/pages/listClubs";
+import ListClubs from "./features/clubs/pages/ListClubs";
 import Home from "./features/auth/pages/Home";
 import Signup from "./features/auth/pages/SignUpPage";
-import MyClubs from "./features/clubs/pages/myClubs";
-import Profile from "./features/profile/pages/profile";
-import CreateClub from "./features/clubs/pages/createClub";
-import ListBooks from "./features/books/pages/listBooks";
-import { BookDetail } from "./features/books/pages/bookDetail";
-import { EditProfile } from "./features/profile/pages/editProfile";
-import RegisterRead from "./features/books/pages/registerRead";
-import ClubDetails from "./features/clubs/pages/clubDetails";
+import MyClubs from "./features/clubs/pages/MyClubs";
+import Profile from "./features/profile/pages/Profile";
+import CreateClub from "./features/clubs/pages/CreateClub";
+import ListBooks from "./features/books/pages/ListBooks";
+import { BookDetail } from "./features/books/pages/BookDetail";
+import { EditProfile } from "./features/profile/pages/EditProfile";
+import RegisterRead from "./features/books/pages/RegisterRead";
+import ClubDetails from "./features/clubs/pages/ClubDetails";
 
 const queryClient = new QueryClient({
   defaultOptions: {

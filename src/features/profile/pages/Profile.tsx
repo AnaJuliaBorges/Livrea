@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { BookImage } from "@/features/books/components/BookImage";
-import { Tag } from "../components/tag";
+import { Tag } from "../components/Tag";
 import { useMyProfile } from "../hooks/useMyProfile";
 
 export default function Profile() {
