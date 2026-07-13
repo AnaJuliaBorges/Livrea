@@ -1,10 +1,24 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { GoogleIcon } from "@/components/GoogleIcon";
 import logo from "../../../assets/livrea_logo_purple_sem_fundo.png";
 import { useNavigate } from "react-router-dom";
+import { signInWithGoogle } from "../services/signInWithGoogle";
 
 export default function Home() {
   const navigate = useNavigate();
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  const handleGoogleLogin = async () => {
+    setGoogleError(null);
+    try {
+      // volta para /login; o useAuthRedirect de lá leva para /clubes
+      // assim que a sessão do OAuth for detectada
+      await signInWithGoogle("/login");
+    } catch {
+      setGoogleError("Não foi possível entrar com o Google. Tente novamente.");
+    }
+  };
 
   return (
     <div className="flex flex-col gap-8 justify-center items-center h-[90vh]">
@@ -25,9 +39,15 @@ export default function Home() {
         variant="outline"
         className="w-full max-w-sm"
         aria-label="Entrar com o Google"
+        onClick={handleGoogleLogin}
       >
         <GoogleIcon />
       </Button>
+      {googleError && (
+        <div className="bg-red-100 text-red-700 p-3 rounded max-w-sm">
+          {googleError}
+        </div>
+      )}
     </div>
   );
 }

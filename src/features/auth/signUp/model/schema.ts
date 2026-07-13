@@ -9,6 +9,17 @@ export const signupFirstStepSchema = z.object({
   bio: z.string().max(200, "Máximo 200 caracteres").optional(),
 });
 
+// Cadastro via Google: a conta já existe, então o passo 1 só completa o
+// perfil — sem email/senha
+export const googleProfileStepSchema = z.object({
+  name: z.string().min(2, "Nome muito curto"),
+  state_id: z.number().min(1, "Selecione um estado"),
+  city_id: z.number().min(1, "Selecione uma cidade"),
+  bio: z.string().max(200, "Máximo 200 caracteres").optional(),
+});
+
+export type GoogleProfileFormInput = z.infer<typeof googleProfileStepSchema>;
+
 export const SecondStepSchema = z.object({
   genres: z.array(z.number()).min(3),
 });

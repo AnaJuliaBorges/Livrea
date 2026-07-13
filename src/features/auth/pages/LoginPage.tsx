@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import logoText from "../../../assets/livrea_text_logo.png";
 import { useLogin } from "../hooks/useLogin";
+import { signInWithGoogle } from "../services/signInWithGoogle";
+import { GoogleButton } from "../components/GoogleButton";
 import { useState } from "react";
 import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -16,15 +18,33 @@ export default function Login() {
   const { login, loading, error } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [googleError, setGoogleError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    await login(email, password);
-    navigate("/clubes");
+    try {
+      await login(email, password);
+      // quem navega é o useAuthRedirect, ao receber o SIGNED_IN — navegar
+      // aqui também criava uma corrida: este await termina depois (getUser
+      // consulta profiles) e o navigate atrasado puxava o usuário de volta
+    } catch {
+      // erro já exibido pelo estado do useLogin
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setGoogleError(null);
+    try {
+      // volta para /login; o useAuthRedirect leva para /clubes ao
+      // detectar a sessão criada pelo OAuth
+      await signInWithGoogle("/login");
+    } catch {
+      setGoogleError("Não foi possível entrar com o Google. Tente novamente.");
+    }
   };
 
   return (
-    <div className="flex flex-col h-svh">
+    <div className="flex flex-col">
       <header className="grid grid-cols-3 items-center h-16 px-4">
         <div>
           <Button
@@ -76,6 +96,23 @@ export default function Login() {
               <Button className="self-start text-sm " variant="link">
                 Esqueci minha senha
               </Button>
+
+              <div className="flex items-center gap-4">
+                <Separator className="flex-1" />
+                <span className="text-sm text-muted-foreground">ou</span>
+                <Separator className="flex-1" />
+              </div>
+
+              <GoogleButton
+                label="Continuar com Google"
+                onClick={handleGoogleLogin}
+              />
+
+              {googleError && (
+                <div className="bg-red-100 text-red-700 p-3 rounded">
+                  {googleError}
+                </div>
+              )}
             </FieldGroup>
 
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md">

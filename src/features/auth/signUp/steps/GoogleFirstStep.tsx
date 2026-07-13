@@ -1,0 +1,234 @@
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { googleProfileStepSchema } from "../model/schema";
+import { useSignup } from "../hooks/useSignUp";
+import {
+  Button,
+  Input,
+  Select,
+  Field,
+  FieldGroup,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  Textarea,
+  FieldDescription,
+} from "@/components/ui";
+import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Camera } from "lucide-react";
+
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
+// Passo 1 do cadastro via Google: a conta já existe, então só completa o
+// perfil — foto (pré-carregada do Google, trocável), bio e localização.
+export default function GoogleFirstStep() {
+  const data = useSignUpWizardStore((state) => state.data);
+  const setStepButton = useSignUpWizardStore((state) => state.setStepButton);
+  const { useStates, useCities, error, submitGoogleStep1 } = useSignup();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+
+  const avatarPreview = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : undefined),
+    [avatarFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
+    };
+  }, [avatarPreview]);
+
+  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Selecione um arquivo de imagem");
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      setAvatarError("A imagem deve ter no máximo 5MB");
+      return;
+    }
+
+    setAvatarError(null);
+    setAvatarFile(file);
+  }
+
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting, isValid },
+  } = useForm({
+    resolver: zodResolver(googleProfileStepSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: data.account.name,
+      bio: data.account.bio,
+      state_id: data.account.state_id || undefined,
+      city_id: data.account.city_id || undefined,
+    },
+  });
+
+  const stateId = watch("state_id") as number | undefined;
+  const name = watch("name");
+
+  const initials = (name || "")
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  const { data: states } = useStates();
+  const { data: cities } = useCities(stateId!);
+
+  useEffect(() => {
+    setValue("city_id", 0);
+  }, [stateId, setValue]);
+
+  useEffect(() => {
+    setStepButton({ disabled: !isValid || isSubmitting });
+  }, [isValid, isSubmitting, setStepButton]);
+
+  return (
+    <form
+      id="signup-step-form"
+      onSubmit={handleSubmit((formData) =>
+        submitGoogleStep1(formData, avatarFile ?? undefined),
+      )}
+    >
+      <div className="flex flex-col items-center gap-2 mb-6">
+        <Avatar className="h-28 w-28">
+          <AvatarImage
+            src={avatarPreview ?? data.account.avatar_url ?? undefined}
+            alt="Foto de perfil"
+            className="object-cover"
+          />
+          <AvatarFallback className="bg-gray-300">
+            {initials || <Camera className="h-8 w-8 text-gray-500" />}
+          </AvatarFallback>
+        </Avatar>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
+
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Camera />
+          Trocar foto de perfil
+        </Button>
+
+        {avatarError && (
+          <FieldDescription className="text-red-500">
+            {avatarError}
+          </FieldDescription>
+        )}
+      </div>
+      <FieldGroup className="flex flex-col gap-4">
+        <Field>
+          <Input
+            {...register("name")}
+            id="name"
+            type="text"
+            placeholder="Nome"
+            required
+          />
+          {errors.name && (
+            <FieldDescription className="text-red-500">
+              {errors.name.message}
+            </FieldDescription>
+          )}
+        </Field>
+        <Field className="grid grid-cols-2 gap-4">
+          <Controller
+            control={control}
+            name="state_id"
+            render={({ field }) => (
+              <Field>
+                <Select
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  value={field.value ? String(field.value) : ""}
+                >
+                  <SelectTrigger className="w-full ">
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    <SelectGroup>
+                      {states?.map((state) => (
+                        <SelectItem key={state.id} value={String(state.id)}>
+                          {state.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="city_id"
+            render={({ field }) => (
+              <Field>
+                <Select
+                  onValueChange={(value) => field.onChange(Number(value))}
+                  value={field.value ? String(field.value) : ""}
+                  disabled={!stateId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Cidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {cities?.map((city) => (
+                        <SelectItem key={city.id} value={String(city.id)}>
+                          {city.name}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </Field>
+            )}
+          />
+        </Field>
+        <Field>
+          <Textarea
+            {...register("bio")}
+            placeholder="Biografia (opcional)"
+            className="h-32"
+          />
+          <FieldDescription className={errors.bio ? "text-red-500" : ""}>
+            {errors.bio && errors.bio.message}
+          </FieldDescription>
+        </Field>
+      </FieldGroup>
+
+      {error && (
+        <div className="bg-red-100 text-red-700 p-3 rounded mb-4">{error}</div>
+      )}
+    </form>
+  );
+}

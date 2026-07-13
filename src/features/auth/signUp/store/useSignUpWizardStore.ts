@@ -22,6 +22,7 @@ type SignUpWizardStore = {
 
 const initialData: SignUpWizardData = {
   step: 1,
+  googleSignUp: false,
   account: {
     user_id: "",
     name: "",

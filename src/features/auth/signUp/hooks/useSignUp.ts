@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { type SecondStepFormData, type SignupFormInput } from "../model/schema";
+import {
+  type GoogleProfileFormInput,
+  type SecondStepFormData,
+  type SignupFormInput,
+} from "../model/schema";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
 import { uploadAvatar } from "@/features/profile/services/uploadAvatar";
@@ -89,6 +93,48 @@ export function useSignup() {
     nextStep();
   };
 
+  // Modo Google: a conta já existe — o passo 1 só completa o perfil
+  const submitGoogleStep1 = async (
+    formData: GoogleProfileFormInput,
+    avatarFile?: File,
+  ) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const userId = data.account.user_id;
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({
+          name: formData.name,
+          bio: formData.bio ?? null,
+          state_id: formData.state_id,
+          city_id: formData.city_id,
+        })
+        .eq("id", userId);
+
+      if (profileError) throw profileError;
+
+      if (avatarFile) {
+        // o perfil já foi salvo; falha no avatar não deve travar o cadastro
+        try {
+          await uploadAvatar(userId, avatarFile);
+        } catch (err) {
+          console.error("Error uploading avatar:", err);
+        }
+      }
+
+      update("account", { ...data.account, ...formData });
+      nextStep();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const submitStep2 = async (formData: SecondStepFormData) => {
     const genres = formData.genres.map(Number);
 
@@ -138,6 +184,7 @@ export function useSignup() {
     loading,
     error,
     submitStep1,
+    submitGoogleStep1,
     submitStep2,
     submitStep3,
     submitStep4,
