@@ -10,11 +10,10 @@ import {
   BookmarkMinus,
   BookmarkPlus,
   Settings,
-  Star,
 } from "lucide-react";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { BookImage } from "@/features/books/components/BookImage";
+import { useNavigate } from "react-router-dom";
+import { BookListCard } from "@/features/books/components/BookListCard";
 import { Tag } from "../components/Tag";
 import { useMyProfile } from "../hooks/useMyProfile";
 
@@ -176,25 +175,18 @@ export default function Profile() {
               )}
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                 {bookActive().map((book) => (
-                  <Link
+                  <BookListCard
                     key={book.id}
-                    className="flex flex-col gap-2 border rounded-xl p-2 justify-between"
+                    title={book.title}
+                    image={
+                      book.imageMedium ||
+                      book.imageThumbnail ||
+                      book.imageLarge ||
+                      undefined
+                    }
                     to={`/livros/${book.id}`}
-                  >
-                    <BookImage
-                      book={{
-                        title_original: book.title,
-                        image_thumbnail: book.imageThumbnail,
-                        image_medium: book.imageMedium,
-                        image_large: book.imageLarge,
-                      }}
-                    />
-                    <p className="font-medium">{book.title}</p>
-                    <p className="flex items-center gap-1">
-                      {book.rating?.toFixed(1) ?? "0.0"}
-                      <Star className="inline-block" size={16} />
-                    </p>
-                  </Link>
+                    rating={book.rating}
+                  />
                 ))}
               </div>
             </div>

@@ -1,49 +1,151 @@
-import { SearchInput } from "@/components/SearchInput";
-import { mockBooks } from "@/mocks/books";
-import { FileWarning, Star } from "lucide-react";
-import type { BookTemp } from "../types/book";
-import { BookImage } from "../components/BookImage";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { FileWarning } from "lucide-react";
+import { SearchInput } from "@/components/SearchInput";
+import { BookListCard } from "../components/BookListCard";
+import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
+import { useGenres } from "../hooks/useGenres";
+import { useDebounce } from "../hooks/useDebounce";
+import { useSearchBooks } from "../hooks/useSearchBooks";
+import { useBooksByGenres } from "../hooks/useBooksByGenres";
+import { getSelectedGenreNames } from "../utils/genreUtils";
 
 export default function ListBooks() {
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 500);
+
+  const { data: genreIds = [], isLoading: isLoadingGenreIds } =
+    useProfileGenreIds();
+  const { data: allGenres = [], isLoading: isLoadingGenres } = useGenres();
+
+  const genreNames = useMemo(
+    () => getSelectedGenreNames(genreIds, allGenres),
+    [genreIds, allGenres],
+  );
+
+  const isSearching = search.length > 0;
+
+  const { data: dbBooks = [], isLoading: isLoadingDbBooks } =
+    useBooksByGenres(genreIds);
+
+  const {
+    data: externalBooks,
+    isLoading: isLoadingExternal,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useSearchBooks(
+    isSearching ? [] : genreNames,
+    isSearching ? debouncedSearch : undefined,
+  );
+
+  // na recomendação, livros que já estão no banco não repetem na
+  // parte vinda da ISBNDB
+  const dedupedExternalBooks = useMemo(() => {
+    if (isSearching) return externalBooks;
+
+    const dbIsbns = new Set(dbBooks.map((book) => book.isbn?.toLowerCase()));
+
+    return externalBooks.filter(
+      (book) => !dbIsbns.has(book.info.isbn?.toLowerCase() ?? ""),
+    );
+  }, [externalBooks, dbBooks, isSearching]);
+
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!endRef.current || !hasNextPage || isFetchingNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) fetchNextPage();
+      },
+      { threshold: 0.1 },
+    );
+
+    observer.observe(endRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const isLoading =
+    isLoadingGenreIds ||
+    isLoadingGenres ||
+    isLoadingExternal ||
+    (!isSearching && isLoadingDbBooks);
+
+  const hasNoGenres =
+    !isLoadingGenreIds && !isLoadingGenres && genreIds.length === 0;
+
+  const showDbBooks = !isSearching && dbBooks.length > 0;
+  const isEmpty =
+    dedupedExternalBooks.length === 0 && (isSearching || dbBooks.length === 0);
+
   return (
     <div className="flex flex-col gap-6 mb-10">
-      <div>
-        <SearchInput
-          value={""}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
-          placeholder="Buscar livros"
-        />
-      </div>
+      <SearchInput
+        value={search}
+        onChange={setSearch}
+        placeholder="Buscar livros"
+      />
 
-      {mockBooks.length === 0 ? (
+      {hasNoGenres && !isSearching ? (
         <div className="flex flex-col h-[70vh] justify-center items-center text-center gap-5">
           <FileWarning className="inline-block text-gray-300" size={86} />
-          Você ainda não está em nenhum clube. <br />
-          Crie um clube ou entre em um disponível.
+          <p>
+            Você ainda não tem gêneros favoritos. <br />
+            Escolha seus gêneros no{" "}
+            <Link to="/perfil" className="text-primary underline">
+              seu perfil
+            </Link>{" "}
+            para ver recomendações.
+          </p>
+        </div>
+      ) : isLoading && isEmpty ? (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-sm text-muted-foreground">Procurando livros...</p>
+        </div>
+      ) : isEmpty ? (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-sm text-muted-foreground">
+            Nenhum livro encontrado
+          </p>
         </div>
       ) : (
         <>
-          <p className="font-medium">Livros em alta</p>
+          <p className="font-medium">
+            {isSearching ? "Resultados da busca" : "Recomendados para você"}
+          </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {mockBooks?.map((book: BookTemp) => (
-              <Link
-                key={book.id ?? book.title_pt}
-                className="flex flex-col gap-2 border  rounded-xl p-2 justify-between"
-                to={`/livros/${book.id}`}
-              >
-                <BookImage book={book} />
-                <p className="font-medium">{book.title_pt}</p>
-                <p className="flex items-center gap-1">
-                  {book.global_average_rating ?? "0.0"}
-                  <Star className="inline-block" size={16} />
-                </p>
-              </Link>
+            {showDbBooks &&
+              dbBooks.map((book) => (
+                <BookListCard
+                  key={book.id}
+                  title={book.title}
+                  image={book.image}
+                  to={`/livros/${book.id}`}
+                />
+              ))}
+
+            {dedupedExternalBooks.map((book) => (
+              <BookListCard
+                key={book.google_id}
+                title={book.info.title}
+                image={book.image.thumbnail || book.image.smallThumbnail}
+              />
             ))}
           </div>
+
+          {hasNextPage && (
+            <div ref={endRef} className="flex justify-center py-4">
+              {isFetchingNextPage && (
+                <p className="text-sm text-muted-foreground">
+                  Carregando mais livros...
+                </p>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
