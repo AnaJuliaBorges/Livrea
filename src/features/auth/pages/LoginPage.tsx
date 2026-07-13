@@ -93,7 +93,12 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </Field>
-              <Button className="self-start text-sm " variant="link">
+              <Button
+                type="button"
+                className="self-start text-sm "
+                variant="link"
+                onClick={() => navigate("/recuperar-senha")}
+              >
                 Esqueci minha senha
               </Button>
 

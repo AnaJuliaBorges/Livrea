@@ -10,7 +10,13 @@ interface LayoutProps {
 // Rotas de visitante: sem MenuBar — todos os links dele são rotas
 // protegidas e, no mobile, o menu fixo do rodapé cobria o botão
 // "Continuar" do login.
-const AUTH_ROUTES = ["/", "/login", "/cadastrar"];
+const AUTH_ROUTES = [
+  "/",
+  "/login",
+  "/cadastrar",
+  "/recuperar-senha",
+  "/redefinir-senha",
+];
 
 export function Layout({ children }: LayoutProps) {
   const { pathname } = useLocation();

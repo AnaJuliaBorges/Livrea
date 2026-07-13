@@ -18,6 +18,8 @@ import { BookDetail } from "./features/books/pages/BookDetail";
 import { EditProfile } from "./features/profile/pages/EditProfile";
 import RegisterRead from "./features/books/pages/RegisterRead";
 import ClubDetails from "./features/clubs/pages/ClubDetails";
+import ForgotPassword from "./features/auth/pages/ForgotPasswordPage";
+import ResetPassword from "./features/auth/pages/ResetPasswordPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,6 +45,14 @@ export const router = createBrowserRouter([
       {
         path: "cadastrar",
         element: <Signup />,
+      },
+      {
+        path: "recuperar-senha",
+        element: <ForgotPassword />,
+      },
+      {
+        path: "redefinir-senha",
+        element: <ResetPassword />,
       },
       {
         path: "clubes",
