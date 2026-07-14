@@ -19,9 +19,9 @@ export default function ItemClub({ club, admin }: ItemClubProps) {
       onClick={() => navigate(`/clubes/${club.id}`)}
     >
       <img
-        src={placeholder}
+        src={club.coverUrl ?? placeholder}
         alt={club.name}
-        className="w-24 h-24 rounded-md border-2 border-gray-300"
+        className="w-24 h-24 rounded-md border-2 border-gray-300 object-cover"
       />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">

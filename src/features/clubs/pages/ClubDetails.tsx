@@ -16,6 +16,22 @@ export default function ClubDetails() {
   const club = allClubs.find((item) => item.id === id);
   const navigate = useNavigate();
 
+  // A página de detalhes ainda é alimentada por mock (allClubs); clubes reais
+  // criados no banco ainda não têm detalhe — não deixar a página quebrar.
+  if (!club) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
+        <p className="text-gray-600">
+          Os detalhes deste clube ainda não estão disponíveis.
+        </p>
+        <Button variant="outline" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-1 size-4" />
+          Voltar
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-linear-to-br from-violet-800 via-purple-900 to-slate-950">

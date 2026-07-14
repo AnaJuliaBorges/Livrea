@@ -3,6 +3,7 @@ export interface ClubSummary {
   name: string;
   city: string;
   state: string;
+  coverUrl: string | null;
   genres: string[];
   isAdmin: boolean;
   participants: number;

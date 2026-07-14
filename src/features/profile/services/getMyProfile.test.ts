@@ -29,6 +29,7 @@ const rawProfile = {
       name: "Clube da Fantasia",
       city: "Campinas",
       state: " SP ",
+      cover_url: "https://cdn.example.com/club-1.png",
       genres: ["Fantasia"],
       is_admin: true,
       participants: 12,
@@ -39,6 +40,7 @@ const rawProfile = {
       name: "Clube sem cidade",
       city: null,
       state: null,
+      cover_url: null,
       genres: [],
       is_admin: false,
       participants: 3,
@@ -106,6 +108,17 @@ describe("getMyProfile", () => {
 
     expect(profile.state).toBe("SP");
     expect(profile.clubs[0].state).toBe("SP");
+  });
+
+  it("mapeia a capa do clube (cover_url)", async () => {
+    rpcMock.mockResolvedValue(rpcResult(rawProfile));
+
+    const profile = await getMyProfile();
+
+    expect(profile.clubs[0].coverUrl).toBe(
+      "https://cdn.example.com/club-1.png",
+    );
+    expect(profile.clubs[1].coverUrl).toBeNull();
   });
 
   it("usa string vazia para cidade/estado nulos dos clubes", async () => {

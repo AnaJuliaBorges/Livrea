@@ -15,6 +15,7 @@ type RawClub = {
   name: string;
   city: string | null;
   state: string | null;
+  cover_url: string | null;
   genres: string[];
   is_admin: boolean;
   participants: number;
@@ -71,6 +72,7 @@ export async function getMyProfile(): Promise<UserProfile> {
       name: club.name,
       city: club.city ?? "",
       state: club.state?.trim() ?? "",
+      coverUrl: club.cover_url,
       genres: club.genres,
       isAdmin: club.is_admin,
       participants: club.participants,

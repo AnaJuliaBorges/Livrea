@@ -1,6 +1,8 @@
+import { Fragment, useState } from "react";
 import { MapPin } from "lucide-react";
 import ItemClub from "../components/ItemClub";
 import { useListClubs } from "../hooks/useListClubs";
+import { useMyProfile } from "@/features/profile/hooks/useMyProfile";
 import placeholder from "../../../assets/placeholder.png";
 import { SearchInput } from "@/components/SearchInput";
 
@@ -10,57 +12,80 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { Separator } from "@/components/ui/index.tsx";
-import type { ClubSummary } from "@/features/profile/dtos";
-import {
-  myClubSummaries,
-  recommendedClubSummaries,
-} from "@/mocks/clubsSummary";
+import type { ClubListItem, ClubMatchGroup } from "../dtos";
 import { useNavigate } from "react-router-dom";
 
+const sectionLabels: Record<ClubMatchGroup, string> = {
+  city: "Na sua cidade",
+  state: "No seu estado",
+  online: "Clubes online",
+  other: "Outros clubes",
+};
+
+const sectionOrder: ClubMatchGroup[] = ["city", "state", "online", "other"];
+
 export default function ListClubs() {
-  const { isLoading, error } = useListClubs();
+  const { data: profile } = useMyProfile();
+  const { data: clubs, isLoading, error } = useListClubs({
+    cityId: profile?.cityId,
+    stateId: profile?.stateId,
+  });
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
+
+  const filteredClubs = (clubs ?? []).filter((club) =>
+    club.name.toLowerCase().includes(search.trim().toLowerCase()),
+  );
+
+  const recommendedClubs = (clubs ?? []).filter((club) => !club.isMember);
+
+  const locationLabel =
+    profile?.city && profile?.state
+      ? `${profile.city}, ${profile.state}`
+      : "Defina sua localização no perfil";
 
   let content;
 
   if (isLoading) {
     content = <div className="text-center py-8">Carregando clubes...</div>;
-  }
-
-  if (error) {
+  } else if (error) {
     content = (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">❌ Erro ao carregar clubes</p>
-        </div>
+      <div className="text-center py-8">
+        <p className="text-red-600">❌ Erro ao carregar clubes</p>
       </div>
     );
-  }
-
-  if (myClubSummaries && myClubSummaries.length === 0) {
+  } else if (filteredClubs.length === 0) {
     content = (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">❌ Nenhum clube encontrado</p>
-          <p className="text-gray-600">
-            Tente ajustar os filtros ou criar um novo clube.
-          </p>
-        </div>
+      <div className="text-center py-8">
+        <p className="text-red-600 mb-4">❌ Nenhum clube encontrado</p>
+        <p className="text-gray-600">
+          Tente ajustar a busca ou criar um novo clube.
+        </p>
       </div>
     );
-  }
-
-  if (myClubSummaries && myClubSummaries.length > 0) {
+  } else {
     content = (
       <div className="flex flex-col">
-        <p className="font-medium mb-6">Clubes perto de você</p>
+        {sectionOrder.map((group) => {
+          const clubsInGroup = filteredClubs.filter(
+            (club) => club.matchGroup === group,
+          );
 
-        {myClubSummaries?.map((club: ClubSummary) => (
-          <>
-            <ItemClub key={club.id} club={club} />
-            <Separator className="my-4" />
-          </>
-        ))}
+          if (clubsInGroup.length === 0) return null;
+
+          return (
+            <div key={group} className="mb-6">
+              <p className="font-medium mb-4">{sectionLabels[group]}</p>
+
+              {clubsInGroup.map((club: ClubListItem) => (
+                <Fragment key={club.id}>
+                  <ItemClub club={club} />
+                  <Separator className="my-4" />
+                </Fragment>
+              ))}
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -69,52 +94,63 @@ export default function ListClubs() {
     <div className="flex flex-col gap-6">
       <p className="flex text-sm font-medium items-center justify-center">
         <MapPin className="inline-block mr-1 text-gray-500" size={16} />
-        Rio de Janeiro, RJ
+        {locationLabel}
       </p>
 
       <div>
-        <SearchInput value={""} onChange={() => {}} placeholder="Buscar clubes" />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Buscar clubes"
+        />
       </div>
 
-      <div>
-        <p className="font-medium mb-2">Clubes indicados pra você</p>
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2">
-            {recommendedClubSummaries.map((club: ClubSummary) => (
-              <CarouselItem
-                key={club.id}
-                className="pl-2 basis-[256px]"
-                onClick={() => navigate(`/clubes/${club.id}`)}
-              >
-                <div className="rounded-xl border flex flex-col  p-2 gap-2">
-                  <img
-                    src={placeholder}
-                    alt="Logo"
-                    className="h-40 w-60 border-2 rounded-md"
-                  />
-
-                  <p className="text-sm font-medium">{club.name}</p>
-                  <p className="flex text-sm items-center">
-                    <MapPin
-                      className="inline-block mr-1 text-gray-500"
-                      size={16}
+      {recommendedClubs.length > 0 && (
+        <div>
+          <p className="font-medium mb-2">Clubes indicados pra você</p>
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2">
+              {recommendedClubs.map((club: ClubListItem) => (
+                <CarouselItem
+                  key={club.id}
+                  className="pl-2 basis-[256px]"
+                  onClick={() => navigate(`/clubes/${club.id}`)}
+                >
+                  <div className="rounded-xl border flex flex-col  p-2 gap-2">
+                    <img
+                      src={club.coverUrl ?? placeholder}
+                      alt={club.name}
+                      className="h-40 w-60 border-2 rounded-md object-cover"
                     />
-                    {club.city}, {club.state}
-                  </p>
 
-                  <div className="flex flex-wrap gap-2">
-                    {club.genres.map((genre) => (
-                      <span className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm">
-                        {genre}
-                      </span>
-                    ))}
+                    <p className="text-sm font-medium">{club.name}</p>
+                    {club.city && club.state && (
+                      <p className="flex text-sm items-center">
+                        <MapPin
+                          className="inline-block mr-1 text-gray-500"
+                          size={16}
+                        />
+                        {club.city}, {club.state}
+                      </p>
+                    )}
+
+                    <div className="flex flex-wrap gap-2">
+                      {club.genres.map((genre) => (
+                        <span
+                          key={genre}
+                          className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-        </Carousel>
-      </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
+        </div>
+      )}
       {content}
     </div>
   );

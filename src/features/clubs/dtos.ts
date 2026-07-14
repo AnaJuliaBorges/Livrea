@@ -42,6 +42,26 @@ export interface Club {
   }[];
 }
 
+export type ClubMatchGroup = "city" | "state" | "online" | "other";
+
+// Item retornado pela RPC list_clubs. Estruturalmente compatível com o
+// ClubSummary do perfil, que o ItemClub consome.
+export interface ClubListItem {
+  id: string;
+  name: string;
+  description: string;
+  coverUrl: string | null;
+  isPrivate: boolean;
+  city: string;
+  state: string;
+  genres: string[];
+  isAdmin: boolean;
+  isMember: boolean;
+  participants: number;
+  participantLimit: number | null;
+  matchGroup: ClubMatchGroup;
+}
+
 export interface ClubFilters {
   isPrivate?: boolean;
   genreId?: number;

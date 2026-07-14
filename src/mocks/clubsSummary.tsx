@@ -7,6 +7,7 @@ export const recommendedClubSummaries: ClubSummary[] = recommendedClubs.map(
     name: club.name,
     city: club.cityName,
     state: club.stateAbbreviation,
+    coverUrl: null,
     genres: club.genres.map((g) => g.name),
     isAdmin: false,
     participants: club.totalParticipants,
@@ -19,6 +20,7 @@ export const allClubSummaries: ClubSummary[] = allClubs.map((club) => ({
   name: club.name,
   city: club.cityName,
   state: club.stateAbbreviation,
+  coverUrl: null,
   genres: club.genres.map((g) => g.name),
   isAdmin: false,
   participants: club.totalParticipants,
@@ -30,6 +32,7 @@ export const myClubSummaries: ClubSummary[] = myClubs.map((club, index) => ({
   name: club.name,
   city: club.cityName,
   state: club.stateAbbreviation,
+  coverUrl: null,
   genres: club.genres.map((g) => g.name),
   isAdmin: index === 0, // primeiro clube é administrado pelo usuário
   participants: club.totalParticipants,

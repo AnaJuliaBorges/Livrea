@@ -37,6 +37,7 @@ const profile: UserProfile = {
       name: "Clube da Fantasia",
       city: "Campinas",
       state: "SP",
+      coverUrl: null,
       genres: ["Fantasia"],
       isAdmin: true,
       participants: 12,
