@@ -1,5 +1,4 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { mockReadingInteraction } from "@/mocks/books";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, MessageCircleMore, Star } from "lucide-react";
 import { BookImage } from "../components/BookImage";
@@ -25,6 +24,7 @@ import {
   useSetUserBookStatus,
   useUserBookStatus,
 } from "../hooks/useUserBookStatus";
+import { useReadingTracking } from "../hooks/useReadingTracking";
 import type { UserBookStatus } from "../services/userBookStatus";
 
 export function BookDetail() {
@@ -33,7 +33,12 @@ export function BookDetail() {
 
   const { data: userStatus } = useUserBookStatus(id);
   const { mutate: saveStatus } = useSetUserBookStatus(id);
+  const { data: tracking } = useReadingTracking(id);
   const status = userStatus ?? "";
+
+  // logs vêm do mais recente para o mais antigo
+  const lastLog = tracking?.logs[0];
+  const firstLog = tracking?.logs[tracking.logs.length - 1];
 
   function handleStatusChange(value: string) {
     saveStatus(value === "remove" ? null : (value as UserBookStatus), {
@@ -118,7 +123,15 @@ export function BookDetail() {
         {status === "reading" && (
           <ContainerBorder>
             <p className="text-xs font-semibold">Sua leitura</p>
-            <ProgressRead value={60} />
+            <ProgressRead
+              value={
+                book.total_pages > 0
+                  ? Math.round(
+                      ((tracking?.currentPage ?? 0) / book.total_pages) * 100,
+                    )
+                  : 0
+              }
+            />
             <TrackRead bookId={book.id} />
           </ContainerBorder>
         )}
@@ -128,23 +141,17 @@ export function BookDetail() {
             <div className="flex justify-between items-center">
               <p className="text-xs font-semibold">Sua leitura</p>
               <p className="flex gap-1">
-                {mockReadingInteraction.review?.rating ?? "0.0"}
+                {tracking?.rating?.toFixed(1) ?? "0.0"}
                 <Star className="inline-block" size={21} />
               </p>
             </div>
             <TrackRead bookId={book.id} />
-            <p className="text-sm">
-              Lido de{" "}
-              {formatDateString(
-                mockReadingInteraction.reading_logs[0].created_at,
-              )}{" "}
-              a{" "}
-              {formatDateString(
-                mockReadingInteraction.reading_logs[
-                  mockReadingInteraction.reading_logs.length - 1
-                ].created_at,
-              )}
-            </p>
+            {firstLog && lastLog && (
+              <p className="text-sm">
+                Lido de {formatDateString(firstLog.created_at)} a{" "}
+                {formatDateString(lastLog.created_at)}
+              </p>
+            )}
           </ContainerBorder>
         )}
       </div>

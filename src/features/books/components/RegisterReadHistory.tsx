@@ -1,41 +1,80 @@
 import { Button } from "@/components/ui";
-import type { ReadingInteraction, ReadingLog } from "@/features/profile/dtos";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { toast } from "sonner";
 import { formatDateString } from "../utils/formatDate";
 import { ProgressRead } from "@/components/ProgressRead";
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { useSaveReadingProgress } from "../hooks/useReadingTracking";
+import type {
+  ReadingFeeling,
+  ReadingLogEntry,
+} from "../services/readingTracking";
 
 interface Props {
-  interaction: ReadingInteraction;
+  bookId: string;
+  totalPages: number;
+  lastProgress: number;
+  logs: ReadingLogEntry[];
 }
 
-export default function RegisterReadHistory({ interaction }: Props) {
-  const [feelingSelected, setFeelingSelected] = useState("");
-  const [currentPage, setCurrentPage] = useState(interaction.last_progress);
+const feelings: { label: ReadingFeeling; emoji: string }[] = [
+  { label: "não curti", emoji: "☹️​" },
+  { label: "meh", emoji: "🙁​" },
+  { label: "ok", emoji: "😐​" },
+  { label: "gostei", emoji: "🙂​" },
+  { label: "amei", emoji: "😁" },
+];
 
-  const feelings = [
-    { label: "não curti", emoji: "☹️​" },
-    { label: "meh", emoji: "🙁​" },
-    { label: "ok", emoji: "😐​" },
-    { label: "gostei", emoji: "🙂​" },
-    { label: "amei", emoji: "😁" },
-  ];
+export default function RegisterReadHistory({
+  bookId,
+  totalPages,
+  lastProgress,
+  logs,
+}: Props) {
+  const [feelingSelected, setFeelingSelected] = useState<ReadingFeeling | "">(
+    "",
+  );
+  const [currentPage, setCurrentPage] = useState(lastProgress);
 
-  function getDetails(log: ReadingLog) {
+  // após salvar, o progresso confirmado pelo servidor vira a nova base
+  // (ajuste de estado durante o render, sem efeito)
+  const [prevLastProgress, setPrevLastProgress] = useState(lastProgress);
+  if (prevLastProgress !== lastProgress) {
+    setPrevLastProgress(lastProgress);
+    setCurrentPage(lastProgress);
+  }
+
+  const { mutateAsync: saveProgress, isPending } =
+    useSaveReadingProgress(bookId);
+
+  const finished = totalPages > 0 && lastProgress >= totalPages;
+
+  async function handleSave() {
+    if (!feelingSelected) return;
+
+    try {
+      await saveProgress({ currentPage, feeling: feelingSelected });
+      setFeelingSelected("");
+      toast.success("Registro salvo!");
+    } catch {
+      toast.error("Não foi possível salvar o registro. Tente novamente.");
+    }
+  }
+
+  function getDetails(log: ReadingLogEntry) {
     const date = formatDateString(log.created_at);
     const feeling = feelings.find((feeling) => feeling.label === log.feeling);
     const pages = log.pages_read;
-    const percentage = Math.round(
-      (Number(pages) / interaction.total_pages) * 100,
-    );
+    const percentage =
+      totalPages > 0 ? Math.round((pages / totalPages) * 100) : 0;
 
     return { date, feeling, pages, percentage };
   }
 
   return (
-    <div>
-      {interaction.total_pages !== interaction.last_progress && (
+    <div className="mb-16">
+      {!finished && (
         <ContainerBorder>
           <p className="text-sm font-medium">Progresso da leitura</p>
           <div className="flex flex-col gap-5 bg-gray-200 p-4 rounded-xl">
@@ -45,22 +84,20 @@ export default function RegisterReadHistory({ interaction }: Props) {
                 <Button
                   className="bg-white text-primary font-semibold rounded-xl"
                   onClick={() => setCurrentPage((prev: number) => prev - 1)}
-                  disabled={currentPage == 1}
+                  disabled={currentPage <= 0}
                 >
                   -
                 </Button>
 
                 <p>
                   <span className="text-xl font-bold">{currentPage}</span>/
-                  <span className="text-xs font-medium">
-                    {interaction.total_pages}
-                  </span>
+                  <span className="text-xs font-medium">{totalPages}</span>
                 </p>
 
                 <Button
                   className="bg-white text-primary font-semibold rounded-xl"
                   onClick={() => setCurrentPage((prev: number) => prev + 1)}
-                  disabled={currentPage == interaction.total_pages}
+                  disabled={totalPages > 0 && currentPage >= totalPages}
                 >
                   +
                 </Button>
@@ -91,17 +128,29 @@ export default function RegisterReadHistory({ interaction }: Props) {
               </div>
             </div>
           </div>
-          <Button variant="default">Salvar registro</Button>
+          <Button
+            variant="default"
+            disabled={!feelingSelected || isPending}
+            onClick={handleSave}
+          >
+            {isPending ? "Salvando..." : "Salvar registro"}
+          </Button>
         </ContainerBorder>
       )}
 
       <div className="flex flex-col gap-4 mt-4 mb-8">
         <p className="text-sm font-medium">Histórico de leitura</p>
 
-        {interaction.reading_logs.map((log) => {
+        {logs.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center">
+            Nenhum registro ainda. Salve seu primeiro progresso!
+          </p>
+        )}
+
+        {logs.map((log) => {
           const detail = getDetails(log);
           return (
-            <ContainerBorder>
+            <ContainerBorder key={log.id}>
               <div className="flex justify-between items-center">
                 <p className="text-xl">{detail.feeling?.emoji}</p>
                 <p className="text-sm text-gray-600">{detail.date}</p>

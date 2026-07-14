@@ -1,19 +1,47 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { BookImage } from "../components/BookImage";
-import { mockBooks, mockReadingInteraction } from "@/mocks/books";
 import { ArrowLeft } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookImage } from "../components/BookImage";
 import RegisterReadHistory from "../components/RegisterReadHistory";
 import RegisterReadHighlights from "../components/RegisterReadHighlights";
 import RegisterReadReview from "../components/RegisterReadReview";
-import { useState } from "react";
+import { useBook } from "../hooks/useBook";
+import { useReadingTracking } from "../hooks/useReadingTracking";
+import { useUserBookStatus } from "../hooks/useUserBookStatus";
 
 export default function RegisterRead() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const book = mockBooks.find((book) => book.id === id);
-  const interaction = mockReadingInteraction;
+  const { data: book, isLoading: isLoadingBook } = useBook(id);
+  const { data: tracking, isLoading: isLoadingTracking } =
+    useReadingTracking(id);
+  // o status precisa estar resolvido antes do primeiro render das Tabs:
+  // defaultValue não é controlado e não muda depois
+  const { data: userStatus, isLoading: isLoadingStatus } =
+    useUserBookStatus(id);
+
+  if (isLoadingBook || isLoadingTracking || isLoadingStatus) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Carregando registro...
+      </p>
+    );
+  }
+
+  if (!book || !tracking) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Livro não encontrado.
+      </p>
+    );
+  }
+
+  // marcado como "Lido" libera a resenha mesmo sem o contador de páginas
+  // ter chegado ao fim
+  const finished =
+    userStatus === "read" ||
+    (book.total_pages > 0 && tracking.currentPage >= book.total_pages);
 
   return (
     <div>
@@ -27,30 +55,44 @@ export default function RegisterRead() {
       <div className="flex gap-4 items-center mb-8">
         <BookImage book={book} height="h-40" />
         <div>
-          <p className="text-lg font-medium">{book?.title_pt}</p>
-          <p className="text-sm">{book?.authors}</p>
+          <p className="text-lg font-medium">
+            {book.title_pt ?? book.title_original}
+          </p>
+          <p className="text-sm">{book.authors.join(", ")}</p>
         </div>
       </div>
 
-      <Tabs defaultValue="history" className="w-full">
+      <Tabs
+        defaultValue={userStatus === "read" ? "review" : "history"}
+        className="w-full"
+      >
         <TabsList className="w-full mb-4">
           <TabsTrigger value="history">Histórico</TabsTrigger>
           <TabsTrigger value="highlights">Destaques</TabsTrigger>
-          <TabsTrigger
-            value="review"
-            disabled={interaction.total_pages !== interaction.last_progress}
-          >
+          <TabsTrigger value="review" disabled={!finished}>
             Resenha
           </TabsTrigger>
         </TabsList>
         <TabsContent value="history">
-          <RegisterReadHistory interaction={interaction} />
+          <RegisterReadHistory
+            bookId={book.id}
+            totalPages={book.total_pages}
+            lastProgress={tracking.currentPage}
+            logs={tracking.logs}
+          />
         </TabsContent>
         <TabsContent value="highlights">
-          <RegisterReadHighlights interaction={interaction} />
+          <RegisterReadHighlights
+            bookId={book.id}
+            highlights={tracking.highlights}
+          />
         </TabsContent>
         <TabsContent value="review">
-          <RegisterReadReview interaction={interaction} />
+          <RegisterReadReview
+            bookId={book.id}
+            rating={tracking.rating}
+            review={tracking.review}
+          />
         </TabsContent>
       </Tabs>
     </div>

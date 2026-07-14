@@ -1,49 +1,144 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { Button, Input, Textarea } from "@/components/ui";
-import type { ReadingInteraction } from "@/features/profile/dtos";
 import { useState } from "react";
+import { toast } from "sonner";
+import {
+  useSaveHighlight,
+  useUpdateHighlight,
+} from "../hooks/useReadingTracking";
+import type { BookHighlightEntry } from "../services/readingTracking";
 
 interface Props {
-  interaction: ReadingInteraction;
+  bookId: string;
+  highlights: BookHighlightEntry[];
 }
 
-export default function RegisterReadHighlights({ interaction }: Props) {
+export default function RegisterReadHighlights({ bookId, highlights }: Props) {
   const [showRegisterHighlight, setShowRegisterHighlight] = useState(false);
   const [newQuote, setNewQuote] = useState("");
   const [newQuotePage, setNewQuotePage] = useState("");
-  const [highlights, setHighlights] = useState(interaction.highlights);
 
-  function saveQuote(): void {
-    setHighlights((prev) => [
-      ...prev,
-      {
+  // edição inline: id do destaque em edição e os valores do formulário
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editQuote, setEditQuote] = useState("");
+  const [editPage, setEditPage] = useState("");
+
+  const { mutateAsync: saveHighlight, isPending: isSaving } =
+    useSaveHighlight(bookId);
+  const { mutateAsync: updateHighlight, isPending: isUpdating } =
+    useUpdateHighlight(bookId);
+
+  async function saveQuote() {
+    try {
+      await saveHighlight({
         page: Number(newQuotePage),
-        percentage: Math.round(
-          (Number(newQuotePage) / interaction.total_pages) * 100,
-        ),
-        quote: newQuote,
-      },
-    ]);
+        quote: newQuote.trim(),
+      });
 
-    setNewQuote("");
-    setNewQuotePage("");
+      setNewQuote("");
+      setNewQuotePage("");
+      setShowRegisterHighlight(false);
+      toast.success("Destaque salvo!");
+    } catch {
+      toast.error("Não foi possível salvar o destaque. Tente novamente.");
+    }
+  }
+
+  function startEditing(highlight: BookHighlightEntry) {
+    setEditingId(highlight.id);
+    setEditQuote(highlight.quote);
+    setEditPage(String(highlight.page));
+  }
+
+  async function saveEdit() {
+    if (!editingId) return;
+
+    try {
+      await updateHighlight({
+        highlightId: editingId,
+        page: Number(editPage),
+        quote: editQuote.trim(),
+      });
+
+      setEditingId(null);
+      toast.success("Destaque atualizado!");
+    } catch {
+      toast.error("Não foi possível atualizar o destaque. Tente novamente.");
+    }
   }
 
   return (
     <div>
       <ContainerBorder className="mb-7">
         <p className="text-sm font-medium">Destaques</p>
-        {highlights.map((highlight, idx) => (
-          <div
-            key={idx}
-            className="bg-gray-200 p-4 border-l-3 border-primary rounded-xl"
-          >
-            <p className="text-sm">"{highlight.quote}"</p>
-            <p className="text-xs text-primary font-medium mt-3">
-              pág {highlight.page}
-            </p>
-          </div>
-        ))}
+
+        {highlights.length === 0 && !showRegisterHighlight && (
+          <p className="text-sm text-muted-foreground text-center">
+            Nenhum destaque ainda.
+          </p>
+        )}
+
+        {highlights.map((highlight) =>
+          editingId === highlight.id ? (
+            <div
+              key={highlight.id}
+              className="bg-gray-200 flex flex-col gap-3 p-4 border-l-3 border-secondary rounded-xl"
+            >
+              <Textarea
+                className="bg-white"
+                placeholder="Citação"
+                value={editQuote}
+                onChange={(e) => setEditQuote(e.target.value)}
+              />
+              <Input
+                className="bg-white"
+                placeholder="Número da página"
+                type="number"
+                value={editPage}
+                onChange={(e) => setEditPage(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <Button
+                  className="self-start text-sm text-secondary"
+                  variant="ghost"
+                  size="sm"
+                  disabled={!editQuote.trim() || !editPage || isUpdating}
+                  onClick={saveEdit}
+                >
+                  {isUpdating ? "Salvando..." : "Salvar"}
+                </Button>
+                <Button
+                  className="self-start text-sm"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEditingId(null)}
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div
+              key={highlight.id}
+              className="bg-gray-200 p-4 border-l-3 border-primary rounded-xl"
+            >
+              <p className="text-sm">"{highlight.quote}"</p>
+              <div className="flex justify-between items-center mt-3">
+                <p className="text-xs text-primary font-medium">
+                  pág {highlight.page}
+                </p>
+                <Button
+                  className="text-xs text-primary h-auto p-0"
+                  variant="link"
+                  size="sm"
+                  onClick={() => startEditing(highlight)}
+                >
+                  Editar
+                </Button>
+              </div>
+            </div>
+          ),
+        )}
 
         {showRegisterHighlight && (
           <div className="bg-gray-200 flex flex-col gap-3 p-4 border-l-3 border-secondary rounded-xl">
@@ -56,6 +151,7 @@ export default function RegisterReadHighlights({ interaction }: Props) {
             <Input
               className="bg-white"
               placeholder="Número da página"
+              type="number"
               value={newQuotePage}
               onChange={(e) => setNewQuotePage(e.target.value)}
             />
@@ -63,9 +159,10 @@ export default function RegisterReadHighlights({ interaction }: Props) {
               className="self-start text-sm text-secondary"
               variant="ghost"
               size="sm"
-              onClick={() => saveQuote()}
+              disabled={!newQuote.trim() || !newQuotePage || isSaving}
+              onClick={saveQuote}
             >
-              Salvar
+              {isSaving ? "Salvando..." : "Salvar"}
             </Button>
           </div>
         )}

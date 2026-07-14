@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 
 export type UserBookStatus = "read" | "reading" | "want_to_read";
 
-async function requireUserId(): Promise<string> {
+export async function requireUserId(): Promise<string> {
   const {
     data: { user },
   } = await supabase.auth.getUser();

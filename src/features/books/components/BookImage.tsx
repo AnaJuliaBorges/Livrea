@@ -12,20 +12,20 @@ export function BookImage({
   book,
   height,
 }: {
-  book: BookImageData;
+  book?: BookImageData;
   height?: string;
 }) {
   const [imgSrc, setImgSrc] = useState(
-    book.image_medium ||
-      book.image_thumbnail ||
-      book.image_large ||
+    book?.image_medium ||
+      book?.image_thumbnail ||
+      book?.image_large ||
       placeholderBook,
   );
 
   return (
     <img
       src={imgSrc}
-      alt={book.title_original}
+      alt={book?.title_original ?? "Capa do livro"}
       className={`w-auto ${height ?? "aspect-2/3"} overflow-hidden rounded-md bg-muted`}
       onError={() => {
         setImgSrc(placeholderBook);
