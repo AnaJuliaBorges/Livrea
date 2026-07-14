@@ -14,14 +14,26 @@ export interface Reading {
   title: string;
 }
 
+export interface ReadingHistoryBook {
+  id: string;
+  title: string;
+  imageThumbnail: string | null;
+  imageMedium: string | null;
+  imageLarge: string | null;
+}
+
 export interface Club {
   id: string;
   name: string;
   description: string;
+  coverUrl: string | null;
   isPrivate: boolean;
+  isMember: boolean;
+  isAdmin: boolean;
   participantLimit: number | null;
   type: string;
   frequency: string | null;
+  customFrequency: string | null;
   currentReading: Reading | null;
   genres: Genre[];
   cityName: string;
@@ -29,17 +41,16 @@ export interface Club {
   totalParticipants: number;
   meetingDescription: string;
   nextMeeting: {
+    id: string;
     location: string;
     date: string;
     time: string;
     confirmedMembers: number;
+    isConfirmedByMe: boolean;
   } | null;
-  rules: string[];
+  rules: string;
 
-  readingHistory: {
-    id: string;
-    cover: string | null;
-  }[];
+  readingHistory: ReadingHistoryBook[];
 }
 
 export type ClubMatchGroup = "city" | "state" | "online" | "other";
@@ -76,4 +87,11 @@ export interface ClubParticipant {
   name: string;
   photo: string | null;
   joinedAt: string;
+}
+
+export interface ClubMember {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+  isAdmin: boolean;
 }

@@ -125,7 +125,7 @@ function EditProfileForm({
     watch,
     setValue,
     formState: { errors, isSubmitting, isValid },
-  } = useForm<EditProfileFormData>({
+  } = useForm<z.input<typeof editProfileSchema>, unknown, EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
     mode: "onChange",
     defaultValues: {

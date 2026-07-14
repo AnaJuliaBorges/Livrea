@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui";
-import { allClubs } from "@/mocks/clubes";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import placeholder from "../../../assets/placeholder.png";
@@ -10,19 +9,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import OverviewSection from "../components/OverviewSection";
 import MembersSection from "../components/MemberSection";
 import ReadingSection from "../components/ReadingSection";
+import { useClub } from "../hooks/useClub";
 
 export default function ClubDetails() {
   const { id } = useParams();
-  const club = allClubs.find((item) => item.id === id);
+  const { data: club, isLoading, isError } = useClub(id);
   const navigate = useNavigate();
 
-  // A página de detalhes ainda é alimentada por mock (allClubs); clubes reais
-  // criados no banco ainda não têm detalhe — não deixar a página quebrar.
-  if (!club) {
+  if (isLoading) {
+    return (
+      <p className="mt-20 text-center text-muted-foreground">
+        Carregando clube...
+      </p>
+    );
+  }
+
+  if (isError || !club) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4 text-center">
         <p className="text-gray-600">
-          Os detalhes deste clube ainda não estão disponíveis.
+          Os detalhes deste clube não estão disponíveis.
         </p>
         <Button variant="outline" onClick={() => navigate(-1)}>
           <ArrowLeft className="mr-1 size-4" />
@@ -46,43 +52,46 @@ export default function ClubDetails() {
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-lg ">
           <img
-            src={placeholder}
-            alt="Logo"
-            className="h-35 w-50 border-2 rounded-lg brightness-95"
+            src={club.coverUrl ?? placeholder}
+            alt={club.name}
+            className="h-35 w-50 border-2 rounded-lg brightness-95 object-cover"
           />
         </div>
       </div>
-      <div className="flex flex-col gap-2 items-center mt-24">
-        <h2 className="font-medium text-lg">{club?.name}</h2>
-        <LocalizationPin city={club?.cityName} state={club?.stateAbbreviation} />
-        <div className="flex gap-2">
-          {club?.genres.map((genre) => (
-            <Tag>{genre.name}</Tag>
+      <div className="flex flex-col gap-2 items-center mt-24 mb-6">
+        <h2 className="font-medium text-lg">{club.name}</h2>
+        {club.cityName && club.stateAbbreviation && (
+          <LocalizationPin
+            city={club.cityName}
+            state={club.stateAbbreviation}
+          />
+        )}
+        <div className="flex justify-center flex-wrap gap-2">
+          {club.genres.map((genre) => (
+            <Tag key={genre.id}>{genre.name}</Tag>
           ))}
         </div>
       </div>
 
-      <Button className="w-full my-6">Pedir para participar</Button>
+      {!club.isMember && (
+        <Button className="w-full my-6">Pedir para participar</Button>
+      )}
 
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue="overview" className="w-full mb-6">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Participantes</TabsTrigger>
           <TabsTrigger value="reading">Leitura</TabsTrigger>
         </TabsList>
-        {club && (
-          <>
-            <TabsContent value="overview">
-              <OverviewSection club={club} />
-            </TabsContent>
-            <TabsContent value="members">
-              <MembersSection />
-            </TabsContent>
-            <TabsContent value="reading">
-              <ReadingSection club={club} />
-            </TabsContent>
-          </>
-        )}
+        <TabsContent value="overview">
+          <OverviewSection club={club} />
+        </TabsContent>
+        <TabsContent value="members">
+          <MembersSection clubId={club.id} />
+        </TabsContent>
+        <TabsContent value="reading">
+          <ReadingSection club={club} />
+        </TabsContent>
       </Tabs>
     </>
   );

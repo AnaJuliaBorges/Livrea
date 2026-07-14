@@ -187,7 +187,7 @@ export default function ReadingSection({ club }: Props) {
             <p className="font-medium">{book?.title_pt}</p>
             <p>{book?.authors}</p>
             <p>{book?.publisher}</p>
-            <p>{book?.primary_genre.name}</p>
+            <p>{book?.primary_genre?.name}</p>
             <p>{book?.total_pages} páginas</p>
           </div>
           <ChevronRight />

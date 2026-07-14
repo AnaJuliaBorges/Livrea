@@ -114,9 +114,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2019",
     total_pages: 336,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 1,
@@ -144,9 +144,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2017",
     total_pages: 680,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 2,
@@ -174,9 +174,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2020",
     total_pages: 400,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 3,
@@ -204,9 +204,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2018",
     total_pages: 424,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 4,
@@ -233,9 +233,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2019",
     total_pages: 656,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 1,
@@ -263,9 +263,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2009",
     total_pages: 416,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 5,
@@ -293,9 +293,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2014",
     total_pages: 208,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 6,
@@ -323,9 +323,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2019",
     total_pages: 364,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 3,
@@ -353,9 +353,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2015",
     total_pages: 96,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 6,
@@ -382,9 +382,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2012",
     total_pages: 208,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 5,
@@ -407,9 +407,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2015",
     total_pages: 464,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 7,
@@ -432,9 +432,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2014",
     total_pages: 312,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 5,
@@ -457,9 +457,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2017",
     total_pages: 224,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 8,
@@ -482,9 +482,9 @@ export const mockBooks: BookTemp[] = [
     publisher_date: "2019",
     total_pages: 240,
 
-    image_thumbnail: null,
-    image_medium: null,
-    image_large: null,
+    image_thumbnail: undefined,
+    image_medium: undefined,
+    image_large: undefined,
 
     primary_genre: {
       id: 4,
