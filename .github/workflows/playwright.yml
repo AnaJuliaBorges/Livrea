@@ -19,6 +19,17 @@ jobs:
         run: npx playwright install --with-deps
       - name: Run Playwright tests
         run: npx playwright test
+        env:
+          # o webServer do Playwright sobe o app de verdade (npm run dev);
+          # sem essas vars, src/lib/supabase.ts lança "supabaseKey is
+          # required" já no boot e nenhuma página chega a renderizar (foi
+          # a causa do timeout no step de warmup). Valores fake bastam:
+          # todo tráfego de rede real é interceptado via page.route nos
+          # specs, então o app nunca chega a usar essas chaves de verdade.
+          VITE_SUPABASE_URL: "https://test-project.supabase.co"
+          VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: "test-supabase-anon-key"
+          VITE_GOOGLE_BOOKS_API_KEY: "test-google-books-key"
+          VITE_ISBNDB_API_KEY: "test-isbndb-key"
       - uses: actions/upload-artifact@v4
         if: always( )
         with:

@@ -28,7 +28,7 @@ Run a single unit test file: `npx vitest run src/components/ui/button.test.tsx`.
 
 Required env vars (`.env`, not committed): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`, `VITE_GOOGLE_BOOKS_API_KEY`, `VITE_ISBNDB_API_KEY`.
 
-> Note: the Vitest GitHub Actions workflow (`.github/workflows/vitest.yml`) injects `VITE_SUPABASE_ANON_KEY`, but the app code reads `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` (`src/lib/supabase.ts`). These names are out of sync — check both when touching CI or Supabase config.
+> Note: neither CI workflow depends on real secrets for these vars anymore. `vite.config.ts` sets fake values for all four via `test.env` (used by `vitest.yml`), and `.github/workflows/playwright.yml` sets fake values directly as step `env:` for the `npm run dev` server Playwright's `webServer` spins up — `src/lib/supabase.ts` calls `createClient()` at module load and throws if these are missing, which previously made the whole app fail to render in the Playwright pipeline (surfaced as the `warmup.setup.ts` step timing out waiting for the login page). Real network calls in tests are intercepted via mocks (`vi.mock`/`page.route`), so fake values are sufficient — no GitHub secrets required for either pipeline.
 
 ## Architecture
 

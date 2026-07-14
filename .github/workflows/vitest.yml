@@ -24,10 +24,11 @@ jobs:
         run: npm install
 
       - name: Run Vitest tests
+        # env vars fake das APIs externas/Supabase vêm de vite.config.ts
+        # (test.env) — não dependem de secrets do CI, então essas vars não
+        # são mais necessárias aqui (o nome antigo, VITE_SUPABASE_ANON_KEY,
+        # nem batia com o que src/lib/supabase.ts lê)
         run: npm run test:coverage
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
       - name: Upload coverage results
         if: always()
