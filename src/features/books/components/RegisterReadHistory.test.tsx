@@ -1,0 +1,219 @@
+import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { toast } from "sonner";
+import RegisterReadHistory from "./RegisterReadHistory";
+import { useSaveReadingProgress } from "../hooks/useReadingTracking";
+import type { ReadingLogEntry } from "../services/readingTracking";
+
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
+}));
+
+vi.mock("../hooks/useReadingTracking");
+
+const useSaveReadingProgressMock = vi.mocked(useSaveReadingProgress);
+
+function mockMutation({ save = vi.fn(), isPending = false } = {}) {
+  useSaveReadingProgressMock.mockReturnValue({
+    mutateAsync: save,
+    isPending,
+  } as unknown as ReturnType<typeof useSaveReadingProgress>);
+  return save;
+}
+
+async function selectFeeling(user: ReturnType<typeof userEvent.setup>, label: string) {
+  const container = screen.getByText(label).closest("div") as HTMLElement;
+  await user.click(within(container).getByRole("button"));
+}
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+describe("RegisterReadHistory", () => {
+  it("mostra o progresso atual e o total de páginas", () => {
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.getByText("50")).toBeInTheDocument();
+    expect(screen.getByText("300")).toBeInTheDocument();
+  });
+
+  it("mostra mensagem quando não há histórico", () => {
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={0}
+        logs={[]}
+      />,
+    );
+
+    expect(
+      screen.getByText("Nenhum registro ainda. Salve seu primeiro progresso!"),
+    ).toBeInTheDocument();
+  });
+
+  it("lista os registros de leitura", () => {
+    mockMutation();
+    const logs: ReadingLogEntry[] = [
+      {
+        id: "log-1",
+        pages_read: 150,
+        feeling: "gostei",
+        created_at: "2026-01-01T00:00:00",
+      },
+    ];
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={150}
+        logs={logs}
+      />,
+    );
+
+    expect(screen.getByText("150 páginas lidas")).toBeInTheDocument();
+  });
+
+  it("esconde a seção de progresso quando a leitura já terminou", () => {
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={300}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.queryByText("Página atual")).not.toBeInTheDocument();
+  });
+
+  it("incrementa e decrementa a página atual", async () => {
+    const user = userEvent.setup();
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    await user.click(screen.getByText("+"));
+    expect(screen.getByText("51")).toBeInTheDocument();
+
+    await user.click(screen.getByText("-"));
+    await user.click(screen.getByText("-"));
+    expect(screen.getByText("49")).toBeInTheDocument();
+  });
+
+  it("desabilita o decremento em 0 e o incremento no total de páginas", async () => {
+    const user = userEvent.setup();
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={10}
+        lastProgress={0}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.getByText("-")).toBeDisabled();
+
+    for (let i = 0; i < 10; i++) {
+      await user.click(screen.getByText("+"));
+    }
+
+    expect(screen.getByText("+")).toBeDisabled();
+  });
+
+  it("mantém o botão de salvar desabilitado até escolher um sentimento", async () => {
+    const user = userEvent.setup();
+    const save = mockMutation();
+    save.mockResolvedValue(undefined);
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.getByText("Salvar registro")).toBeDisabled();
+
+    await selectFeeling(user, "gostei");
+    expect(screen.getByText("Salvar registro")).not.toBeDisabled();
+
+    await user.click(screen.getByText("Salvar registro"));
+
+    expect(save).toHaveBeenCalledWith({ currentPage: 50, feeling: "gostei" });
+    expect(toast.success).toHaveBeenCalledWith("Registro salvo!");
+  });
+
+  it("mostra erro quando salvar o registro falha", async () => {
+    const user = userEvent.setup();
+    const save = mockMutation();
+    save.mockRejectedValue(new Error("falhou"));
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    await selectFeeling(user, "amei");
+    await user.click(screen.getByText("Salvar registro"));
+
+    expect(toast.error).toHaveBeenCalledWith(
+      "Não foi possível salvar o registro. Tente novamente.",
+    );
+  });
+
+  it("atualiza a página atual quando lastProgress muda após salvar", () => {
+    mockMutation();
+
+    const { rerender } = render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    rerender(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={80}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.getByText("80")).toBeInTheDocument();
+  });
+});

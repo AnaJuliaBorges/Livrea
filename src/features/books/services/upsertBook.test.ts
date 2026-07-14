@@ -74,4 +74,21 @@ describe("upsertBook", () => {
 
     await expect(upsertBook(book)).rejects.toThrow("RPC não existe");
   });
+
+  it("envia array vazio quando não há autores", async () => {
+    await upsertBook({ ...book, info: { ...book.info, authors: undefined as unknown as string[] } });
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "upsert_book",
+      expect.objectContaining({ p_authors: [] }),
+    );
+  });
+
+  it("lança erro quando a RPC não retorna dado", async () => {
+    rpcMock.mockResolvedValue(rpcResult(null));
+
+    await expect(upsertBook(book)).rejects.toThrow(
+      "Não foi possível salvar o livro",
+    );
+  });
 });

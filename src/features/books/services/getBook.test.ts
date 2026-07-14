@@ -124,6 +124,25 @@ describe("getBook", () => {
     expect(book.synopsis).toBe("<p>Sinopse</p>");
   });
 
+  it("mantém o registro original quando o patch da ISBNDB falha", async () => {
+    rpcMock.mockImplementation((async (fn: string) => {
+      if (fn === "complete_book_data") {
+        return rpcResult(null, new Error("RPC indisponível"));
+      }
+      return rpcResult(incompleteRow);
+    }) as unknown as typeof supabase.rpc);
+    isbndbMock.mockResolvedValue(isbndbBook);
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const book = await getBook("book-1");
+
+    expect(book.synopsis).toBeNull();
+    expect(errorSpy).toHaveBeenCalledWith(
+      "Erro ao completar dados do livro (ISBNDB):",
+      expect.any(Error),
+    );
+  });
+
   it("exibe o livro mesmo quando a ISBNDB falha", async () => {
     rpcMock.mockResolvedValue(rpcResult(incompleteRow));
     isbndbMock.mockRejectedValue(new Error("ISBNDB fora do ar"));

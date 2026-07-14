@@ -112,8 +112,8 @@ describe("getReadingTracking", () => {
 
   it("retorna defaults quando o livro não está na biblioteca", async () => {
     librarySelect.maybeSingle.mockResolvedValue({ data: null, error: null });
-    logsOrder.mockResolvedValue({ data: [], error: null });
-    highlightsOrder.mockResolvedValue({ data: [], error: null });
+    logsOrder.mockResolvedValue({ data: null, error: null });
+    highlightsOrder.mockResolvedValue({ data: null, error: null });
 
     const tracking = await getReadingTracking("book-1");
 
@@ -124,6 +124,39 @@ describe("getReadingTracking", () => {
       logs: [],
       highlights: [],
     });
+  });
+
+  it("lança o erro da consulta à user_library", async () => {
+    librarySelect.maybeSingle.mockResolvedValue({
+      data: null,
+      error: new Error("falha na library"),
+    });
+
+    await expect(getReadingTracking("book-1")).rejects.toThrow(
+      "falha na library",
+    );
+  });
+
+  it("lança o erro da consulta aos logs de leitura", async () => {
+    logsOrder.mockResolvedValue({
+      data: null,
+      error: new Error("falha nos logs"),
+    });
+
+    await expect(getReadingTracking("book-1")).rejects.toThrow(
+      "falha nos logs",
+    );
+  });
+
+  it("lança o erro da consulta aos destaques", async () => {
+    highlightsOrder.mockResolvedValue({
+      data: null,
+      error: new Error("falha nos destaques"),
+    });
+
+    await expect(getReadingTracking("book-1")).rejects.toThrow(
+      "falha nos destaques",
+    );
   });
 });
 
@@ -151,6 +184,28 @@ describe("saveReadingProgress", () => {
       "RLS negou",
     );
   });
+
+  it("lança o erro do upsert que garante a linha na biblioteca", async () => {
+    libraryTable.upsert.mockResolvedValue({
+      error: new Error("upsert negado"),
+    });
+
+    await expect(saveReadingProgress("book-1", 150, "ok")).rejects.toThrow(
+      "upsert negado",
+    );
+  });
+
+  it("lança o erro do update do progresso", async () => {
+    libraryTable.update.mockReturnValueOnce({
+      eq: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ error: new Error("update negado") }),
+      })),
+    });
+
+    await expect(saveReadingProgress("book-1", 150, "ok")).rejects.toThrow(
+      "update negado",
+    );
+  });
 });
 
 describe("saveHighlight", () => {
@@ -163,6 +218,16 @@ describe("saveHighlight", () => {
       page: 42,
       quote: "Uma frase marcante",
     });
+  });
+
+  it("lança o erro do insert do destaque", async () => {
+    highlightsTable.insert.mockResolvedValue({
+      error: new Error("RLS negou"),
+    });
+
+    await expect(
+      saveHighlight("book-1", 42, "Uma frase marcante"),
+    ).rejects.toThrow("RLS negou");
   });
 });
 
@@ -197,5 +262,17 @@ describe("saveReview", () => {
       rating: 5,
       review: "Recomendo!",
     });
+  });
+
+  it("lança o erro retornado pelo update", async () => {
+    libraryTable.update.mockReturnValueOnce({
+      eq: vi.fn(() => ({
+        eq: vi.fn().mockResolvedValue({ error: new Error("RLS negou") }),
+      })),
+    });
+
+    await expect(saveReview("book-1", 5, "Recomendo!")).rejects.toThrow(
+      "RLS negou",
+    );
   });
 });
