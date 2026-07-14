@@ -6,11 +6,13 @@ export function BookListCard({
   title,
   image,
   to,
+  onClick,
   rating,
 }: {
   title: string;
   image?: string;
   to?: string;
+  onClick?: () => void;
   rating?: number | null;
 }) {
   const showRating = rating !== undefined;
@@ -39,11 +41,25 @@ export function BookListCard({
     showRating ? " justify-between" : ""
   }`;
 
-  return to ? (
-    <Link to={to} className={cardClass}>
-      {content}
-    </Link>
-  ) : (
-    <div className={cardClass}>{content}</div>
-  );
+  if (to) {
+    return (
+      <Link to={to} className={cardClass}>
+        {content}
+      </Link>
+    );
+  }
+
+  if (onClick) {
+    return (
+      <div
+        className={`${cardClass} cursor-pointer`}
+        onClick={onClick}
+        role="button"
+      >
+        {content}
+      </div>
+    );
+  }
+
+  return <div className={cardClass}>{content}</div>;
 }

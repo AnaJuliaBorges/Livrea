@@ -1,4 +1,8 @@
-import type { IsbndbBook, IsbndbResponse } from "../types/isbndb";
+import type {
+  IsbndbBook,
+  IsbndbBookResponse,
+  IsbndbResponse,
+} from "../types/isbndb";
 
 const ISBNDB_API_KEY = import.meta.env.VITE_ISBNDB_API_KEY;
 const ISBNDB_BASE_URL = "https://api2.isbndb.com";
@@ -31,6 +35,34 @@ export async function searchIsbndbByGenre(
 
   const data: IsbndbResponse = await response.json();
   return data.books ?? [];
+}
+
+// Endpoint de livro único — o mais completo da ISBNDB (traz synopsis
+// e subjects, que a busca não retorna)
+export async function getIsbndbBookByIsbn(
+  isbn: string,
+): Promise<IsbndbBook | null> {
+  if (!ISBNDB_API_KEY) {
+    throw new Error("VITE_ISBNDB_API_KEY não configurada");
+  }
+
+  const response = await fetch(
+    `${ISBNDB_BASE_URL}/book/${encodeURIComponent(isbn)}`,
+    {
+      headers: {
+        Authorization: ISBNDB_API_KEY,
+      },
+    },
+  );
+
+  if (response.status === 404) return null;
+
+  if (!response.ok) {
+    throw new Error(`Erro ao buscar livro na ISBNDB: ${response.statusText}`);
+  }
+
+  const data: IsbndbBookResponse = await response.json();
+  return data.book ?? null;
 }
 
 export async function searchIsbndbByQuery(

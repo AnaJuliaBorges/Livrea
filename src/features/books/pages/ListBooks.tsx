@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FileWarning } from "lucide-react";
+import { toast } from "sonner";
 import { SearchInput } from "@/components/SearchInput";
 import { BookListCard } from "../components/BookListCard";
+import { useUpsertBook } from "../hooks/useUpsertBook";
+import type { Book } from "../types/book";
 import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
 import { useGenres } from "../hooks/useGenres";
 import { useDebounce } from "../hooks/useDebounce";
@@ -11,8 +14,25 @@ import { useBooksByGenres } from "../hooks/useBooksByGenres";
 import { getSelectedGenreNames } from "../utils/genreUtils";
 
 export default function ListBooks() {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 500);
+
+  const { mutateAsync: upsertBook, isPending: isOpeningBook } =
+    useUpsertBook();
+
+  // livro externo ainda não existe no banco: cria o registro mínimo e
+  // navega — a página de detalhes completa os dados via Google Books
+  async function openExternalBook(book: Book) {
+    if (isOpeningBook) return;
+
+    try {
+      const bookId = await upsertBook(book);
+      navigate(`/livros/${bookId}`);
+    } catch {
+      toast.error("Não foi possível abrir o livro. Tente novamente.");
+    }
+  }
 
   const { data: genreIds = [], isLoading: isLoadingGenreIds } =
     useProfileGenreIds();
@@ -133,6 +153,9 @@ export default function ListBooks() {
                 key={book.google_id}
                 title={book.info.title}
                 image={book.image.thumbnail || book.image.smallThumbnail}
+                onClick={
+                  book.info.isbn ? () => openExternalBook(book) : undefined
+                }
               />
             ))}
           </div>

@@ -16,11 +16,12 @@ export function mapIsbndb(item: IsbndbBook): Book {
       subtitle: "",
       authors,
       pageCount: item.pages,
-      summary: undefined,
+      // presente no endpoint /book/{isbn}; pode conter HTML de formatação
+      summary: item.synopsis,
     },
     genre: {
       main: undefined,
-      secondary: [],
+      secondary: item.subjects ?? [],
     },
     publisher: {
       publisherDate: item.date_published || "",

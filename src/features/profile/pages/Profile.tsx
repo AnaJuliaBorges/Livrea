@@ -129,7 +129,7 @@ export default function Profile() {
             <TabsTrigger value="books">Meus livros</TabsTrigger>
           </TabsList>
           <TabsContent value="clubs">
-            <div className="mt-6">
+            <div className="mb-6 mt-6">
               {profile.clubs.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">
                   Você ainda não participa de nenhum clube.
@@ -173,7 +173,7 @@ export default function Profile() {
                   Nenhum livro nesta lista ainda.
                 </p>
               )}
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
+              <div className="grid grid-cols-2 mb-8 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-6">
                 {bookActive().map((book) => (
                   <BookListCard
                     key={book.id}
@@ -185,7 +185,6 @@ export default function Profile() {
                       undefined
                     }
                     to={`/livros/${book.id}`}
-                    rating={book.rating}
                   />
                 ))}
               </div>

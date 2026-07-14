@@ -1,6 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { fetchGoogleBookData } from "./fetchGoogleBookData";
-import type { BookTemp } from "../types/book";
+import { fetchIsbndbBookData } from "./fetchIsbndbBookData";
+import type { Book, BookTemp } from "../types/book";
 
 type RawBookRow = {
   id: string;
@@ -69,37 +70,48 @@ function isIncomplete(row: RawBookRow) {
   );
 }
 
-// Ao abrir um livro incompleto, busca os dados no Google Books pelo
-// ISBN e completa os campos nulos no banco (complete_book_data nunca
-// sobrescreve dado existente). Falha do Google não bloqueia a página.
-async function enrichBookRow(row: RawBookRow): Promise<RawBookRow> {
-  const google = await fetchGoogleBookData(row.isbn).catch(() => null);
-  if (!google) return row;
-
-  const patch = {
-    subtitle: google.info.subtitle || null,
-    synopsis: google.info.summary ?? null,
-    publisher: google.publisher.publisher || null,
-    publisher_date: google.publisher.publisherDate || null,
-    total_pages: google.info.pageCount ?? null,
-    image_small_thumbnail: google.image.smallThumbnail ?? null,
-    image_thumbnail: google.image.thumbnail ?? null,
-    image_medium: google.image.medium ?? null,
-    image_large: google.image.large ?? null,
-    average_rating: google.averageRating ?? null,
-    ratings_count: google.ratingsCount ?? null,
-    categories: [google.genre.main, ...(google.genre.secondary ?? [])].filter(
+// complete_book_data nunca sobrescreve dado existente — aplicar patch
+// de fontes diferentes em fases é seguro
+function buildPatch(book: Book) {
+  return {
+    subtitle: book.info.subtitle || null,
+    synopsis: book.info.summary ?? null,
+    publisher: book.publisher.publisher || null,
+    publisher_date: book.publisher.publisherDate || null,
+    total_pages: book.info.pageCount ?? null,
+    image_small_thumbnail: book.image.smallThumbnail ?? null,
+    image_thumbnail: book.image.thumbnail ?? null,
+    image_medium: book.image.medium ?? null,
+    image_large: book.image.large ?? null,
+    average_rating: book.averageRating ?? null,
+    ratings_count: book.ratingsCount ?? null,
+    // a RPC reparte: o que casa com a tabela genres vira gênero,
+    // o restante vira subjects
+    categories: [book.genre.main, ...(book.genre.secondary ?? [])].filter(
       Boolean,
     ),
   };
+}
 
+async function applyPatch(bookId: string, patch: ReturnType<typeof buildPatch>) {
   const { error } = await supabase.rpc("complete_book_data", {
-    p_book_id: row.id,
+    p_book_id: bookId,
     p_data: patch,
   });
 
-  if (error) {
-    console.error("Erro ao completar dados do livro:", error);
+  if (error) throw error;
+}
+
+// Fase 1 (rápida, bloqueia a página): completa com a ISBNDB, que traz
+// sinopse e subjects pelo ISBN. Falha não bloqueia a exibição.
+async function enrichFromIsbndb(row: RawBookRow): Promise<RawBookRow> {
+  const isbndb = await fetchIsbndbBookData(row.isbn).catch(() => null);
+  if (!isbndb) return row;
+
+  try {
+    await applyPatch(row.id, buildPatch(isbndb));
+  } catch (error) {
+    console.error("Erro ao completar dados do livro (ISBNDB):", error);
     return row;
   }
 
@@ -111,8 +123,31 @@ export async function getBook(id: string): Promise<BookTemp> {
   let row = await fetchBookRow(id);
 
   if (isIncomplete(row) && row.isbn) {
-    row = await enrichBookRow(row);
+    row = await enrichFromIsbndb(row);
   }
 
   return mapRow(row);
+}
+
+// Ainda falta algo que só o Google Books fornece? (imagens medium/large,
+// categorias que viram gêneros, nota média junto no patch)
+export function needsGoogleEnrichment(book: BookTemp) {
+  return (
+    !!book.isbn &&
+    (!book.synopsis ||
+      !book.image_medium ||
+      !book.total_pages ||
+      !book.primary_genre)
+  );
+}
+
+// Fase 2 (segundo plano, com a página já exibida): o Google Books —
+// instável, vive dando 503 — completa o que a ISBNDB não tem.
+// Retorna true se aplicou dados novos.
+export async function enrichBookWithGoogle(book: BookTemp): Promise<boolean> {
+  const google = await fetchGoogleBookData(book.isbn).catch(() => null);
+  if (!google) return false;
+
+  await applyPatch(book.id, buildPatch(google));
+  return true;
 }

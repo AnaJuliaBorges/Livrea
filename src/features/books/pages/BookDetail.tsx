@@ -13,19 +13,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { toast } from "sonner";
 import { ReviewCard } from "../components/ReviewCard";
 import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
-import { formatDateString } from "../utils/formatDate";
+import { extractYear, formatDateString } from "../utils/formatDate";
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { SafeHtml } from "@/components/SafeHtml";
 import { useBook } from "../hooks/useBook";
+import {
+  useSetUserBookStatus,
+  useUserBookStatus,
+} from "../hooks/useUserBookStatus";
+import type { UserBookStatus } from "../services/userBookStatus";
 
 export function BookDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [status, setStatus] = useState("");
+  const { data: userStatus } = useUserBookStatus(id);
+  const { mutate: saveStatus } = useSetUserBookStatus(id);
+  const status = userStatus ?? "";
+
+  function handleStatusChange(value: string) {
+    saveStatus(value === "remove" ? null : (value as UserBookStatus), {
+      onError: () =>
+        toast.error("Não foi possível salvar o status. Tente novamente."),
+    });
+  }
 
   const { data: book, isLoading, isError } = useBook(id);
 
@@ -75,7 +90,7 @@ export function BookDetail() {
           </p>
         </div>
 
-        <Select value={status} onValueChange={setStatus}>
+        <Select value={status} onValueChange={handleStatusChange}>
           <SelectTrigger
             className={cn(
               "w-full rounded-4xl transition-colors border-none",
@@ -90,7 +105,9 @@ export function BookDetail() {
           </SelectTrigger>
           <SelectContent position="popper" className="bg-accent text-gray-500">
             <SelectGroup>
-              <SelectItem value="">Adicionar livro</SelectItem>
+              {status && (
+                <SelectItem value="remove">Remover da biblioteca</SelectItem>
+              )}
               <SelectItem value="read">Lido</SelectItem>
               <SelectItem value="reading">Lendo</SelectItem>
               <SelectItem value="want_to_read">Quero ler</SelectItem>
@@ -134,11 +151,16 @@ export function BookDetail() {
 
       <div className="flex flex-col gap-2 border p-4 rounded-xl mt-7">
         <p className="text-xs font-medium">Sinopse</p>
-        <p className="text-xs">{book.synopsis}</p>
+        {book.synopsis && (
+          <SafeHtml
+            html={book.synopsis}
+            className="text-xs [&_p]:mb-2 [&_p:last-child]:mb-0"
+          />
+        )}
         <div className="flex flex-wrap gap-2 ">
           {book.publisher && <Tag className="text-xs">{book.publisher}</Tag>}
           {book.publisher_date && (
-            <Tag className="text-xs">{book.publisher_date}</Tag>
+            <Tag className="text-xs">{extractYear(book.publisher_date)}</Tag>
           )}
           {book.total_pages > 0 && (
             <Tag className="text-xs">{book.total_pages} páginas</Tag>
@@ -149,7 +171,7 @@ export function BookDetail() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 mb-10 mt-7">
+      <div className="flex flex-col gap-4 mb-16 mt-7">
         <p className="text-xs font-medium">Avaliações</p>
 
         {book.reviews?.length ? (

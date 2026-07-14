@@ -11,9 +11,16 @@ export interface IsbndbBook {
   date_published?: string;
   edition?: string;
   binding?: string;
+  // presentes no endpoint /book/{isbn}; a busca raramente os traz
+  synopsis?: string;
+  subjects?: string[];
 }
 
 export interface IsbndbResponse {
   books: IsbndbBook[];
   total: number;
+}
+
+export interface IsbndbBookResponse {
+  book?: IsbndbBook;
 }
