@@ -63,11 +63,13 @@ describe("listClubs", () => {
         city: "Campinas",
         state: "SP",
         genres: ["Fantasia", "Terror"],
+        genreIds: [1, 2],
         isAdmin: true,
         isMember: true,
         participants: 3,
         participantLimit: 20,
         matchGroup: "city",
+        meetingType: "in_person",
       },
     ]);
   });

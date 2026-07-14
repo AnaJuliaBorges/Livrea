@@ -36,11 +36,13 @@ function mapClub(raw: RawClubListItem): ClubListItem {
     city: raw.city_name ?? "",
     state: raw.state_sigla ?? "",
     genres: raw.genres.map((genre) => genre.name),
+    genreIds: raw.genres.map((genre) => genre.id),
     isAdmin: raw.is_admin,
     isMember: raw.is_member,
     participants: raw.member_count,
     participantLimit: raw.participant_limit,
     matchGroup: raw.match_group,
+    meetingType: raw.type,
   };
 }
 

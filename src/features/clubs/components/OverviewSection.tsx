@@ -12,6 +12,7 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import { MeetingTypeTag } from "./MeetingTypeTag";
 import { useConfirmMeetingAttendance } from "../hooks/useConfirmMeetingAttendance";
 
 interface Props {
@@ -64,7 +65,10 @@ export default function OverviewSection({ club }: Props) {
       </ContainerBorder>
 
       <ContainerBorder className="text-xs gap-1">
-        <p className="font-medium mb-1">Encontros</p>
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <p className="font-medium">Encontros</p>
+          <MeetingTypeTag type={club.type} />
+        </div>
         <p className="whitespace-pre-wrap">
           {club.meetingDescription || "Sem informações sobre os encontros."}
         </p>

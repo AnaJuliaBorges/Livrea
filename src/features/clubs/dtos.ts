@@ -71,6 +71,8 @@ export interface ClubListItem {
   participants: number;
   participantLimit: number | null;
   matchGroup: ClubMatchGroup;
+  meetingType: string;
+  genreIds: number[];
 }
 
 export interface ClubFilters {

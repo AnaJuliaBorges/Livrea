@@ -1,11 +1,14 @@
 import placeholder from "../../../assets/placeholder.png";
 import { Tag } from "@/components/Tag";
 import { LocalizationPin } from "@/components/LocalizationPin";
+import { MeetingTypeTag } from "./MeetingTypeTag";
 import type { ClubSummary } from "@/features/profile/dtos";
 import { useNavigate } from "react-router-dom";
 
 interface ItemClubProps {
-  club: ClubSummary;
+  // meetingType é opcional porque o ClubSummary do perfil (get_my_profile)
+  // ainda não retorna o tipo de encontro — só a listagem retorna
+  club: ClubSummary & { meetingType?: string };
   admin?: boolean;
 }
 
@@ -29,9 +32,14 @@ export default function ItemClub({ club, admin }: ItemClubProps) {
           {admin && <span className="text-xs text-primary">administrador</span>}
         </div>
 
-        {club.city && club.state && (
-          <LocalizationPin city={club.city} state={club.state} />
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          {club.city && club.state && (
+            <LocalizationPin city={club.city} state={club.state} />
+          )}
+          {club.meetingType && (
+            <MeetingTypeTag type={club.meetingType} variant="soft" />
+          )}
+        </div>
 
         {club.genres && club.genres.length > 0 && (
           <div className="flex flex-wrap gap-2">

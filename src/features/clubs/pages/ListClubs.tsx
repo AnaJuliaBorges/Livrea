@@ -1,8 +1,10 @@
 import { Fragment, useState } from "react";
 import { MapPin } from "lucide-react";
 import ItemClub from "../components/ItemClub";
+import { MeetingTypeTag } from "../components/MeetingTypeTag";
 import { useListClubs } from "../hooks/useListClubs";
 import { useMyProfile } from "@/features/profile/hooks/useMyProfile";
+import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
 import placeholder from "../../../assets/placeholder.png";
 import { SearchInput } from "@/components/SearchInput";
 
@@ -26,18 +28,30 @@ const sectionOrder: ClubMatchGroup[] = ["city", "state", "online", "other"];
 
 export default function ListClubs() {
   const { data: profile } = useMyProfile();
-  const { data: clubs, isLoading, error } = useListClubs({
+  const {
+    data: clubs,
+    isLoading,
+    error,
+  } = useListClubs({
     cityId: profile?.cityId,
     stateId: profile?.stateId,
   });
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
+  const { data: preferredGenreIds } = useProfileGenreIds();
+
   const filteredClubs = (clubs ?? []).filter((club) =>
     club.name.toLowerCase().includes(search.trim().toLowerCase()),
   );
 
-  const recommendedClubs = (clubs ?? []).filter((club) => !club.isMember);
+  // Indicados: clubes que o usuário não participa e que têm pelo menos um
+  // gênero em comum com as preferências do perfil (profile_genres)
+  const recommendedClubs = (clubs ?? []).filter(
+    (club) =>
+      !club.isMember &&
+      club.genreIds.some((genreId) => preferredGenreIds?.includes(genreId)),
+  );
 
   const locationLabel =
     profile?.city && profile?.state
@@ -91,7 +105,7 @@ export default function ListClubs() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 mt-6">
       <p className="flex text-sm font-medium items-center justify-center">
         <MapPin className="inline-block mr-1 text-gray-500" size={16} />
         {locationLabel}
@@ -124,15 +138,18 @@ export default function ListClubs() {
                     />
 
                     <p className="text-sm font-medium">{club.name}</p>
-                    {club.city && club.state && (
-                      <p className="flex text-sm items-center">
-                        <MapPin
-                          className="inline-block mr-1 text-gray-500"
-                          size={16}
-                        />
-                        {club.city}, {club.state}
-                      </p>
-                    )}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {club.city && club.state && (
+                        <p className="flex text-sm items-center">
+                          <MapPin
+                            className="inline-block mr-1 text-gray-500"
+                            size={16}
+                          />
+                          {club.city}, {club.state}
+                        </p>
+                      )}
+                      <MeetingTypeTag type={club.meetingType} variant="soft" />
+                    </div>
 
                     <div className="flex flex-wrap gap-2">
                       {club.genres.map((genre) => (
