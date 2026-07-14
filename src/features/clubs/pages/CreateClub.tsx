@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeftIcon, SquareCheck } from "lucide-react";
+import { toast } from "sonner";
 import { Button, Progress, Separator } from "@/components/ui";
 import { FirstStep, SecondStep, ThirdStep, FourthStep } from "../steps/index";
+import { useCreateClub } from "../hooks/useCreateClub";
 import { useCreateClubStore } from "../store/useCreateClubStore";
 
 const steps = [
@@ -26,7 +28,7 @@ export default function CreateClub() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [showValidation, setShowValidation] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [createdClubName, setCreatedClubName] = useState<string | null>(null);
 
   const clubName = useCreateClubStore((state) => state.clubName);
   const description = useCreateClubStore((state) => state.description);
@@ -34,12 +36,14 @@ export default function CreateClub() {
   const frequency = useCreateClubStore((state) => state.frequency);
   const reset = useCreateClubStore((state) => state.reset);
   const customFrequency = useCreateClubStore((state) => state.customFrequency);
-  const state = useCreateClubStore((state) => state.state);
-  const city = useCreateClubStore((state) => state.city);
+  const stateId = useCreateClubStore((state) => state.stateId);
+  const cityId = useCreateClubStore((state) => state.cityId);
   const privacy = useCreateClubStore((state) => state.privacy);
   const hasLimit = useCreateClubStore((state) => state.hasLimit);
   const maxParticipants = useCreateClubStore((state) => state.maxParticipants);
   const selectedGenres = useCreateClubStore((state) => state.selectedGenres);
+
+  const createClubMutation = useCreateClub();
 
   const currentStep = steps[step - 1];
   const isLastStep = step === steps.length;
@@ -53,7 +57,7 @@ export default function CreateClub() {
     if (step === 2) {
       if (!frequency) return false;
       if (frequency === "outro" && !customFrequency.trim()) return false;
-      if (!state || !city) return false;
+      if (!stateId || !cityId) return false;
       return true;
     }
 
@@ -75,10 +79,19 @@ export default function CreateClub() {
     setShowValidation(false);
 
     if (isLastStep) {
-      reset();
-      setStep(1);
-      setShowValidation(false);
-      setIsSuccess(true);
+      const values = useCreateClubStore.getState();
+
+      createClubMutation.mutate(values, {
+        onSuccess: (club) => {
+          setCreatedClubName(club.name);
+          reset();
+          setStep(1);
+        },
+        onError: (error) => {
+          console.error("Error creating club:", error);
+          toast.error("Não foi possível criar o clube. Tente novamente.");
+        },
+      });
       return;
     }
 
@@ -93,11 +106,10 @@ export default function CreateClub() {
   }[step];
 
   const handleFinish = () => {
-    reset();
     navigate("/clubes");
   };
 
-  if (isSuccess) {
+  if (createdClubName) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-secondary">
         <div className="flex flex-col w-full items-center justify-center px-4 text-center gap-6 text-white">
@@ -105,8 +117,9 @@ export default function CreateClub() {
           <div>
             <h2 className="text-2xl mb-2">Tudo certo!</h2>
             <p>
-              Seu Clube do Livro: Capítulo à Três foi criado com sucesso. Agora
-              você pode gerenciar ele quando quiser na sua página de clubes.
+              Seu Clube do Livro: {createdClubName} foi criado com sucesso.
+              Agora você pode gerenciar ele quando quiser na sua página de
+              clubes.
             </p>
           </div>
         </div>
@@ -124,7 +137,7 @@ export default function CreateClub() {
   }
 
   return (
-    <div className="flex flex-col pb-4">
+    <div className="flex flex-col mb-16">
       <header className="flex items-center h-16 gap-4">
         <div>
           <Button
@@ -159,10 +172,14 @@ export default function CreateClub() {
 
             <Button
               onClick={handleContinue}
-              disabled={!isStepValid()}
+              disabled={!isStepValid() || createClubMutation.isPending}
               className="w-full"
             >
-              {isLastStep ? "Criar clube" : "Continuar"}
+              {isLastStep
+                ? createClubMutation.isPending
+                  ? "Criando clube..."
+                  : "Criar clube"
+                : "Continuar"}
             </Button>
           </div>
         </div>

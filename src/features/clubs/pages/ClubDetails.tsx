@@ -16,8 +16,6 @@ export default function ClubDetails() {
   const club = allClubs.find((item) => item.id === id);
   const navigate = useNavigate();
 
-  const admin = true;
-
   return (
     <>
       <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-linear-to-br from-violet-800 via-purple-900 to-slate-950">
@@ -62,7 +60,7 @@ export default function ClubDetails() {
               <OverviewSection club={club} />
             </TabsContent>
             <TabsContent value="members">
-              <MembersSection clubId={club.id} />
+              <MembersSection />
             </TabsContent>
             <TabsContent value="reading">
               <ReadingSection club={club} />

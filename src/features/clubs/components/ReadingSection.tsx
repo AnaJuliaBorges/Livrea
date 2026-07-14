@@ -16,7 +16,6 @@ import { Separator } from "@/components/ui";
 import { ProgressRead } from "@/components/ProgressRead";
 import { mockClubInteractions, type ClubInteractions } from "@/mocks/clubes";
 import { useState } from "react";
-import { ReviewCard } from "@/features/books/components/ReviewCard";
 
 interface Props {
   club: Club;

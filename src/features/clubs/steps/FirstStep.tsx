@@ -1,7 +1,11 @@
+import { useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 import { Button, Field, FieldSet, Input, Textarea } from "@/components/ui";
 import placeholder from "../../../assets/placeholder.png";
 import { Download } from "lucide-react";
 import { useCreateClubStore } from "../store/useCreateClubStore";
+
+const MAX_COVER_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function FirstStep({
   showValidation = false,
@@ -11,9 +15,44 @@ export function FirstStep({
   const clubName = useCreateClubStore((state) => state.clubName);
   const description = useCreateClubStore((state) => state.description);
   const rules = useCreateClubStore((state) => state.rules);
+  const coverFile = useCreateClubStore((state) => state.coverFile);
   const setClubName = useCreateClubStore((state) => state.setClubName);
   const setDescription = useCreateClubStore((state) => state.setDescription);
   const setRules = useCreateClubStore((state) => state.setRules);
+  const setCoverFile = useCreateClubStore((state) => state.setCoverFile);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const previewUrl = useMemo(
+    () => (coverFile ? URL.createObjectURL(coverFile) : null),
+    [coverFile],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // permite selecionar o mesmo arquivo de novo depois de trocar
+    event.target.value = "";
+
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Selecione um arquivo de imagem para a capa.");
+      return;
+    }
+
+    if (file.size > MAX_COVER_SIZE) {
+      toast.error("A imagem da capa deve ter no máximo 5MB.");
+      return;
+    }
+
+    setCoverFile(file);
+  };
 
   const hasNameError = showValidation && !clubName.trim();
   const hasDescriptionError = showValidation && !description.trim();
@@ -23,13 +62,24 @@ export function FirstStep({
     <>
       <div className="flex flex-col gap-2 items-center justify-center mb-8">
         <img
-          src={placeholder}
-          alt="Logo"
-          className="h-32 w-45 border-2 rounded-lg brightness-95"
+          src={previewUrl ?? placeholder}
+          alt="Capa do clube"
+          className="h-32 w-45 border-2 rounded-lg brightness-95 object-cover"
         />
-        <Button variant="link">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleCoverChange}
+        />
+        <Button
+          type="button"
+          variant="link"
+          onClick={() => fileInputRef.current?.click()}
+        >
           <Download />
-          Carregar foto de capa
+          {coverFile ? "Trocar foto de capa" : "Carregar foto de capa"}
         </Button>
       </div>
       <form className="">

@@ -13,13 +13,7 @@ export default function MyClubs() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <SearchInput
-          value={""}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
-          placeholder="Buscar clubes"
-        />
+        <SearchInput value={""} onChange={() => {}} placeholder="Buscar clubes" />
       </div>
 
       {myClubSummaries.length === 0 ? (

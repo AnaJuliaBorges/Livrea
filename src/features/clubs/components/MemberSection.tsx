@@ -2,11 +2,7 @@ import { ContainerBorder } from "@/components/ContainerBorder";
 import { mockClubParticipants } from "@/mocks/clubes";
 import { SquarePlus, UserRound } from "lucide-react";
 
-interface Props {
-  clubId: string;
-}
-
-export default function MembersSection({ clubId }: Props) {
+export default function MembersSection() {
   return (
     <div className="flex flex-col gap-2 mb-8">
       {mockClubParticipants.map((member) => (

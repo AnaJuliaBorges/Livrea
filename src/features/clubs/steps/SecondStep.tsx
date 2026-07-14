@@ -12,28 +12,17 @@ import {
   SelectValue,
 } from "@/components/ui";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCities, useStates } from "@/hooks/useLocations";
 import { useCreateClubStore } from "../store/useCreateClubStore";
 
+// Valores mapeados para o enum club_frequency do banco em services/createClub.ts
 const frequencyOptions = [
   { value: "semanal", label: "Semanal" },
   { value: "quinzenal", label: "Quinzenal" },
   { value: "mensal", label: "Mensal" },
   { value: "bimestral", label: "Bimestral" },
-  { value: "trimestral", label: "Trimestral" },
   { value: "outro", label: "Outro" },
 ];
-
-const stateOptions = [
-  { value: "sp", label: "São Paulo" },
-  { value: "rj", label: "Rio de Janeiro" },
-  { value: "mg", label: "Minas Gerais" },
-];
-
-const cityOptions = {
-  sp: ["São Paulo", "Campinas", "Santos"],
-  rj: ["Rio de Janeiro", "Niterói", "Petrópolis"],
-  mg: ["Belo Horizonte", "Uberlândia", "Juiz de Fora"],
-};
 
 export function SecondStep({
   showValidation = false,
@@ -43,8 +32,8 @@ export function SecondStep({
   const frequency = useCreateClubStore((state) => state.frequency);
   const customFrequency = useCreateClubStore((state) => state.customFrequency);
   const meetingType = useCreateClubStore((state) => state.meetingType);
-  const state = useCreateClubStore((state) => state.state);
-  const city = useCreateClubStore((state) => state.city);
+  const stateId = useCreateClubStore((state) => state.stateId);
+  const cityId = useCreateClubStore((state) => state.cityId);
   const meetingDescription = useCreateClubStore(
     (state) => state.meetingDescription,
   );
@@ -53,21 +42,22 @@ export function SecondStep({
     (state) => state.setCustomFrequency,
   );
   const setMeetingType = useCreateClubStore((state) => state.setMeetingType);
-  const setState = useCreateClubStore((state) => state.setState);
-  const setCity = useCreateClubStore((state) => state.setCity);
+  const setStateId = useCreateClubStore((state) => state.setStateId);
+  const setCityId = useCreateClubStore((state) => state.setCityId);
   const setMeetingDescription = useCreateClubStore(
     (state) => state.setMeetingDescription,
   );
 
-  const availableCities = state
-    ? cityOptions[state as keyof typeof cityOptions]
-    : [];
+  const { data: states, isLoading: isLoadingStates } = useStates();
+  const { data: cities, isLoading: isLoadingCities } = useCities(
+    stateId ? Number(stateId) : undefined,
+  );
 
   const showCustomFrequencyInput = frequency === "outro";
   const hasCustomFrequencyError =
     showValidation && frequency === "outro" && !customFrequency.trim();
-  const hasStateError = showValidation && !state;
-  const hasCityError = showValidation && !city;
+  const hasStateError = showValidation && !stateId;
+  const hasCityError = showValidation && !cityId;
 
   return (
     <form className="">
@@ -132,19 +122,18 @@ export function SecondStep({
 
         <FieldGroup className="grid grid-cols-2 gap-4 sm:grid-cols-2">
           <Field>
-            <Select
-              value={state}
-              onValueChange={(value) => {
-                setState(value);
-              }}
-            >
+            <Select value={stateId} onValueChange={setStateId}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione o estado" />
+                <SelectValue
+                  placeholder={
+                    isLoadingStates ? "Carregando..." : "Selecione o estado"
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {stateOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                {states?.map((state) => (
+                  <SelectItem key={state.id} value={String(state.id)}>
+                    {state.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -155,14 +144,20 @@ export function SecondStep({
           </Field>
 
           <Field>
-            <Select value={city} onValueChange={setCity} disabled={!state}>
+            <Select value={cityId} onValueChange={setCityId} disabled={!stateId}>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selecione a cidade" />
+                <SelectValue
+                  placeholder={
+                    stateId && isLoadingCities
+                      ? "Carregando..."
+                      : "Selecione a cidade"
+                  }
+                />
               </SelectTrigger>
               <SelectContent>
-                {availableCities.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
+                {cities?.map((city) => (
+                  <SelectItem key={city.id} value={String(city.id)}>
+                    {city.name}
                   </SelectItem>
                 ))}
               </SelectContent>

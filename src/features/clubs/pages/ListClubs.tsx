@@ -18,7 +18,7 @@ import {
 import { useNavigate } from "react-router-dom";
 
 export default function ListClubs() {
-  const { data: future, isLoading, error } = useListClubs();
+  const { isLoading, error } = useListClubs();
   const navigate = useNavigate();
 
   let content;
@@ -73,13 +73,7 @@ export default function ListClubs() {
       </p>
 
       <div>
-        <SearchInput
-          value={""}
-          onChange={function (value: string): void {
-            throw new Error("Function not implemented.");
-          }}
-          placeholder="Buscar clubes"
-        />
+        <SearchInput value={""} onChange={() => {}} placeholder="Buscar clubes" />
       </div>
 
       <div>
