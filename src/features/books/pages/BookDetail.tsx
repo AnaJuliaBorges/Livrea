@@ -25,6 +25,7 @@ import {
   useUserBookStatus,
 } from "../hooks/useUserBookStatus";
 import { useReadingTracking } from "../hooks/useReadingTracking";
+import { useBookReviews } from "../hooks/useBookReviews";
 import type { UserBookStatus } from "../services/userBookStatus";
 
 export function BookDetail() {
@@ -34,6 +35,7 @@ export function BookDetail() {
   const { data: userStatus } = useUserBookStatus(id);
   const { mutate: saveStatus } = useSetUserBookStatus(id);
   const { data: tracking } = useReadingTracking(id);
+  const { data: reviews } = useBookReviews(id);
   const status = userStatus ?? "";
 
   // logs vêm do mais recente para o mais antigo
@@ -181,9 +183,9 @@ export function BookDetail() {
       <div className="flex flex-col gap-4 mb-16 mt-7">
         <p className="text-xs font-medium">Avaliações</p>
 
-        {book.reviews?.length ? (
+        {reviews?.length ? (
           <>
-            {book.reviews.map((review) => (
+            {reviews.map((review) => (
               <ReviewCard key={review.id} review={review} />
             ))}
           </>
