@@ -18,6 +18,7 @@ import { BookDetail } from "./features/books/pages/BookDetail";
 import { EditProfile } from "./features/profile/pages/EditProfile";
 import RegisterRead from "./features/books/pages/RegisterRead";
 import ClubDetails from "./features/clubs/pages/ClubDetails";
+import ClubSettings from "./features/clubs/pages/ClubSettings";
 import ForgotPassword from "./features/auth/pages/ForgotPasswordPage";
 import ResetPassword from "./features/auth/pages/ResetPasswordPage";
 
@@ -62,6 +63,11 @@ export const router = createBrowserRouter([
       {
         path: "clubes/:id",
         element: <ClubDetails />,
+        loader: protectedLoader,
+      },
+      {
+        path: "clubes/:id/configuracoes",
+        element: <ClubSettings />,
         loader: protectedLoader,
       },
       {

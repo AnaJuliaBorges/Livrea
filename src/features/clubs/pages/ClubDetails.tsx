@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import placeholder from "../../../assets/placeholder.png";
@@ -71,6 +71,17 @@ export default function ClubDetails() {
           <ArrowLeft className="size-6" />
         </Button>
 
+        {club.isAdmin && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(`/clubes/${club.id}/configuracoes`)}
+            className="absolute right-4 top-4 z-10 rounded-full text-accent-foreground hover:bg-white/20 hover:text-white"
+          >
+            <Settings className="size-6" />
+          </Button>
+        )}
+
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-lg ">
           <img
             src={club.coverUrl ?? placeholder}
@@ -110,7 +121,7 @@ export default function ClubDetails() {
         </Button>
       )}
 
-      <Tabs defaultValue="overview" className="w-full mb-6">
+      <Tabs defaultValue="overview" className="w-full mb-8">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Participantes</TabsTrigger>

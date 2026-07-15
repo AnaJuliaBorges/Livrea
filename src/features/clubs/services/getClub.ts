@@ -13,6 +13,8 @@ type RawClub = {
   custom_frequency: string | null;
   type: string;
   meeting_description: string | null;
+  city_id: number | null;
+  state_id: number | null;
   city_name: string | null;
   state_sigla: string | null;
   member_count: number;
@@ -54,6 +56,8 @@ function mapClub(raw: RawClub): Club {
     customFrequency: raw.custom_frequency,
     currentReading: raw.current_reading,
     genres: raw.genres,
+    cityId: raw.city_id,
+    stateId: raw.state_id,
     cityName: raw.city_name ?? "",
     stateAbbreviation: raw.state_sigla ?? "",
     totalParticipants: raw.member_count,

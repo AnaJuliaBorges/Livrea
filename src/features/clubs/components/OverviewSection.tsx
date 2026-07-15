@@ -13,10 +13,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { MeetingTypeTag } from "./MeetingTypeTag";
-import { EditClubFieldModal } from "./EditClubFieldModal";
 import { EditMeetingsModal } from "./EditMeetingsModal";
 import { useConfirmMeetingAttendance } from "../hooks/useConfirmMeetingAttendance";
-import { useUpdateClub } from "../hooks/useUpdateClub";
 
 interface Props {
   club: Club;
@@ -30,38 +28,15 @@ function toBrazilianDate(isoDate: string) {
   return year && month && day ? `${day}/${month}/${year}` : isoDate;
 }
 
-type EditingField = "description" | "rules" | "meetings" | null;
+type EditingField = "meetings" | null;
 
 export default function OverviewSection({ club }: Props) {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [editingField, setEditingField] = useState<EditingField>(null);
   const confirmAttendance = useConfirmMeetingAttendance(club.id);
-  const updateClub = useUpdateClub(club.id);
 
   const nextMeeting = club.nextMeeting;
-
-  const handleSaveField = (field: "description" | "rules", value: string) => {
-    updateClub.mutate(
-      field === "description"
-        ? { clubId: club.id, description: value }
-        : { clubId: club.id, rules: value },
-      {
-        onSuccess: () => {
-          toast.success(
-            field === "description"
-              ? "Descrição atualizada!"
-              : "Regras atualizadas!",
-          );
-          setEditingField(null);
-        },
-        onError: (error) => {
-          console.error("Error updating club:", error);
-          toast.error("Não foi possível salvar. Tente novamente.");
-        },
-      },
-    );
-  };
 
   const handleConfirmAttendance = () => {
     if (!nextMeeting) return;
@@ -88,36 +63,14 @@ export default function OverviewSection({ club }: Props) {
   return (
     <div className="flex flex-col gap-4 mb-8">
       <ContainerBorder className="text-sm gap-2">
-        <div className="flex items-center justify-between">
-          <p className="font-medium">Descrição</p>
-          {club.isAdmin && (
-            <button
-              type="button"
-              aria-label="Editar descrição"
-              onClick={() => setEditingField("description")}
-            >
-              <EditIcon size={16} />
-            </button>
-          )}
-        </div>
+        <p className="font-medium">Descrição</p>
         <p className="whitespace-pre-wrap">
           {club.description || "Este clube ainda não tem descrição."}
         </p>
       </ContainerBorder>
 
       <ContainerBorder className="text-sm gap-2">
-        <div className="flex items-center justify-between">
-          <p className="font-medium">Regras de participação</p>
-          {club.isAdmin && (
-            <button
-              type="button"
-              aria-label="Editar regras"
-              onClick={() => setEditingField("rules")}
-            >
-              <EditIcon size={16} />
-            </button>
-          )}
-        </div>
+        <p className="font-medium">Regras de participação</p>
         <p className="whitespace-pre-wrap">
           {club.rules || "Este clube ainda não definiu regras."}
         </p>
@@ -204,28 +157,6 @@ export default function OverviewSection({ club }: Props) {
             </Carousel>
           </div>
         </ContainerBorder>
-      )}
-
-      {editingField === "description" && (
-        <EditClubFieldModal
-          title="Editar descrição"
-          placeholder="Descrição do clube"
-          initialValue={club.description}
-          isSaving={updateClub.isPending}
-          onSave={(value) => handleSaveField("description", value)}
-          onClose={() => setEditingField(null)}
-        />
-      )}
-
-      {editingField === "rules" && (
-        <EditClubFieldModal
-          title="Editar regras"
-          placeholder="Regras de participação"
-          initialValue={club.rules}
-          isSaving={updateClub.isPending}
-          onSave={(value) => handleSaveField("rules", value)}
-          onClose={() => setEditingField(null)}
-        />
       )}
 
       {editingField === "meetings" && (

@@ -37,6 +37,8 @@ export interface Club {
   customFrequency: string | null;
   currentReading: Reading | null;
   genres: Genre[];
+  cityId: number | null;
+  stateId: number | null;
   cityName: string;
   stateAbbreviation: string;
   totalParticipants: number;

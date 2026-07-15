@@ -28,10 +28,36 @@ describe("updateClub", () => {
 
     expect(rpcMock).toHaveBeenCalledWith("update_club", {
       p_club_id: "club-1",
+      p_name: null,
       p_description: "Nova descrição",
       p_rules: null,
       p_meeting_description: null,
+      p_genre_ids: null,
+      p_city_id: null,
+      p_type: null,
     });
+  });
+
+  it("envia nome e gêneros quando informados", async () => {
+    rpcMock.mockResolvedValue(rpcResult());
+
+    await updateClub({ clubId: "club-1", name: "Novo nome", genreIds: [1, 2] });
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "update_club",
+      expect.objectContaining({ p_name: "Novo nome", p_genre_ids: [1, 2] }),
+    );
+  });
+
+  it("envia cidade e tipo de encontro quando informados", async () => {
+    rpcMock.mockResolvedValue(rpcResult());
+
+    await updateClub({ clubId: "club-1", cityId: 42, meetingType: "online" });
+
+    expect(rpcMock).toHaveBeenCalledWith(
+      "update_club",
+      expect.objectContaining({ p_city_id: 42, p_type: "online" }),
+    );
   });
 
   it("permite limpar um campo com string vazia", async () => {
