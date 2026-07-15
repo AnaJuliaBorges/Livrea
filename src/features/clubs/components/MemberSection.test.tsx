@@ -5,6 +5,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MembersSection from "./MemberSection";
 import { getClubMembers } from "../services/getClubMembers";
 import { getJoinRequests } from "../services/getJoinRequests";
+import {
+  approveJoinRequest,
+  rejectJoinRequest,
+} from "../services/reviewJoinRequest";
 import type { Club } from "../dtos";
 
 vi.mock("../services/getClubMembers", () => ({
@@ -13,9 +17,15 @@ vi.mock("../services/getClubMembers", () => ({
 vi.mock("../services/getJoinRequests", () => ({
   getJoinRequests: vi.fn(),
 }));
+vi.mock("../services/reviewJoinRequest", () => ({
+  approveJoinRequest: vi.fn(),
+  rejectJoinRequest: vi.fn(),
+}));
 
 const getClubMembersMock = vi.mocked(getClubMembers);
 const getJoinRequestsMock = vi.mocked(getJoinRequests);
+const approveJoinRequestMock = vi.mocked(approveJoinRequest);
+const rejectJoinRequestMock = vi.mocked(rejectJoinRequest);
 
 const navigateMock = vi.fn();
 
@@ -70,8 +80,12 @@ function renderMembers(club: Club = baseClub) {
 beforeEach(() => {
   getClubMembersMock.mockReset();
   getJoinRequestsMock.mockReset();
+  approveJoinRequestMock.mockReset();
+  rejectJoinRequestMock.mockReset();
   navigateMock.mockReset();
   getJoinRequestsMock.mockResolvedValue([]);
+  approveJoinRequestMock.mockResolvedValue(undefined);
+  rejectJoinRequestMock.mockResolvedValue(undefined);
 });
 
 describe("MembersSection", () => {
@@ -103,5 +117,42 @@ describe("MembersSection", () => {
     await user.click(screen.getByText("Ana Júlia Borges"));
 
     expect(navigateMock).toHaveBeenCalledWith("/perfil/user-3");
+  });
+
+  it("navega para o perfil de quem pediu pra entrar no clube", async () => {
+    getClubMembersMock.mockResolvedValue([
+      { id: "user-2", name: "Lucas Martins", avatarUrl: null, isAdmin: false },
+    ]);
+    getJoinRequestsMock.mockResolvedValue([
+      { requestId: "req-1", userId: "user-4", name: "Pedro Silva", avatarUrl: null },
+    ]);
+    const user = userEvent.setup();
+
+    renderMembers({ ...baseClub, isAdmin: true, isPrivate: true });
+
+    await screen.findByText("Pedro Silva");
+    await user.click(screen.getByText("Pedro Silva"));
+
+    expect(navigateMock).toHaveBeenCalledWith("/perfil/user-4");
+  });
+
+  it("não navega ao aprovar ou recusar um pedido", async () => {
+    getClubMembersMock.mockResolvedValue([
+      { id: "user-2", name: "Lucas Martins", avatarUrl: null, isAdmin: false },
+    ]);
+    getJoinRequestsMock.mockResolvedValue([
+      { requestId: "req-1", userId: "user-4", name: "Pedro Silva", avatarUrl: null },
+    ]);
+    const user = userEvent.setup();
+
+    renderMembers({ ...baseClub, isAdmin: true, isPrivate: true });
+
+    await screen.findByText("Pedro Silva");
+    await user.click(
+      screen.getByRole("button", { name: "Aprovar pedido de Pedro Silva" }),
+    );
+
+    expect(approveJoinRequestMock.mock.calls[0][0]).toBe("req-1");
+    expect(navigateMock).not.toHaveBeenCalled();
   });
 });

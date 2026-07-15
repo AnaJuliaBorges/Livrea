@@ -29,7 +29,7 @@ export default function ItemClub({ club, admin }: ItemClubProps) {
       />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">
-          <div className="flex items-center justify-between ">
+          <div className="flex items-center gap-2">
             <h2 className="font-medium">{club.name}</h2>
             {club.isPrivate && (
               <Lock

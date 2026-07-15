@@ -25,6 +25,7 @@ function initialsOf(name: string) {
 }
 
 function JoinRequestsSection({ club }: { club: Club }) {
+  const navigate = useNavigate();
   const { data: requests } = useJoinRequests(
     club.id,
     club.isAdmin && club.isPrivate,
@@ -68,7 +69,10 @@ function JoinRequestsSection({ club }: { club: Club }) {
             key={request.requestId}
             className="flex-row justify-between items-center"
           >
-            <div className="flex gap-2 items-center">
+            <div
+              className="flex gap-2 items-center cursor-pointer"
+              onClick={() => navigate(`/perfil/${request.userId}`)}
+            >
               <Avatar className="h-10 w-10">
                 <AvatarImage
                   src={request.avatarUrl ?? undefined}
@@ -88,7 +92,7 @@ function JoinRequestsSection({ club }: { club: Club }) {
                 disabled={isProcessing}
                 onClick={() => handleReject(request.requestId)}
               >
-                <X className="text-gray-400" size={18} />
+                <X className="text-destructive" size={18} />
               </button>
               <button
                 type="button"
@@ -96,7 +100,7 @@ function JoinRequestsSection({ club }: { club: Club }) {
                 disabled={isProcessing}
                 onClick={() => handleApprove(request.requestId, request.name)}
               >
-                <SquarePlus className="text-primary" />
+                <SquarePlus className="text-secondary" />
               </button>
             </div>
           </ContainerBorder>
