@@ -2,6 +2,12 @@ import { ContainerBorder } from "@/components/ContainerBorder";
 import type { Club } from "../dtos";
 import { BookImage } from "@/features/books/components/BookImage";
 import { useBook } from "@/features/books/hooks/useBook";
+import type { BookTemp } from "@/features/books/types/book";
+import {
+  formatRatingValue,
+  getBookRatingDisplay,
+} from "@/features/books/utils/bookRating";
+import { useClubBookRating } from "../hooks/useClubBookRating";
 import {
   BookmarkMinus,
   BookPlus,
@@ -12,13 +18,17 @@ import {
   Star,
   ArrowLeft,
   UserRound,
+  Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { Button, Separator } from "@/components/ui";
 import { ProgressRead } from "@/components/ProgressRead";
 import { mockClubInteractions, type ClubInteractions } from "@/mocks/clubes";
 import { useState } from "react";
 import { SetClubReadingModal } from "./SetClubReadingModal";
+import { useDeleteClubReading } from "../hooks/useDeleteClubReading";
+import { getErrorMessage } from "@/lib/utils";
 
 interface Props {
   club: Club;
@@ -145,6 +155,140 @@ function ReadersSection({
   );
 }
 
+// Mesmo card usado pra leitura atual, reaproveitado pra cada item do
+// histórico — cada instância busca seu próprio livro via useBook.
+function BookReadingCard({ bookId }: { bookId: string }) {
+  const navigate = useNavigate();
+  const { data: book, isLoading } = useBook(bookId);
+
+  if (isLoading) {
+    return (
+      <ContainerBorder className="items-center text-xs text-muted-foreground">
+        Carregando livro...
+      </ContainerBorder>
+    );
+  }
+
+  return (
+    <div onClick={() => navigate(`/livros/${bookId}`)}>
+      <ContainerBorder className="flex-row items-center gap-3">
+        <BookImage
+          book={book}
+          height="h-28"
+          className="w-20 shrink-0 object-cover"
+        />
+        <div className="text-xs flex-1 min-w-0">
+          <p className="font-medium">
+            {book?.title_pt ?? book?.title_original}
+          </p>
+          <p>{book?.authors.join(", ")}</p>
+          <p>{book?.publisher}</p>
+          <p>{book?.primary_genre?.name}</p>
+          {Boolean(book?.total_pages) && <p>{book?.total_pages} páginas</p>}
+        </div>
+        <ChevronRight className="shrink-0" />
+      </ContainerBorder>
+    </div>
+  );
+}
+
+// Box "Avaliação do livro", reaproveitado pra leitura atual e pra cada item
+// do histórico:
+//   Global — média geral do livro (local do banco > global do Google > 0.0)
+//   Clube — média das notas dos membros do clube pro livro (ao vivo)
+//   Individual — a nota do próprio usuário pro livro
+function BookRatingBox({
+  book,
+  clubId,
+  bookId,
+  onSelectTab,
+  text = "dos participantes já leram o livro",
+}: {
+  book: BookTemp | undefined;
+  clubId: string;
+  bookId: string;
+  onSelectTab: (tab: string) => void;
+  text?: string;
+}) {
+  const { data: rating } = useClubBookRating(clubId, bookId);
+
+  return (
+    <ContainerBorder className="text-xs">
+      <p className="font-medium ">Avaliação do livro</p>
+      <Separator />
+      <p className="flex justify-between">
+        <span className="flex gap-1">
+          Global: {getBookRatingDisplay(book)} <Star size={16} />
+        </span>{" "}
+        |{" "}
+        <span className="flex gap-1">
+          Clube: {formatRatingValue(rating?.clubAverage)} <Star size={16} />
+        </span>{" "}
+        |{" "}
+        <span className="flex gap-1">
+          Individual: {formatRatingValue(rating?.myRating)} <Star size={16} />
+        </span>
+      </p>
+      <div className="flex justify-between gap-2">
+        <button onClick={() => onSelectTab("highlights")} className="w-full">
+          <ContainerBorder className="flex-1 gap-1 items-center">
+            <PencilLine />
+            <p className="text-[10px]">Destaques</p>
+          </ContainerBorder>
+        </button>
+        <button onClick={() => onSelectTab("reviews")} className="w-full">
+          <ContainerBorder className="flex-1 gap-1 items-center">
+            <BookmarkMinus />
+            <p className="text-[10px]">Resenhas</p>
+          </ContainerBorder>
+        </button>
+        <button onClick={() => onSelectTab("readers")} className="w-full">
+          <ContainerBorder className="flex-1 gap-1 items-center">
+            <NotepadText />
+            <p className="text-[10px]">Leitores</p>
+          </ContainerBorder>
+        </button>
+      </div>
+      <Separator />
+      <div className="w-full flex flex-col gap-2 items-center mt-0">
+        <ProgressRead value={78} label="" />
+        <p>{text}</p>
+      </div>
+    </ContainerBorder>
+  );
+}
+
+// Card do histórico completo (capa/dados + avaliação), pra cada leitura
+// passada do clube.
+function PastReadingItem({
+  clubId,
+  bookId,
+  isMember,
+  onSelectTab,
+}: {
+  clubId: string;
+  bookId: string;
+  isMember: boolean;
+  onSelectTab: (tab: string) => void;
+}) {
+  const { data: book } = useBook(bookId);
+
+  return (
+    <div className="flex flex-col gap-2">
+      <BookReadingCard bookId={bookId} />
+      {isMember && (
+        <BookRatingBox
+          book={book}
+          clubId={clubId}
+          bookId={bookId}
+          onSelectTab={onSelectTab}
+          text="dos participantes leram o livro"
+        />
+      )}
+    </div>
+  );
+}
+
 export default function ReadingSection({ club }: Props) {
   const { data: book, isLoading: isLoadingBook } = useBook(
     club.currentReading?.id,
@@ -153,33 +297,26 @@ export default function ReadingSection({ club }: Props) {
 
   const [activeTab, setActiveTab] = useState("");
   const [showReadingModal, setShowReadingModal] = useState(false);
+  const [showDeleteReadingModal, setShowDeleteReadingModal] = useState(false);
 
   const navigate = useNavigate();
+  const deleteReading = useDeleteClubReading(club.id);
 
-  // Sem leitura atual: admin vê o botão pra definir; participante, um aviso
-  if (!club.currentReading) {
-    return (
-      <div className="flex flex-col items-center justify-center gap-4 py-12 text-center mb-8">
-        <BookPlus size={48} className="text-gray-300" />
-        <p className="text-sm text-muted-foreground">
-          O clube ainda não tem uma leitura atual.
-        </p>
-
-        {club.isAdmin && (
-          <Button onClick={() => setShowReadingModal(true)}>
-            Adicionar leitura do clube
-          </Button>
-        )}
-
-        {showReadingModal && (
-          <SetClubReadingModal
-            clubId={club.id}
-            onClose={() => setShowReadingModal(false)}
-          />
-        )}
-      </div>
-    );
-  }
+  const handleDeleteReading = () => {
+    deleteReading.mutate(undefined, {
+      onSuccess: () => {
+        setShowDeleteReadingModal(false);
+        toast.success("Leitura atual removida.");
+      },
+      onError: (error) => {
+        console.error("Error deleting club reading:", error);
+        toast.error(
+          getErrorMessage(error) ??
+            "Não foi possível excluir a leitura. Tente novamente.",
+        );
+      },
+    });
+  };
 
   if (activeTab === "highlights") {
     return (
@@ -208,19 +345,75 @@ export default function ReadingSection({ club }: Props) {
     );
   }
 
+  const pastReadings = club.readingHistory.length > 0 && (
+    <div>
+      <p className="font-medium text-xs mb-2">Leituras anteriores</p>
+      <div className="flex flex-col gap-4">
+        {club.readingHistory.map((pastBook) => (
+          <PastReadingItem
+            key={pastBook.id}
+            clubId={club.id}
+            bookId={pastBook.id}
+            isMember={club.isMember}
+            onSelectTab={setActiveTab}
+          />
+        ))}
+      </div>
+    </div>
+  );
+
+  // Sem leitura atual: admin vê o botão pra definir; participante, um aviso.
+  // O histórico continua aparecendo mesmo sem leitura atual definida.
+  if (!club.currentReading) {
+    return (
+      <div className="flex flex-col gap-6 mb-8">
+        <div className="flex flex-col items-center justify-center gap-4 py-12 text-center">
+          <BookPlus size={48} className="text-gray-300" />
+          <p className="text-sm text-muted-foreground">
+            O clube ainda não tem uma leitura atual.
+          </p>
+
+          {club.isAdmin && (
+            <Button onClick={() => setShowReadingModal(true)}>
+              Adicionar leitura do clube
+            </Button>
+          )}
+
+          {showReadingModal && (
+            <SetClubReadingModal
+              clubId={club.id}
+              onClose={() => setShowReadingModal(false)}
+            />
+          )}
+        </div>
+
+        {pastReadings}
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 mb-8">
       <div>
         <div className="flex items-center justify-between">
           <p className="font-medium text-xs">Leitura atual</p>
           {club.isAdmin && (
-            <button
-              type="button"
-              aria-label="Trocar leitura do clube"
-              onClick={() => setShowReadingModal(true)}
-            >
-              <EditIcon size={16} />
-            </button>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                aria-label="Trocar leitura do clube"
+                onClick={() => setShowReadingModal(true)}
+              >
+                <EditIcon size={16} />
+              </button>
+              <button
+                className=" text-destructive"
+                aria-label="Remover leitura atual do clube"
+                onClick={() => setShowDeleteReadingModal(true)}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
           )}
         </div>
 
@@ -260,50 +453,46 @@ export default function ReadingSection({ club }: Props) {
         />
       )}
 
-      {club.isMember && (
-        <ContainerBorder className="text-xs">
-          <p className="font-medium ">Avaliação do livro</p>
-          <Separator />
-          <p className="flex justify-between">
-            <span className="flex gap-1">
-              Global: {book?.global_average_rating || "0.0"} <Star size={16} />
-            </span>{" "}
-            |{" "}
-            <span className="flex gap-1">
-              Clube: {book?.global_average_rating || "0.0"} <Star size={16} />
-            </span>{" "}
-            |{" "}
-            <span className="flex gap-1">
-              Individual: {book?.global_average_rating || "0.0"}{" "}
-              <Star size={16} />
-            </span>
-          </p>
-          <div className="flex justify-between gap-2">
-            <button onClick={() => setActiveTab("highlights")} className="w-full">
-              <ContainerBorder className="flex-1 gap-1 items-center">
-                <PencilLine />
-                <p className="text-[10px]">Destaques</p>
-              </ContainerBorder>
-            </button>
-            <button onClick={() => setActiveTab("reviews")} className="w-full">
-              <ContainerBorder className="flex-1 gap-1 items-center">
-                <BookmarkMinus />
-                <p className="text-[10px]">Resenhas</p>
-              </ContainerBorder>
-            </button>
-            <button onClick={() => setActiveTab("readers")} className="w-full">
-              <ContainerBorder className="flex-1 gap-1 items-center">
-                <NotepadText />
-                <p className="text-[10px]">Leitores</p>
-              </ContainerBorder>
-            </button>
+      {club.isMember && club.currentReading && (
+        <BookRatingBox
+          book={book}
+          clubId={club.id}
+          bookId={club.currentReading.id}
+          onSelectTab={setActiveTab}
+        />
+      )}
+
+      {pastReadings}
+
+      {showDeleteReadingModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 flex flex-col gap-4">
+            <h2 className="text-lg font-medium">Excluir leitura atual</h2>
+
+            <p className="text-sm text-muted-foreground">
+              Isso remove "{book?.title_pt ?? book?.title_original}" da leitura
+              atual sem levá-la pro histórico. Se quiser arquivá-la, use "Marcar
+              encontro como concluído" na aba Overview.
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="link"
+                onClick={() => setShowDeleteReadingModal(false)}
+                disabled={deleteReading.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteReading}
+                disabled={deleteReading.isPending}
+              >
+                {deleteReading.isPending ? "Excluindo..." : "Excluir"}
+              </Button>
+            </div>
           </div>
-          <Separator />
-          <div className="w-full flex flex-col gap-2 items-center mt-0">
-            <ProgressRead value={78} label="" />
-            <p>dos participantes já leram o livro</p>
-          </div>
-        </ContainerBorder>
+        </div>
       )}
     </div>
   );

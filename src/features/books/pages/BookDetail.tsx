@@ -17,6 +17,7 @@ import { ReviewCard } from "../components/ReviewCard";
 import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
 import { extractYear, formatDateString } from "../utils/formatDate";
+import { getBookRatingDisplay } from "../utils/bookRating";
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { SafeHtml } from "@/components/SafeHtml";
 import { useBook } from "../hooks/useBook";
@@ -84,7 +85,7 @@ export function BookDetail() {
             <p className="text-sm">{book.authors.join(", ")}</p>
           </div>
           <p className="flex items-center gap-1">
-            {book.global_average_rating ?? "0.0"}
+            {getBookRatingDisplay(book)}
             <Star className="inline-block" size={21} />
           </p>
         </div>

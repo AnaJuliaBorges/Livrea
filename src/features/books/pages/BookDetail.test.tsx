@@ -138,6 +138,19 @@ describe("BookDetail", () => {
     expect(screen.getByText("0.0")).toBeInTheDocument();
   });
 
+  it("prioriza a média local sobre a global quando houver as duas", () => {
+    mockAll({
+      bookState: {
+        data: { ...book, local_average_rating: 3.2, global_average_rating: 4.7 },
+      },
+    });
+
+    renderPage();
+
+    expect(screen.getByText("3.2")).toBeInTheDocument();
+    expect(screen.queryByText("4.7")).not.toBeInTheDocument();
+  });
+
   it("mostra a sinopse, editora, ano e páginas", () => {
     mockAll();
 
