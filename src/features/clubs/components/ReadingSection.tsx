@@ -1,10 +1,12 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import type { Club } from "../dtos";
-import { mockBooks } from "@/mocks/books";
 import { BookImage } from "@/features/books/components/BookImage";
+import { useBook } from "@/features/books/hooks/useBook";
 import {
   BookmarkMinus,
+  BookPlus,
   ChevronRight,
+  EditIcon,
   NotepadText,
   PencilLine,
   Star,
@@ -12,10 +14,11 @@ import {
   UserRound,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Separator } from "@/components/ui";
+import { Button, Separator } from "@/components/ui";
 import { ProgressRead } from "@/components/ProgressRead";
 import { mockClubInteractions, type ClubInteractions } from "@/mocks/clubes";
 import { useState } from "react";
+import { SetClubReadingModal } from "./SetClubReadingModal";
 
 interface Props {
   club: Club;
@@ -143,12 +146,40 @@ function ReadersSection({
 }
 
 export default function ReadingSection({ club }: Props) {
-  const book = mockBooks.find((book) => book.id === club.currentReading?.id);
+  const { data: book, isLoading: isLoadingBook } = useBook(
+    club.currentReading?.id,
+  );
   const interactions = mockClubInteractions;
 
   const [activeTab, setActiveTab] = useState("");
+  const [showReadingModal, setShowReadingModal] = useState(false);
 
   const navigate = useNavigate();
+
+  // Sem leitura atual: admin vê o botão pra definir; participante, um aviso
+  if (!club.currentReading) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-12 text-center mb-8">
+        <BookPlus size={48} className="text-gray-300" />
+        <p className="text-sm text-muted-foreground">
+          O clube ainda não tem uma leitura atual.
+        </p>
+
+        {club.isAdmin && (
+          <Button onClick={() => setShowReadingModal(true)}>
+            Adicionar leitura do clube
+          </Button>
+        )}
+
+        {showReadingModal && (
+          <SetClubReadingModal
+            clubId={club.id}
+            onClose={() => setShowReadingModal(false)}
+          />
+        )}
+      </div>
+    );
+  }
 
   if (activeTab === "highlights") {
     return (
@@ -179,35 +210,71 @@ export default function ReadingSection({ club }: Props) {
 
   return (
     <div className="flex flex-col gap-6 mb-8">
-      <div onClick={() => navigate(`/livros/${book?.id}`)}>
-        <p className="font-medium text-xs">Leitura atual</p>
-        <ContainerBorder className="flex-row justify-between items-center mt-2">
-          <BookImage book={book} height="h-28" />
-          <div className="text-xs">
-            <p className="font-medium">{book?.title_pt}</p>
-            <p>{book?.authors}</p>
-            <p>{book?.publisher}</p>
-            <p>{book?.primary_genre?.name}</p>
-            <p>{book?.total_pages} páginas</p>
+      <div>
+        <div className="flex items-center justify-between">
+          <p className="font-medium text-xs">Leitura atual</p>
+          {club.isAdmin && (
+            <button
+              type="button"
+              aria-label="Trocar leitura do clube"
+              onClick={() => setShowReadingModal(true)}
+            >
+              <EditIcon size={16} />
+            </button>
+          )}
+        </div>
+
+        {isLoadingBook ? (
+          <ContainerBorder className="mt-2 items-center text-xs text-muted-foreground">
+            Carregando livro...
+          </ContainerBorder>
+        ) : (
+          <div onClick={() => navigate(`/livros/${club.currentReading?.id}`)}>
+            <ContainerBorder className="flex-row items-center gap-3 mt-2">
+              <BookImage
+                book={book}
+                height="h-28"
+                className="w-20 shrink-0 object-cover"
+              />
+              <div className="text-xs flex-1 min-w-0">
+                <p className="font-medium">
+                  {book?.title_pt ?? book?.title_original}
+                </p>
+                <p>{book?.authors.join(", ")}</p>
+                <p>{book?.publisher}</p>
+                <p>{book?.primary_genre?.name}</p>
+                {Boolean(book?.total_pages) && (
+                  <p>{book?.total_pages} páginas</p>
+                )}
+              </div>
+              <ChevronRight className="shrink-0" />
+            </ContainerBorder>
           </div>
-          <ChevronRight />
-        </ContainerBorder>
+        )}
       </div>
+
+      {showReadingModal && (
+        <SetClubReadingModal
+          clubId={club.id}
+          onClose={() => setShowReadingModal(false)}
+        />
+      )}
 
       <ContainerBorder className="text-xs">
         <p className="font-medium ">Avaliação do livro</p>
         <Separator />
         <p className="flex justify-between">
           <span className="flex gap-1">
-            Global: {book?.global_average_rating} <Star size={16} />
+            Global: {book?.global_average_rating || "0.0"} <Star size={16} />
           </span>{" "}
           |{" "}
           <span className="flex gap-1">
-            Clube: {book?.global_average_rating} <Star size={16} />
+            Clube: {book?.global_average_rating || "0.0"} <Star size={16} />
           </span>{" "}
           |{" "}
           <span className="flex gap-1">
-            Individual: {book?.global_average_rating} <Star size={16} />
+            Individual: {book?.global_average_rating || "0.0"}{" "}
+            <Star size={16} />
           </span>
         </p>
         <div className="flex justify-between gap-2">

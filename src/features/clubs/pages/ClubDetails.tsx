@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import placeholder from "../../../assets/placeholder.png";
 import { LocalizationPin } from "@/components/LocalizationPin";
 import { Tag } from "@/components/Tag";
@@ -10,11 +11,31 @@ import OverviewSection from "../components/OverviewSection";
 import MembersSection from "../components/MemberSection";
 import ReadingSection from "../components/ReadingSection";
 import { useClub } from "../hooks/useClub";
+import { useRequestToJoinClub } from "../hooks/useRequestToJoinClub";
 
 export default function ClubDetails() {
   const { id } = useParams();
   const { data: club, isLoading, isError } = useClub(id);
   const navigate = useNavigate();
+  const requestToJoin = useRequestToJoinClub(id ?? "");
+
+  const handleRequestToJoin = () => {
+    if (!club) return;
+
+    requestToJoin.mutate(undefined, {
+      onSuccess: () => {
+        toast.success(
+          club.isPrivate
+            ? "Pedido enviado! Aguarde a aprovação do administrador."
+            : "Você entrou no clube!",
+        );
+      },
+      onError: (error) => {
+        console.error("Error requesting to join club:", error);
+        toast.error("Não foi possível enviar o pedido. Tente novamente.");
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -74,7 +95,19 @@ export default function ClubDetails() {
       </div>
 
       {!club.isMember && (
-        <Button className="w-full my-6">Pedir para participar</Button>
+        <Button
+          className="w-full mb-6"
+          disabled={club.hasPendingRequest || requestToJoin.isPending}
+          onClick={handleRequestToJoin}
+        >
+          {club.hasPendingRequest
+            ? "Pedido enviado"
+            : requestToJoin.isPending
+              ? "Enviando..."
+              : club.isPrivate
+                ? "Pedir para participar"
+                : "Entrar no clube"}
+        </Button>
       )}
 
       <Tabs defaultValue="overview" className="w-full mb-6">
@@ -87,7 +120,7 @@ export default function ClubDetails() {
           <OverviewSection club={club} />
         </TabsContent>
         <TabsContent value="members">
-          <MembersSection clubId={club.id} />
+          <MembersSection club={club} />
         </TabsContent>
         <TabsContent value="reading">
           <ReadingSection club={club} />

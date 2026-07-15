@@ -30,6 +30,7 @@ export interface Club {
   isPrivate: boolean;
   isMember: boolean;
   isAdmin: boolean;
+  hasPendingRequest: boolean;
   participantLimit: number | null;
   type: string;
   frequency: string | null;
@@ -96,4 +97,11 @@ export interface ClubMember {
   name: string;
   avatarUrl: string | null;
   isAdmin: boolean;
+}
+
+export interface ClubJoinRequest {
+  requestId: string;
+  userId: string;
+  name: string;
+  avatarUrl: string | null;
 }

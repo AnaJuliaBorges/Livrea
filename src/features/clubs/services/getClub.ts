@@ -19,6 +19,7 @@ type RawClub = {
   genres: { id: number; name: string }[];
   is_member: boolean;
   is_admin: boolean;
+  has_pending_request: boolean;
   current_reading: { id: string; title: string } | null;
   next_meeting: {
     id: string;
@@ -46,6 +47,7 @@ function mapClub(raw: RawClub): Club {
     isPrivate: !raw.visibility,
     isMember: raw.is_member,
     isAdmin: raw.is_admin,
+    hasPendingRequest: raw.has_pending_request,
     participantLimit: raw.participant_limit,
     type: raw.type,
     frequency: raw.frequency,

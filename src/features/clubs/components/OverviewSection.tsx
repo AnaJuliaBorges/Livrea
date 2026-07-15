@@ -1,7 +1,7 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import type { Club } from "../dtos";
 import { LocalizationPin } from "@/components/LocalizationPin";
-import { UsersRound } from "lucide-react";
+import { EditIcon, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui";
 import { BookImage } from "@/features/books/components/BookImage";
 import {
@@ -13,18 +13,55 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { MeetingTypeTag } from "./MeetingTypeTag";
+import { EditClubFieldModal } from "./EditClubFieldModal";
+import { EditMeetingsModal } from "./EditMeetingsModal";
 import { useConfirmMeetingAttendance } from "../hooks/useConfirmMeetingAttendance";
+import { useUpdateClub } from "../hooks/useUpdateClub";
 
 interface Props {
   club: Club;
 }
 
+// nextMeeting.date vem como "YYYY-MM-DD" puro (sem hora/timezone) da RPC —
+// reformata por string em vez de `new Date()` pra não sofrer o bug clássico
+// de fuso (UTC-3 "voltaria" um dia na conversão)
+function toBrazilianDate(isoDate: string) {
+  const [year, month, day] = isoDate.split("-");
+  return year && month && day ? `${day}/${month}/${year}` : isoDate;
+}
+
+type EditingField = "description" | "rules" | "meetings" | null;
+
 export default function OverviewSection({ club }: Props) {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [editingField, setEditingField] = useState<EditingField>(null);
   const confirmAttendance = useConfirmMeetingAttendance(club.id);
+  const updateClub = useUpdateClub(club.id);
 
   const nextMeeting = club.nextMeeting;
+
+  const handleSaveField = (field: "description" | "rules", value: string) => {
+    updateClub.mutate(
+      field === "description"
+        ? { clubId: club.id, description: value }
+        : { clubId: club.id, rules: value },
+      {
+        onSuccess: () => {
+          toast.success(
+            field === "description"
+              ? "Descrição atualizada!"
+              : "Regras atualizadas!",
+          );
+          setEditingField(null);
+        },
+        onError: (error) => {
+          console.error("Error updating club:", error);
+          toast.error("Não foi possível salvar. Tente novamente.");
+        },
+      },
+    );
+  };
 
   const handleConfirmAttendance = () => {
     if (!nextMeeting) return;
@@ -50,24 +87,57 @@ export default function OverviewSection({ club }: Props) {
 
   return (
     <div className="flex flex-col gap-4 mb-8">
-      <ContainerBorder className="text-xs gap-2">
-        <p className="font-medium">Descrição</p>
+      <ContainerBorder className="text-sm gap-2">
+        <div className="flex items-center justify-between">
+          <p className="font-medium">Descrição</p>
+          {club.isAdmin && (
+            <button
+              type="button"
+              aria-label="Editar descrição"
+              onClick={() => setEditingField("description")}
+            >
+              <EditIcon size={16} />
+            </button>
+          )}
+        </div>
         <p className="whitespace-pre-wrap">
           {club.description || "Este clube ainda não tem descrição."}
         </p>
       </ContainerBorder>
 
-      <ContainerBorder className="text-xs gap-2">
-        <p className="font-medium">Regras de participação</p>
+      <ContainerBorder className="text-sm gap-2">
+        <div className="flex items-center justify-between">
+          <p className="font-medium">Regras de participação</p>
+          {club.isAdmin && (
+            <button
+              type="button"
+              aria-label="Editar regras"
+              onClick={() => setEditingField("rules")}
+            >
+              <EditIcon size={16} />
+            </button>
+          )}
+        </div>
         <p className="whitespace-pre-wrap">
           {club.rules || "Este clube ainda não definiu regras."}
         </p>
       </ContainerBorder>
 
-      <ContainerBorder className="text-xs gap-1">
+      <ContainerBorder className="text-sm gap-1">
         <div className="flex items-center justify-between gap-2 mb-1">
           <p className="font-medium">Encontros</p>
-          <MeetingTypeTag type={club.type} />
+          <div className="flex gap-2 items-center">
+            <MeetingTypeTag type={club.type} />
+            {club.isAdmin && (
+              <button
+                type="button"
+                aria-label="Editar encontros"
+                onClick={() => setEditingField("meetings")}
+              >
+                <EditIcon size={16} />
+              </button>
+            )}
+          </div>
         </div>
         <p className="whitespace-pre-wrap">
           {club.meetingDescription || "Sem informações sobre os encontros."}
@@ -76,7 +146,7 @@ export default function OverviewSection({ club }: Props) {
         {nextMeeting ? (
           <>
             <p>
-              Próximo encontro: {nextMeeting.date}, {nextMeeting.location} às{" "}
+              Próximo encontro: {toBrazilianDate(nextMeeting.date)}, {nextMeeting.location} às{" "}
               {nextMeeting.time}
             </p>
             <div className="flex justify-between mt-2">
@@ -134,6 +204,32 @@ export default function OverviewSection({ club }: Props) {
         </ContainerBorder>
       )}
 
+      {editingField === "description" && (
+        <EditClubFieldModal
+          title="Editar descrição"
+          placeholder="Descrição do clube"
+          initialValue={club.description}
+          isSaving={updateClub.isPending}
+          onSave={(value) => handleSaveField("description", value)}
+          onClose={() => setEditingField(null)}
+        />
+      )}
+
+      {editingField === "rules" && (
+        <EditClubFieldModal
+          title="Editar regras"
+          placeholder="Regras de participação"
+          initialValue={club.rules}
+          isSaving={updateClub.isPending}
+          onSave={(value) => handleSaveField("rules", value)}
+          onClose={() => setEditingField(null)}
+        />
+      )}
+
+      {editingField === "meetings" && (
+        <EditMeetingsModal club={club} onClose={() => setEditingField(null)} />
+      )}
+
       {showConfirmModal && nextMeeting && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 flex flex-col gap-4">
@@ -152,7 +248,7 @@ export default function OverviewSection({ club }: Props) {
                 {club.currentReading && (
                   <p>Leitura: {club.currentReading.title}</p>
                 )}
-                <p>{nextMeeting.date}</p>
+                <p>{toBrazilianDate(nextMeeting.date)}</p>
                 <p>
                   {nextMeeting.location} ás {nextMeeting.time}
                 </p>
