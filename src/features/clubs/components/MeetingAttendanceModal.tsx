@@ -1,10 +1,16 @@
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui";
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { supabase } from "@/lib/supabase";
+import { getErrorMessage } from "@/lib/utils";
 import { useMeetingAttendance } from "../hooks/useMeetingAttendance";
+import { useCancelMeetingAttendance } from "../hooks/useCancelMeetingAttendance";
 import type { MeetingAttendanceMember } from "../dtos";
 
 interface Props {
+  clubId: string;
   meetingId: string;
   onClose: () => void;
 }
@@ -18,7 +24,17 @@ function initialsOf(name: string) {
     .join("");
 }
 
-function MemberRow({ member }: { member: MeetingAttendanceMember }) {
+function MemberRow({
+  member,
+  isOwn,
+  onCancel,
+  isCancelling,
+}: {
+  member: MeetingAttendanceMember;
+  isOwn: boolean;
+  onCancel?: () => void;
+  isCancelling?: boolean;
+}) {
   return (
     <ContainerBorder
       key={member.id}
@@ -42,15 +58,43 @@ function MemberRow({ member }: { member: MeetingAttendanceMember }) {
           )}
         </div>
       </div>
+      {isOwn && onCancel && (
+        <Button
+          variant="link"
+          className="text-xs h-auto p-0 text-destructive"
+          disabled={isCancelling}
+          onClick={onCancel}
+        >
+          {isCancelling ? "Cancelando..." : "Cancelar"}
+        </Button>
+      )}
     </ContainerBorder>
   );
 }
 
-export function MeetingAttendanceModal({ meetingId, onClose }: Props) {
+export function MeetingAttendanceModal({ clubId, meetingId, onClose }: Props) {
   const { data: members, isLoading, isError } = useMeetingAttendance(meetingId);
+  const { data: authUser } = useQuery({
+    queryKey: ["auth-user"],
+    queryFn: async () => (await supabase.auth.getUser()).data.user,
+  });
+  const cancelAttendance = useCancelMeetingAttendance(clubId);
 
   const confirmed = members?.filter((member) => member.confirmed) ?? [];
   const notConfirmed = members?.filter((member) => !member.confirmed) ?? [];
+
+  const handleCancel = () => {
+    cancelAttendance.mutate(meetingId, {
+      onSuccess: () => toast.success("Presença cancelada."),
+      onError: (error) => {
+        console.error("Error cancelling meeting attendance:", error);
+        toast.error(
+          getErrorMessage(error) ??
+            "Não foi possível cancelar a presença. Tente novamente.",
+        );
+      },
+    });
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -81,7 +125,13 @@ export function MeetingAttendanceModal({ meetingId, onClose }: Props) {
                 </p>
               ) : (
                 confirmed.map((member) => (
-                  <MemberRow key={member.id} member={member} />
+                  <MemberRow
+                    key={member.id}
+                    member={member}
+                    isOwn={member.id === authUser?.id}
+                    onCancel={handleCancel}
+                    isCancelling={cancelAttendance.isPending}
+                  />
                 ))
               )}
             </div>
@@ -96,7 +146,7 @@ export function MeetingAttendanceModal({ meetingId, onClose }: Props) {
                 </p>
               ) : (
                 notConfirmed.map((member) => (
-                  <MemberRow key={member.id} member={member} />
+                  <MemberRow key={member.id} member={member} isOwn={false} />
                 ))
               )}
             </div>

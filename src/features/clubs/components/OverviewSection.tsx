@@ -148,15 +148,12 @@ export default function OverviewSection({ club }: Props) {
                 <UsersRound size={14} />
               </button>
             </div>
-            {club.isMember && (
+            {club.isMember && !nextMeeting.isConfirmedByMe && (
               <Button
                 className="mt-4 text-sm"
-                disabled={nextMeeting.isConfirmedByMe}
                 onClick={() => setShowConfirmModal(true)}
               >
-                {nextMeeting.isConfirmedByMe
-                  ? "Presença confirmada"
-                  : "Confirmar presença"}
+                Confirmar presença
               </Button>
             )}
           </>
@@ -210,6 +207,7 @@ export default function OverviewSection({ club }: Props) {
 
       {showAttendanceModal && nextMeeting && (
         <MeetingAttendanceModal
+          clubId={club.id}
           meetingId={nextMeeting.id}
           onClose={() => setShowAttendanceModal(false)}
         />
