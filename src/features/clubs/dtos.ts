@@ -101,6 +101,10 @@ export interface ClubMember {
   isAdmin: boolean;
 }
 
+export interface MeetingAttendanceMember extends ClubMember {
+  confirmed: boolean;
+}
+
 export interface ClubJoinRequest {
   requestId: string;
   userId: string;

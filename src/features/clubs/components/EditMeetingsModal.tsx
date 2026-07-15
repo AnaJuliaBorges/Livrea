@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button, Field, FieldLabel, Input, Textarea } from "@/components/ui";
+import { getErrorMessage } from "@/lib/utils";
 import type { Club } from "../dtos";
 import { useUpdateClub } from "../hooks/useUpdateClub";
 import { useUpsertNextMeeting } from "../hooks/useUpsertNextMeeting";
@@ -58,8 +59,7 @@ export function EditMeetingsModal({ club, onClose }: Props) {
       console.error("Error updating meetings:", error);
       // exceções das RPCs (ex.: "Defina a leitura atual do clube antes de
       // agendar um encontro") já vêm como mensagem amigável em português
-      const message =
-        error instanceof Error && error.message ? error.message : null;
+      const message = getErrorMessage(error);
       toast.error(message ?? "Não foi possível salvar. Tente novamente.");
     }
   };

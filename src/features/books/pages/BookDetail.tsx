@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, MessageCircleMore, Star } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { MessageCircleMore, Star } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 import { BookImage } from "../components/BookImage";
 import { Tag } from "@/components/Tag";
 import {
@@ -30,7 +30,6 @@ import type { UserBookStatus } from "../services/userBookStatus";
 
 export function BookDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
 
   const { data: userStatus } = useUserBookStatus(id);
   const { mutate: saveStatus } = useSetUserBookStatus(id);
@@ -70,14 +69,7 @@ export function BookDetail() {
   return (
     <>
       <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-gradient-to-br from-violet-800 via-purple-900 to-slate-950">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 z-10 rounded-full text-accent-foreground hover:bg-white/20 hover:text-white"
-        >
-          <ArrowLeft className="size-6" />
-        </Button>
+        <BackButton />
 
         <div className="absolute left-1/2 top-1/4 -translate-x-1/2 rounded-lg shadow-xl">
           <BookImage book={book} height="h-52" />

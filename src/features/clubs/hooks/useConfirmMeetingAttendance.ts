@@ -8,6 +8,7 @@ export function useConfirmMeetingAttendance(clubId: string | undefined) {
     mutationFn: confirmMeetingAttendance,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["club", clubId] });
+      queryClient.invalidateQueries({ queryKey: ["meeting-attendance"] });
     },
   });
 }

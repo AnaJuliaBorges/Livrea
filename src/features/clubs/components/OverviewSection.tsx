@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { MeetingTypeTag } from "./MeetingTypeTag";
 import { EditMeetingsModal } from "./EditMeetingsModal";
+import { MeetingAttendanceModal } from "./MeetingAttendanceModal";
 import { useConfirmMeetingAttendance } from "../hooks/useConfirmMeetingAttendance";
 
 interface Props {
@@ -33,6 +34,7 @@ type EditingField = "meetings" | null;
 export default function OverviewSection({ club }: Props) {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [editingField, setEditingField] = useState<EditingField>(null);
   const confirmAttendance = useConfirmMeetingAttendance(club.id);
 
@@ -44,15 +46,7 @@ export default function OverviewSection({ club }: Props) {
     confirmAttendance.mutate(nextMeeting.id, {
       onSuccess: () => {
         setShowConfirmModal(false);
-        toast.success("Presença confirmada no encontro!", {
-          position: "top-center",
-          style: {
-            background: "#ECFDF5",
-            color: "var(--color-success)",
-            border: "none",
-            borderRadius: "8px",
-          },
-        });
+        toast.success("Presença confirmada no encontro!");
       },
       onError: () => {
         toast.error("Não foi possível confirmar presença. Tente novamente.");
@@ -99,8 +93,8 @@ export default function OverviewSection({ club }: Props) {
         {nextMeeting ? (
           <>
             <p>
-              Próximo encontro: {toBrazilianDate(nextMeeting.date)}, {nextMeeting.location} às{" "}
-              {nextMeeting.time}
+              Próximo encontro: {toBrazilianDate(nextMeeting.date)},{" "}
+              {nextMeeting.location} às {nextMeeting.time}
             </p>
             <div className="flex justify-between mt-2">
               <LocalizationPin
@@ -108,10 +102,14 @@ export default function OverviewSection({ club }: Props) {
                 city={club.cityName}
                 size="text-xs"
               />
-              <p className="flex gap-2">
+              <button
+                type="button"
+                className="flex items-center gap-2"
+                onClick={() => setShowAttendanceModal(true)}
+              >
                 {nextMeeting.confirmedMembers}/{club.totalParticipants}{" "}
                 <UsersRound size={14} />
-              </p>
+              </button>
             </div>
             {club.isMember && (
               <Button
@@ -161,6 +159,13 @@ export default function OverviewSection({ club }: Props) {
 
       {editingField === "meetings" && (
         <EditMeetingsModal club={club} onClose={() => setEditingField(null)} />
+      )}
+
+      {showAttendanceModal && nextMeeting && (
+        <MeetingAttendanceModal
+          meetingId={nextMeeting.id}
+          onClose={() => setShowAttendanceModal(false)}
+        />
       )}
 
       {showConfirmModal && nextMeeting && (

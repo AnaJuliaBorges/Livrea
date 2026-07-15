@@ -2,6 +2,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Search } from "lucide-react";
 import { Button, Input } from "@/components/ui";
+import { getErrorMessage } from "@/lib/utils";
 import placeholderBook from "../../../assets/book-placeholder.png";
 import {
   searchClubReadingBooks,
@@ -48,8 +49,7 @@ export function SetClubReadingModal({ clubId, onClose }: Props) {
       },
       onError: (error) => {
         console.error("Erro ao definir leitura:", error);
-        const message =
-          error instanceof Error && error.message ? error.message : null;
+        const message = getErrorMessage(error);
         toast.error(message ?? "Não foi possível definir a leitura.");
       },
     });

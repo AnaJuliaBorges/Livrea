@@ -142,6 +142,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
         <Field>
           <FieldLabel>Nome do clube</FieldLabel>
           <Input
+            placeholder="Nome do clube"
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -150,6 +151,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
         <Field>
           <FieldLabel>Descrição</FieldLabel>
           <Textarea
+            placeholder="Descrição do clube"
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             className="min-h-24"
@@ -159,6 +161,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
         <Field>
           <FieldLabel>Regras de participação</FieldLabel>
           <Textarea
+            placeholder="Regras de participação"
             value={rules}
             onChange={(event) => setRules(event.target.value)}
             className="min-h-24"

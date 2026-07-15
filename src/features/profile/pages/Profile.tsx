@@ -1,16 +1,10 @@
 import { LocalizationPin } from "@/components/LocalizationPin";
-import { Button } from "@/components/ui/button";
+import { BackButton } from "@/components/BackButton";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ItemClub from "@/features/clubs/components/ItemClub";
-import {
-  ArrowLeft,
-  Bookmark,
-  BookmarkMinus,
-  BookmarkPlus,
-  Settings,
-} from "lucide-react";
+import { Bookmark, BookmarkMinus, BookmarkPlus, Settings } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookListCard } from "@/features/books/components/BookListCard";
@@ -75,14 +69,7 @@ export default function Profile() {
   return (
     <div className="mb-10">
       <div className="relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 bg-gradient-to-br from-violet-800 via-purple-900 to-slate-950">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 z-10 rounded-full text-accent-foreground hover:bg-white/20 hover:text-white"
-        >
-          <ArrowLeft className="size-6" />
-        </Button>
+        <BackButton />
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
           <Avatar className="w-32 h-32 shadow-xl border-2 border-gray-400">
