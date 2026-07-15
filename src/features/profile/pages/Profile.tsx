@@ -6,15 +6,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ItemClub from "@/features/clubs/components/ItemClub";
 import { Bookmark, BookmarkMinus, BookmarkPlus, Settings } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { BookListCard } from "@/features/books/components/BookListCard";
 import { Tag } from "../components/Tag";
 import { useMyProfile } from "../hooks/useMyProfile";
+import { useUserProfile } from "../hooks/useUserProfile";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
   const navigate = useNavigate();
-  const { data: profile, isLoading, isError } = useMyProfile();
+  const { id } = useParams();
+  const isOwnProfile = !id;
+  const myProfile = useMyProfile(isOwnProfile);
+  const otherProfile = useUserProfile(isOwnProfile ? undefined : id);
+  const {
+    data: profile,
+    isLoading,
+    isError,
+  } = isOwnProfile ? myProfile : otherProfile;
 
   if (isLoading) {
     return (
@@ -98,7 +107,9 @@ export default function Profile() {
               />
             )}
           </div>
-          <Settings onClick={() => navigate("/perfil/editar")} />
+          {isOwnProfile && (
+            <Settings onClick={() => navigate("/perfil/editar")} />
+          )}
         </div>
 
         {profile.bio && <p>"{profile.bio}"</p>}
@@ -112,14 +123,20 @@ export default function Profile() {
 
         <Tabs defaultValue="clubs" className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger value="clubs">Meus clubes</TabsTrigger>
-            <TabsTrigger value="books">Meus livros</TabsTrigger>
+            <TabsTrigger value="clubs">
+              {isOwnProfile ? "Meus clubes" : "Clubes"}
+            </TabsTrigger>
+            <TabsTrigger value="books">
+              {isOwnProfile ? "Meus livros" : "Livros"}
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="clubs">
             <div className="mb-6 mt-6">
               {profile.clubs.length === 0 && (
                 <p className="text-center text-sm text-muted-foreground">
-                  Você ainda não participa de nenhum clube.
+                  {isOwnProfile
+                    ? "Você ainda não participa de nenhum clube."
+                    : "Este usuário ainda não participa de nenhum clube."}
                 </p>
               )}
               {profile.clubs.map((club) => (

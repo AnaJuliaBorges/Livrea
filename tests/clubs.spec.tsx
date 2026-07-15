@@ -134,10 +134,32 @@ function rawClubDetail(overrides: Record<string, unknown> = {}) {
   };
 }
 
+// Perfil cru retornado pela RPC get_my_profile/get_user_profile.
+function rawUserProfile(overrides: Record<string, unknown> = {}) {
+  return {
+    id: "user-y",
+    name: "Usuário Y",
+    bio: null,
+    avatar_url: null,
+    city: null,
+    state: null,
+    state_id: null,
+    city_id: null,
+    clubs: [],
+    library: { read: [], reading: [], want_to_read: [] },
+    ...overrides,
+  };
+}
+
 type ClubsMockOptions = {
   browseClubs?: ReturnType<typeof rawClubListItem>[];
   myClubs?: ReturnType<typeof rawClubListItem>[];
   clubDetails?: Record<string, ReturnType<typeof rawClubDetail>>;
+  clubMembers?: Record<
+    string,
+    { id: string; name: string; avatar_url: string | null; is_admin: boolean }[]
+  >;
+  userProfiles?: Record<string, ReturnType<typeof rawUserProfile>>;
   genres?: { id: number; name: string; google_category: string[] | null }[];
   states?: { id: number; name: string; sigla: string }[];
   cities?: { id: number; name: string; state_id: number }[];
@@ -147,6 +169,8 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
   const browseClubs = opts.browseClubs ?? [];
   const myClubs = opts.myClubs ?? [];
   const clubDetails = opts.clubDetails ?? {};
+  const clubMembers = opts.clubMembers ?? {};
+  const userProfiles = opts.userProfiles ?? {};
   const genres = opts.genres ?? [
     { id: 1, name: "Fantasia", google_category: null },
   ];
@@ -201,6 +225,22 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
     const body = route.request().postDataJSON() as { p_club_id?: string };
     const club = body?.p_club_id ? clubDetails[body.p_club_id] : undefined;
     await route.fulfill(jsonResponse(club ?? null));
+  });
+
+  // Registrada depois de get_club* de propósito: Playwright resolve rotas
+  // sobrepostas da mais recente para a mais antiga, então esta é checada
+  // primeiro para URLs de get_club_members (que também bateriam no glob
+  // "get_club*" acima).
+  await mockRoute(page, "**/rest/v1/rpc/get_club_members*", async (route) => {
+    const body = route.request().postDataJSON() as { p_club_id?: string };
+    const members = body?.p_club_id ? clubMembers[body.p_club_id] : undefined;
+    await route.fulfill(jsonResponse(members ?? []));
+  });
+
+  await mockRoute(page, "**/rest/v1/rpc/get_user_profile*", async (route) => {
+    const body = route.request().postDataJSON() as { p_user_id?: string };
+    const profile = body?.p_user_id ? userProfiles[body.p_user_id] : undefined;
+    await route.fulfill(jsonResponse(profile ?? null));
   });
 
   await mockRoute(
@@ -396,5 +436,48 @@ test.describe("Clubes", () => {
 
     await expect(page.getByText("Clube excluído.")).toBeVisible();
     await page.waitForURL("**/meus-clubes");
+  });
+
+  test("clica em um participante e vê o perfil dele, somente leitura", async ({
+    page,
+  }) => {
+    await setupClubMocks(page, {
+      browseClubs: [
+        rawClubListItem({ id: "club-1", name: "Clube Y" }),
+      ],
+      clubDetails: {
+        "club-1": rawClubDetail({ id: "club-1", name: "Clube Y" }),
+      },
+      clubMembers: {
+        "club-1": [
+          {
+            id: "user-2",
+            name: "Lucas Martins",
+            avatar_url: null,
+            is_admin: false,
+          },
+        ],
+      },
+      userProfiles: {
+        "user-2": rawUserProfile({
+          id: "user-2",
+          name: "Lucas Martins",
+          city: "Campinas",
+          state: "SP",
+        }),
+      },
+    });
+    await login(page);
+
+    await page.getByText("Clube Y").click();
+    await page.waitForURL("**/clubes/club-1");
+
+    await page.getByRole("tab", { name: "Participantes" }).click();
+    await page.getByText("Lucas Martins").click();
+
+    await page.waitForURL("**/perfil/user-2");
+    await expect(page.getByText("Lucas Martins")).toBeVisible();
+    // perfil de outra pessoa: sem ícone de configurações (não pode editar)
+    await expect(page.locator("svg.lucide-settings")).toHaveCount(0);
   });
 });

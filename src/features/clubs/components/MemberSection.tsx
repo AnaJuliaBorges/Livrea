@@ -8,6 +8,7 @@ import {
 } from "../hooks/useReviewJoinRequest";
 import { SquarePlus, X } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import type { Club } from "../dtos";
 
 interface Props {
@@ -106,6 +107,7 @@ function JoinRequestsSection({ club }: { club: Club }) {
 }
 
 export default function MembersSection({ club }: Props) {
+  const navigate = useNavigate();
   const { data: members, isLoading, isError } = useClubMembers(club.id);
 
   if (isLoading) {
@@ -139,29 +141,32 @@ export default function MembersSection({ club }: Props) {
       <div className="flex flex-col gap-2">
         <p className="font-medium text-sm mb-2">Participantes</p>
         {members.map((member) => (
-          <ContainerBorder
+          <div
             key={member.id}
-            className="flex-row justify-between items-center"
+            onClick={() => navigate(`/perfil/${member.id}`)}
+            className="cursor-pointer"
           >
-            <div className="flex gap-2 items-center">
-              <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src={member.avatarUrl ?? undefined}
-                  alt={member.name}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-xs">
-                  {initialsOf(member.name)}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <p className="text-sm font-medium">{member.name}</p>
-                {member.isAdmin && (
-                  <p className="text-[10px] text-primary">Administrador</p>
-                )}
+            <ContainerBorder className="flex-row justify-between items-center">
+              <div className="flex gap-2 items-center">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={member.avatarUrl ?? undefined}
+                    alt={member.name}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="text-xs">
+                    {initialsOf(member.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm font-medium">{member.name}</p>
+                  {member.isAdmin && (
+                    <p className="text-[10px] text-primary">Administrador</p>
+                  )}
+                </div>
               </div>
-            </div>
-          </ContainerBorder>
+            </ContainerBorder>
+          </div>
         ))}
       </div>
     </div>

@@ -105,6 +105,11 @@ export const router = createBrowserRouter([
         element: <EditProfile />,
         loader: protectedLoader,
       },
+      {
+        path: "perfil/:id",
+        element: <Profile />,
+        loader: protectedLoader,
+      },
     ],
   },
 ]);

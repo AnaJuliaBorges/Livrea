@@ -1,25 +1,32 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import Profile from "./Profile";
 import { useMyProfile } from "../hooks/useMyProfile";
+import { useUserProfile } from "../hooks/useUserProfile";
 import type { UserProfile } from "../dtos";
 
 vi.mock("../hooks/useMyProfile");
+vi.mock("../hooks/useUserProfile");
 
 const useMyProfileMock = vi.mocked(useMyProfile);
+const useUserProfileMock = vi.mocked(useUserProfile);
 
 function mockQueryState(state: {
   data?: UserProfile;
   isLoading?: boolean;
   isError?: boolean;
 }) {
-  useMyProfileMock.mockReturnValue({
+  const result = {
     data: state.data,
     isLoading: state.isLoading ?? false,
     isError: state.isError ?? false,
-  } as ReturnType<typeof useMyProfile>);
+  } as ReturnType<typeof useMyProfile>;
+
+  useMyProfileMock.mockReturnValue(result);
+  useUserProfileMock.mockReturnValue(result);
 }
 
 const profile: UserProfile = {
@@ -78,10 +85,32 @@ const profile: UserProfile = {
 };
 
 function renderProfile() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
   return render(
-    <MemoryRouter>
-      <Profile />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <Profile />
+      </MemoryRouter>
+    </QueryClientProvider>,
+  );
+}
+
+function renderOtherProfile(userId: string) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[`/perfil/${userId}`]}>
+        <Routes>
+          <Route path="/perfil/:id" element={<Profile />} />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -187,5 +216,37 @@ describe("Profile", () => {
     expect(
       screen.getByText("Nenhum livro nesta lista ainda."),
     ).toBeInTheDocument();
+  });
+
+  it("ao ver o perfil de outra pessoa, busca via useUserProfile e esconde o botão de configurações", () => {
+    mockQueryState({ data: profile });
+
+    renderOtherProfile("user-1");
+
+    expect(useUserProfileMock).toHaveBeenCalledWith("user-1");
+    expect(screen.getByText("Ana Julia Borges")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /configura/i }),
+    ).not.toBeInTheDocument();
+    expect(document.querySelector("svg.lucide-settings")).not.toBeInTheDocument();
+  });
+
+  it("ao ver o perfil de outra pessoa sem clubes, mostra mensagem específica", () => {
+    mockQueryState({ data: { ...profile, clubs: [] } });
+
+    renderOtherProfile("user-1");
+
+    expect(
+      screen.getByText("Este usuário ainda não participa de nenhum clube."),
+    ).toBeInTheDocument();
+  });
+
+  it("usa rótulos genéricos de aba (Clubes/Livros) no perfil de outra pessoa", () => {
+    mockQueryState({ data: profile });
+
+    renderOtherProfile("user-1");
+
+    expect(screen.getByRole("tab", { name: "Clubes" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Livros" })).toBeInTheDocument();
   });
 });
