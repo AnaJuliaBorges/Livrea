@@ -260,49 +260,51 @@ export default function ReadingSection({ club }: Props) {
         />
       )}
 
-      <ContainerBorder className="text-xs">
-        <p className="font-medium ">Avaliação do livro</p>
-        <Separator />
-        <p className="flex justify-between">
-          <span className="flex gap-1">
-            Global: {book?.global_average_rating || "0.0"} <Star size={16} />
-          </span>{" "}
-          |{" "}
-          <span className="flex gap-1">
-            Clube: {book?.global_average_rating || "0.0"} <Star size={16} />
-          </span>{" "}
-          |{" "}
-          <span className="flex gap-1">
-            Individual: {book?.global_average_rating || "0.0"}{" "}
-            <Star size={16} />
-          </span>
-        </p>
-        <div className="flex justify-between gap-2">
-          <button onClick={() => setActiveTab("highlights")} className="w-full">
-            <ContainerBorder className="flex-1 gap-1 items-center">
-              <PencilLine />
-              <p className="text-[10px]">Destaques</p>
-            </ContainerBorder>
-          </button>
-          <button onClick={() => setActiveTab("reviews")} className="w-full">
-            <ContainerBorder className="flex-1 gap-1 items-center">
-              <BookmarkMinus />
-              <p className="text-[10px]">Resenhas</p>
-            </ContainerBorder>
-          </button>
-          <button onClick={() => setActiveTab("readers")} className="w-full">
-            <ContainerBorder className="flex-1 gap-1 items-center">
-              <NotepadText />
-              <p className="text-[10px]">Leitores</p>
-            </ContainerBorder>
-          </button>
-        </div>
-        <Separator />
-        <div className="w-full flex flex-col gap-2 items-center mt-0">
-          <ProgressRead value={78} label="" />
-          <p>dos participantes já leram o livro</p>
-        </div>
-      </ContainerBorder>
+      {club.isMember && (
+        <ContainerBorder className="text-xs">
+          <p className="font-medium ">Avaliação do livro</p>
+          <Separator />
+          <p className="flex justify-between">
+            <span className="flex gap-1">
+              Global: {book?.global_average_rating || "0.0"} <Star size={16} />
+            </span>{" "}
+            |{" "}
+            <span className="flex gap-1">
+              Clube: {book?.global_average_rating || "0.0"} <Star size={16} />
+            </span>{" "}
+            |{" "}
+            <span className="flex gap-1">
+              Individual: {book?.global_average_rating || "0.0"}{" "}
+              <Star size={16} />
+            </span>
+          </p>
+          <div className="flex justify-between gap-2">
+            <button onClick={() => setActiveTab("highlights")} className="w-full">
+              <ContainerBorder className="flex-1 gap-1 items-center">
+                <PencilLine />
+                <p className="text-[10px]">Destaques</p>
+              </ContainerBorder>
+            </button>
+            <button onClick={() => setActiveTab("reviews")} className="w-full">
+              <ContainerBorder className="flex-1 gap-1 items-center">
+                <BookmarkMinus />
+                <p className="text-[10px]">Resenhas</p>
+              </ContainerBorder>
+            </button>
+            <button onClick={() => setActiveTab("readers")} className="w-full">
+              <ContainerBorder className="flex-1 gap-1 items-center">
+                <NotepadText />
+                <p className="text-[10px]">Leitores</p>
+              </ContainerBorder>
+            </button>
+          </div>
+          <Separator />
+          <div className="w-full flex flex-col gap-2 items-center mt-0">
+            <ProgressRead value={78} label="" />
+            <p>dos participantes já leram o livro</p>
+          </div>
+        </ContainerBorder>
+      )}
     </div>
   );
 }

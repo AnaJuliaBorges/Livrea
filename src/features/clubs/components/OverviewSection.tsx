@@ -160,15 +160,17 @@ export default function OverviewSection({ club }: Props) {
                 <UsersRound size={14} />
               </p>
             </div>
-            <Button
-              className="mt-4 text-sm"
-              disabled={nextMeeting.isConfirmedByMe}
-              onClick={() => setShowConfirmModal(true)}
-            >
-              {nextMeeting.isConfirmedByMe
-                ? "Presença confirmada"
-                : "Confirmar presença"}
-            </Button>
+            {club.isMember && (
+              <Button
+                className="mt-4 text-sm"
+                disabled={nextMeeting.isConfirmedByMe}
+                onClick={() => setShowConfirmModal(true)}
+              >
+                {nextMeeting.isConfirmedByMe
+                  ? "Presença confirmada"
+                  : "Confirmar presença"}
+              </Button>
+            )}
           </>
         ) : (
           <p className="text-muted-foreground">Nenhum encontro agendado.</p>

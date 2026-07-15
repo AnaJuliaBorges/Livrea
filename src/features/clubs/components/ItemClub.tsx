@@ -4,11 +4,12 @@ import { LocalizationPin } from "@/components/LocalizationPin";
 import { MeetingTypeTag } from "./MeetingTypeTag";
 import type { ClubSummary } from "@/features/profile/dtos";
 import { useNavigate } from "react-router-dom";
+import { Lock } from "lucide-react";
 
 interface ItemClubProps {
   // meetingType é opcional porque o ClubSummary do perfil (get_my_profile)
   // ainda não retorna o tipo de encontro — só a listagem retorna
-  club: ClubSummary & { meetingType?: string };
+  club: ClubSummary & { meetingType?: string; isPrivate?: boolean };
   admin?: boolean;
 }
 
@@ -28,7 +29,15 @@ export default function ItemClub({ club, admin }: ItemClubProps) {
       />
       <div className="flex flex-col gap-2">
         <div className="flex flex-col">
-          <h2 className="font-medium">{club.name}</h2>
+          <div className="flex items-center justify-between ">
+            <h2 className="font-medium">{club.name}</h2>
+            {club.isPrivate && (
+              <Lock
+                className="size-3.5 text-gray-500"
+                aria-label="Clube privado"
+              />
+            )}
+          </div>
           {admin && <span className="text-xs text-primary">administrador</span>}
         </div>
 

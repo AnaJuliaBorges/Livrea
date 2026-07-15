@@ -46,12 +46,15 @@ export default function ListClubs() {
   );
 
   // Indicados: clubes que o usuário não participa e que têm pelo menos um
-  // gênero em comum com as preferências do perfil (profile_genres)
-  const recommendedClubs = (clubs ?? []).filter(
-    (club) =>
-      !club.isMember &&
-      club.genreIds.some((genreId) => preferredGenreIds?.includes(genreId)),
-  );
+  // gênero em comum com as preferências do perfil (profile_genres), ordenados
+  // do maior para o menor número de gêneros em comum
+  const countMatchingGenres = (club: ClubListItem) =>
+    club.genreIds.filter((genreId) => preferredGenreIds?.includes(genreId))
+      .length;
+
+  const recommendedClubs = (clubs ?? [])
+    .filter((club) => !club.isMember && countMatchingGenres(club) > 0)
+    .sort((a, b) => countMatchingGenres(b) - countMatchingGenres(a));
 
   const locationLabel =
     profile?.city && profile?.state

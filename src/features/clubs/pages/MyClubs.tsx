@@ -59,7 +59,7 @@ export default function MyClubs() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 mb-24">
       <div>
         <SearchInput
           value={search}
