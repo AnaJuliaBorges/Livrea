@@ -29,6 +29,23 @@ function toBrazilianDate(isoDate: string) {
   return year && month && day ? `${day}/${month}/${year}` : isoDate;
 }
 
+const frequencyLabels: Record<string, string> = {
+  weekly: "Semanais",
+  biweekly: "Quinzenais",
+  monthly: "Mensais",
+  bimonthly: "Bimestrais",
+};
+
+function frequencyLabel(club: Club) {
+  if (club.frequency === "custom") {
+    return club.customFrequency || "Frequência personalizada";
+  }
+
+  return club.frequency
+    ? (frequencyLabels[club.frequency] ?? club.frequency)
+    : null;
+}
+
 type EditingField = "meetings" | null;
 
 export default function OverviewSection({ club }: Props) {
@@ -86,9 +103,8 @@ export default function OverviewSection({ club }: Props) {
             )}
           </div>
         </div>
-        <p className="whitespace-pre-wrap">
-          {club.meetingDescription || "Sem informações sobre os encontros."}
-        </p>
+        {frequencyLabel(club) && <p>{frequencyLabel(club)}</p>}
+        <p className="whitespace-pre-wrap">{club.meetingDescription}</p>
 
         {nextMeeting ? (
           <>
@@ -124,7 +140,7 @@ export default function OverviewSection({ club }: Props) {
             )}
           </>
         ) : (
-          <p className="text-muted-foreground">Nenhum encontro agendado.</p>
+          <p className="text-gray-500">Nenhum encontro agendado</p>
         )}
       </ContainerBorder>
 

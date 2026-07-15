@@ -41,7 +41,10 @@ export function ThirdStep({
           <RadioGroup value={privacy} onValueChange={setPrivacy}>
             {[
               { value: "publico", label: "Aberto a qualquer participante" },
-              { value: "privado", label: "Fechado pra convidados" },
+              {
+                value: "privado",
+                label: "Fechado, entrada mediante aprovação",
+              },
             ].map((option) => (
               <div key={option.value} className="flex items-center gap-3">
                 <RadioGroupItem value={option.value} id={option.value} />
