@@ -16,6 +16,8 @@ import { MeetingTypeTag } from "./MeetingTypeTag";
 import { EditMeetingsModal } from "./EditMeetingsModal";
 import { MeetingAttendanceModal } from "./MeetingAttendanceModal";
 import { useConfirmMeetingAttendance } from "../hooks/useConfirmMeetingAttendance";
+import { useCompleteClubReading } from "../hooks/useCompleteClubReading";
+import { getErrorMessage } from "@/lib/utils";
 
 interface Props {
   club: Club;
@@ -52,8 +54,11 @@ export default function OverviewSection({ club }: Props) {
   const navigate = useNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
+  const [showCompleteReadingModal, setShowCompleteReadingModal] =
+    useState(false);
   const [editingField, setEditingField] = useState<EditingField>(null);
   const confirmAttendance = useConfirmMeetingAttendance(club.id);
+  const completeReading = useCompleteClubReading(club.id);
 
   const nextMeeting = club.nextMeeting;
 
@@ -67,6 +72,22 @@ export default function OverviewSection({ club }: Props) {
       },
       onError: () => {
         toast.error("Não foi possível confirmar presença. Tente novamente.");
+      },
+    });
+  };
+
+  const handleCompleteReading = () => {
+    completeReading.mutate(undefined, {
+      onSuccess: () => {
+        setShowCompleteReadingModal(false);
+        toast.success("Encontro concluído! O livro foi pro histórico.");
+      },
+      onError: (error) => {
+        console.error("Error completing club reading:", error);
+        toast.error(
+          getErrorMessage(error) ??
+            "Não foi possível concluir o encontro. Tente novamente.",
+        );
       },
     });
   };
@@ -141,6 +162,16 @@ export default function OverviewSection({ club }: Props) {
           </>
         ) : (
           <p className="text-gray-500">Nenhum encontro agendado</p>
+        )}
+
+        {club.isAdmin && club.currentReading && (
+          <Button
+            variant="outline"
+            className="mt-2 text-sm"
+            onClick={() => setShowCompleteReadingModal(true)}
+          >
+            Marcar encontro como concluído
+          </Button>
         )}
       </ContainerBorder>
 
@@ -228,6 +259,36 @@ export default function OverviewSection({ club }: Props) {
                 disabled={confirmAttendance.isPending}
               >
                 {confirmAttendance.isPending ? "Confirmando..." : "Confirmar"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCompleteReadingModal && club.currentReading && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-lg">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 flex flex-col gap-4">
+            <h2 className="text-lg font-medium">Concluir leitura atual</h2>
+
+            <p className="text-sm text-muted-foreground">
+              "{club.currentReading.title}" vai pro histórico de leituras do
+              clube e o encontro marcado pra ela será fechado. Você poderá
+              escolher a próxima leitura depois.
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="link"
+                onClick={() => setShowCompleteReadingModal(false)}
+                disabled={completeReading.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleCompleteReading}
+                disabled={completeReading.isPending}
+              >
+                {completeReading.isPending ? "Concluindo..." : "Concluir"}
               </Button>
             </div>
           </div>
