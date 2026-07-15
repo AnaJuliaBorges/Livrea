@@ -36,6 +36,11 @@ export function EditMeetingsModal({ club, onClose }: Props) {
       return;
     }
 
+    if (hasAllMeetingFields && new Date(`${date}T${time}`) < new Date()) {
+      setValidationError("A data do encontro deve ser no futuro.");
+      return;
+    }
+
     setValidationError(null);
 
     try {
