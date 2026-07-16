@@ -9,13 +9,24 @@ import {
 } from "../services/getNotifications";
 import type { AppNotification } from "../services/getNotifications";
 
+import {
+  ensurePushSubscription,
+  getPushPermissionState,
+} from "@/lib/push";
+
 vi.mock("../services/getNotifications", () => ({
   getNotifications: vi.fn(),
   markAllNotificationsRead: vi.fn(),
 }));
+vi.mock("@/lib/push", () => ({
+  ensurePushSubscription: vi.fn(),
+  getPushPermissionState: vi.fn(),
+}));
 
 const getNotificationsMock = vi.mocked(getNotifications);
 const markAllReadMock = vi.mocked(markAllNotificationsRead);
+const ensurePushMock = vi.mocked(ensurePushSubscription);
+const getPermissionMock = vi.mocked(getPushPermissionState);
 
 const navigateMock = vi.fn();
 
@@ -61,10 +72,10 @@ const notifications: AppNotification[] = [
 ];
 
 beforeEach(() => {
-  getNotificationsMock.mockReset();
-  markAllReadMock.mockReset();
-  navigateMock.mockReset();
+  vi.clearAllMocks();
   markAllReadMock.mockResolvedValue(undefined);
+  // padrão: aparelho sem suporte — banner não aparece nos demais testes
+  getPermissionMock.mockReturnValue("unsupported");
 });
 
 describe("Notifications", () => {
@@ -115,6 +126,40 @@ describe("Notifications", () => {
 
     expect(
       await screen.findByText("Nenhuma notificação por aqui ainda."),
+    ).toBeInTheDocument();
+  });
+
+  it("oferece ativar push quando a permissão nunca foi pedida", async () => {
+    getNotificationsMock.mockResolvedValue([]);
+    getPermissionMock.mockReturnValue("default");
+    ensurePushMock.mockResolvedValue("subscribed");
+    const user = userEvent.setup();
+
+    renderPage();
+
+    await user.click(screen.getByText("Ativar notificações"));
+
+    expect(ensurePushMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("não mostra o convite quando o aparelho não suporta push", async () => {
+    getNotificationsMock.mockResolvedValue([]);
+
+    renderPage();
+
+    await screen.findByText("Nenhuma notificação por aqui ainda.");
+
+    expect(screen.queryByText("Ativar notificações")).not.toBeInTheDocument();
+  });
+
+  it("avisa quando as notificações estão bloqueadas", async () => {
+    getNotificationsMock.mockResolvedValue([]);
+    getPermissionMock.mockReturnValue("denied");
+
+    renderPage();
+
+    expect(
+      await screen.findByText(/notificações estão bloqueadas/),
     ).toBeInTheDocument();
   });
 });

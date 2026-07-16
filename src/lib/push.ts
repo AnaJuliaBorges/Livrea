@@ -31,23 +31,45 @@ function isPushSupported(): boolean {
   );
 }
 
+export type PushPermissionState =
+  | "unsupported"
+  | "default"
+  | "granted"
+  | "denied";
+
+// Estado atual da permissão neste aparelho — usado pela UI pra decidir se
+// mostra o convite "Ativar notificações".
+export function getPushPermissionState(): PushPermissionState {
+  if (!VAPID_PUBLIC_KEY || !isPushSupported()) return "unsupported";
+  return Notification.permission;
+}
+
+export type PushSubscriptionResult =
+  | "subscribed"
+  | "denied"
+  | "unsupported"
+  | "error";
+
 // Pede permissão (se necessário), assina o push no SW e salva a inscrição
-// no Supabase. Chamada após o login — falha nunca quebra o fluxo de quem
-// chamou. Em `npm run dev` não há service worker registrado, então
-// getRegistration() resolve undefined e a função vira no-op.
-export async function ensurePushSubscription(): Promise<void> {
+// no Supabase. Chamada após o login e pelo botão "Ativar notificações" —
+// falha nunca quebra o fluxo de quem chamou. Em `npm run dev` não há
+// service worker registrado, então getRegistration() resolve undefined e
+// a função reporta "unsupported".
+export async function ensurePushSubscription(): Promise<PushSubscriptionResult> {
   try {
-    if (!VAPID_PUBLIC_KEY || !isPushSupported()) return;
+    if (!VAPID_PUBLIC_KEY || !isPushSupported()) return "unsupported";
 
     const permission =
       Notification.permission === "default"
         ? await Notification.requestPermission()
         : Notification.permission;
 
-    if (permission !== "granted") return;
+    if (permission !== "granted") return "denied";
 
+    // getRegistration (e não .ready, que travaria pra sempre em dev, onde
+    // nenhum SW é registrado) — sem SW, reporta "unsupported"
     const registration = await navigator.serviceWorker.getRegistration();
-    if (!registration) return;
+    if (!registration) return "unsupported";
 
     const subscription =
       (await registration.pushManager.getSubscription()) ??
@@ -59,10 +81,12 @@ export async function ensurePushSubscription(): Promise<void> {
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) return "error";
 
     const json = subscription.toJSON();
-    if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) return;
+    if (!json.endpoint || !json.keys?.p256dh || !json.keys?.auth) {
+      return "error";
+    }
 
     const { error } = await supabase.from("push_subscriptions").upsert(
       {
@@ -75,8 +99,11 @@ export async function ensurePushSubscription(): Promise<void> {
     );
 
     if (error) throw error;
+
+    return "subscribed";
   } catch (error) {
     // notificação é acessório — nunca derruba login/fluxo principal
     console.error("Erro ao registrar inscrição de push:", error);
+    return "error";
   }
 }

@@ -1,8 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { BackButton } from "@/components/BackButton";
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { BellOff } from "lucide-react";
+import { Button } from "@/components/ui";
+import { BellOff, BellRing } from "lucide-react";
+import {
+  ensurePushSubscription,
+  getPushPermissionState,
+} from "@/lib/push";
 import {
   useMarkAllNotificationsRead,
   useNotifications,
@@ -28,6 +34,29 @@ export default function Notifications() {
   const markAllRead = useMarkAllNotificationsRead();
   const alreadyMarked = useRef(false);
 
+  // permissão de push neste aparelho — o banner some assim que inscrever
+  const [permissionState, setPermissionState] = useState(
+    getPushPermissionState,
+  );
+  const [subscribing, setSubscribing] = useState(false);
+
+  const handleEnablePush = async () => {
+    setSubscribing(true);
+    const result = await ensurePushSubscription();
+    setSubscribing(false);
+    setPermissionState(getPushPermissionState());
+
+    if (result === "subscribed") {
+      toast.success("Notificações ativadas neste aparelho!");
+    } else if (result === "denied") {
+      toast.error(
+        "Permissão negada — libere as notificações nas configurações do navegador.",
+      );
+    } else {
+      toast.error("Não foi possível ativar as notificações neste aparelho.");
+    }
+  };
+
   // abrir a tela marca tudo como lida (uma vez, quando os dados chegam)
   useEffect(() => {
     if (alreadyMarked.current) return;
@@ -43,6 +72,33 @@ export default function Notifications() {
         <BackButton />
         <h1 className="text-lg font-medium">Notificações</h1>
       </div>
+
+      {permissionState === "default" && (
+        <ContainerBorder className="text-xs gap-2">
+          <div className="flex items-center gap-2">
+            <BellRing size={16} className="shrink-0 text-primary" />
+            <p>
+              Ative as notificações pra saber na hora dos pedidos e novidades
+              dos seus clubes.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={handleEnablePush}
+            disabled={subscribing}
+            className="self-start"
+          >
+            {subscribing ? "Ativando..." : "Ativar notificações"}
+          </Button>
+        </ContainerBorder>
+      )}
+
+      {permissionState === "denied" && (
+        <ContainerBorder className="text-xs text-muted-foreground">
+          As notificações estão bloqueadas neste navegador — pra recebê-las,
+          libere a permissão nas configurações do site.
+        </ContainerBorder>
+      )}
 
       {isLoading ? (
         <p className="mt-10 text-center text-sm text-muted-foreground">
