@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useSaveReview } from "../hooks/useReadingTracking";
+import { useDeleteReview, useSaveReview } from "../hooks/useReadingTracking";
 
 interface Props {
   bookId: string;
@@ -16,10 +16,27 @@ export default function RegisterReadReview({ bookId, rating, review }: Props) {
   const hasReview = rating !== null || !!review;
 
   const [editing, setEditing] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [newRating, setNewRating] = useState(rating ?? 0);
   const [newReview, setNewReview] = useState(review ?? "");
 
   const { mutateAsync: saveReview, isPending } = useSaveReview(bookId);
+  const deleteReview = useDeleteReview(bookId);
+
+  const handleDelete = () => {
+    deleteReview.mutate(undefined, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+        setNewRating(0);
+        setNewReview("");
+        toast.success("Avaliação excluída.");
+      },
+      onError: (error) => {
+        console.error("Error deleting review:", error);
+        toast.error("Não foi possível excluir a avaliação. Tente novamente.");
+      },
+    });
+  };
 
   async function handleSave() {
     try {
@@ -93,18 +110,58 @@ export default function RegisterReadReview({ bookId, rating, review }: Props) {
         </p>
       </div>
       {review && <p className="text-sm">"{review}"</p>}
-      <Button
-        className="mt-2 self-start pl-0 text-sm"
-        size="sm"
-        variant="link"
-        onClick={() => {
-          setNewRating(rating ?? 0);
-          setNewReview(review ?? "");
-          setEditing(true);
-        }}
-      >
-        Editar avaliação
-      </Button>
+      <div className="mt-2 flex gap-4">
+        <Button
+          className="self-start pl-0 text-sm"
+          size="sm"
+          variant="link"
+          onClick={() => {
+            setNewRating(rating ?? 0);
+            setNewReview(review ?? "");
+            setEditing(true);
+          }}
+        >
+          Editar avaliação
+        </Button>
+        <Button
+          className="self-start pl-0 text-sm text-destructive"
+          size="sm"
+          variant="link"
+          onClick={() => setShowDeleteModal(true)}
+        >
+          Excluir avaliação
+        </Button>
+      </div>
+
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 flex flex-col gap-4">
+            <h2 className="text-lg font-medium">Excluir avaliação</h2>
+
+            <p className="text-sm text-muted-foreground">
+              Sua nota e resenha deste livro serão apagadas. Essa ação não pode
+              ser desfeita.
+            </p>
+
+            <div className="flex gap-3 justify-end">
+              <Button
+                variant="link"
+                onClick={() => setShowDeleteModal(false)}
+                disabled={deleteReview.isPending}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={deleteReview.isPending}
+              >
+                {deleteReview.isPending ? "Excluindo..." : "Excluir"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </ContainerBorder>
   );
 }

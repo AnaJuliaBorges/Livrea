@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import RegisterReadReview from "./RegisterReadReview";
-import { useSaveReview } from "../hooks/useReadingTracking";
+import { useDeleteReview, useSaveReview } from "../hooks/useReadingTracking";
 
 vi.mock("sonner", () => ({
   toast: { success: vi.fn(), error: vi.fn() },
@@ -21,11 +21,63 @@ function mockMutation({ save = vi.fn(), isPending = false } = {}) {
   return save;
 }
 
+const useDeleteReviewMock = vi.mocked(useDeleteReview);
+
 beforeEach(() => {
   vi.clearAllMocks();
+  useDeleteReviewMock.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useDeleteReview>);
 });
 
 describe("RegisterReadReview", () => {
+  it("exclui a avaliação após confirmar no modal", async () => {
+    mockMutation();
+    const deleteMutate = vi.fn();
+    useDeleteReviewMock.mockReturnValue({
+      mutate: deleteMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useDeleteReview>);
+    const user = userEvent.setup();
+
+    render(
+      <RegisterReadReview bookId="book-1" rating={4} review="Muito bom!" />,
+    );
+
+    await user.click(screen.getByText("Excluir avaliação"));
+
+    expect(
+      screen.getByText(/nota e resenha deste livro serão apagadas/),
+    ).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Excluir" }));
+
+    expect(deleteMutate).toHaveBeenCalledTimes(1);
+  });
+
+  it("cancelar o modal não exclui nada", async () => {
+    mockMutation();
+    const deleteMutate = vi.fn();
+    useDeleteReviewMock.mockReturnValue({
+      mutate: deleteMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useDeleteReview>);
+    const user = userEvent.setup();
+
+    render(
+      <RegisterReadReview bookId="book-1" rating={4} review="Muito bom!" />,
+    );
+
+    await user.click(screen.getByText("Excluir avaliação"));
+    await user.click(screen.getByText("Cancelar"));
+
+    expect(deleteMutate).not.toHaveBeenCalled();
+    expect(
+      screen.queryByText(/nota e resenha deste livro serão apagadas/),
+    ).not.toBeInTheDocument();
+  });
+
   it("mostra o formulário de nova avaliação quando ainda não há avaliação", () => {
     mockMutation();
 

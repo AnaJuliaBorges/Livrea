@@ -3,6 +3,7 @@ import { Button, Input, Textarea } from "@/components/ui";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
+  useDeleteHighlight,
   useSaveHighlight,
   useUpdateHighlight,
 } from "../hooks/useReadingTracking";
@@ -27,6 +28,17 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
     useSaveHighlight(bookId);
   const { mutateAsync: updateHighlight, isPending: isUpdating } =
     useUpdateHighlight(bookId);
+  const deleteHighlight = useDeleteHighlight(bookId);
+
+  const handleDelete = (highlightId: string) => {
+    deleteHighlight.mutate(highlightId, {
+      onSuccess: () => toast.success("Destaque excluído."),
+      onError: (error) => {
+        console.error("Error deleting highlight:", error);
+        toast.error("Não foi possível excluir o destaque. Tente novamente.");
+      },
+    });
+  };
 
   async function saveQuote() {
     try {
@@ -127,14 +139,25 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
                 <p className="text-xs text-primary font-medium">
                   pág {highlight.page}
                 </p>
-                <Button
-                  className="text-xs text-primary h-auto p-0"
-                  variant="link"
-                  size="sm"
-                  onClick={() => startEditing(highlight)}
-                >
-                  Editar
-                </Button>
+                <div className="flex gap-3">
+                  <Button
+                    className="text-xs text-primary h-auto p-0"
+                    variant="link"
+                    size="sm"
+                    onClick={() => startEditing(highlight)}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    className="text-xs text-destructive h-auto p-0"
+                    variant="link"
+                    size="sm"
+                    disabled={deleteHighlight.isPending}
+                    onClick={() => handleDelete(highlight.id)}
+                  >
+                    Excluir
+                  </Button>
+                </div>
               </div>
             </div>
           ),

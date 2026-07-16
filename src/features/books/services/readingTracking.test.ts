@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
+  deleteHighlight,
+  deleteReadingLog,
+  deleteReview,
   getReadingTracking,
   saveReadingProgress,
   saveHighlight,
@@ -35,22 +38,30 @@ const libraryTable = {
 };
 
 const logsOrder = vi.fn();
+const logsDeleteEqUser = vi.fn();
 const logsTable = {
   select: vi.fn(() => ({
     eq: vi.fn(() => ({ eq: vi.fn(() => ({ order: logsOrder })) })),
   })),
   insert: vi.fn(),
+  delete: vi.fn(() => ({
+    eq: vi.fn(() => ({ eq: logsDeleteEqUser })),
+  })),
 };
 
 const highlightsOrder = vi.fn();
 const highlightsUpdateEqUser = vi.fn();
 const highlightsUpdateEqId = vi.fn(() => ({ eq: highlightsUpdateEqUser }));
+const highlightsDeleteEqUser = vi.fn();
 const highlightsTable = {
   select: vi.fn(() => ({
     eq: vi.fn(() => ({ eq: vi.fn(() => ({ order: highlightsOrder })) })),
   })),
   insert: vi.fn(),
   update: vi.fn(() => ({ eq: highlightsUpdateEqId })),
+  delete: vi.fn(() => ({
+    eq: vi.fn(() => ({ eq: highlightsDeleteEqUser })),
+  })),
 };
 
 beforeEach(() => {
@@ -274,5 +285,74 @@ describe("saveReview", () => {
     await expect(saveReview("book-1", 5, "Recomendo!")).rejects.toThrow(
       "RLS negou",
     );
+  });
+});
+
+describe("deleteReadingLog", () => {
+  function mockRemainingLogs(data: { pages_read: number }[]) {
+    logsTable.select.mockReturnValueOnce({
+      eq: vi.fn(() => ({
+        eq: vi.fn(() => ({
+          order: vi.fn(() => ({
+            limit: vi.fn().mockResolvedValue({ data, error: null }),
+          })),
+        })),
+      })),
+    } as unknown as ReturnType<typeof logsTable.select>);
+  }
+
+  it("apaga o registro e recua current_page pro maior progresso restante", async () => {
+    logsDeleteEqUser.mockResolvedValue({ error: null });
+    mockRemainingLogs([{ pages_read: 80 }]);
+
+    await deleteReadingLog("book-1", "log-1");
+
+    expect(logsTable.delete).toHaveBeenCalled();
+    expect(libraryTable.update).toHaveBeenCalledWith({ current_page: 80 });
+  });
+
+  it("zera current_page quando era o único registro", async () => {
+    logsDeleteEqUser.mockResolvedValue({ error: null });
+    mockRemainingLogs([]);
+
+    await deleteReadingLog("book-1", "log-1");
+
+    expect(libraryTable.update).toHaveBeenCalledWith({ current_page: 0 });
+  });
+
+  it("lança o erro do delete sem mexer no progresso", async () => {
+    logsDeleteEqUser.mockResolvedValue({ error: new Error("RLS negou") });
+
+    await expect(deleteReadingLog("book-1", "log-1")).rejects.toThrow(
+      "RLS negou",
+    );
+    expect(libraryTable.update).not.toHaveBeenCalled();
+  });
+});
+
+describe("deleteHighlight", () => {
+  it("apaga o destaque do próprio usuário", async () => {
+    highlightsDeleteEqUser.mockResolvedValue({ error: null });
+
+    await deleteHighlight("hl-1");
+
+    expect(highlightsTable.delete).toHaveBeenCalled();
+  });
+
+  it("lança o erro do delete", async () => {
+    highlightsDeleteEqUser.mockResolvedValue({ error: new Error("boom") });
+
+    await expect(deleteHighlight("hl-1")).rejects.toThrow("boom");
+  });
+});
+
+describe("deleteReview", () => {
+  it("zera nota e resenha na user_library", async () => {
+    await deleteReview("book-1");
+
+    expect(libraryTable.update).toHaveBeenCalledWith({
+      rating: null,
+      review: null,
+    });
   });
 });

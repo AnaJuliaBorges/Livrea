@@ -3,7 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import RegisterReadHistory from "./RegisterReadHistory";
-import { useSaveReadingProgress } from "../hooks/useReadingTracking";
+import {
+  useDeleteReadingLog,
+  useSaveReadingProgress,
+} from "../hooks/useReadingTracking";
 import type { ReadingLogEntry } from "../services/readingTracking";
 
 vi.mock("sonner", () => ({
@@ -13,6 +16,7 @@ vi.mock("sonner", () => ({
 vi.mock("../hooks/useReadingTracking");
 
 const useSaveReadingProgressMock = vi.mocked(useSaveReadingProgress);
+const useDeleteReadingLogMock = vi.mocked(useDeleteReadingLog);
 
 function mockMutation({ save = vi.fn(), isPending = false } = {}) {
   useSaveReadingProgressMock.mockReturnValue({
@@ -29,9 +33,43 @@ async function selectFeeling(user: ReturnType<typeof userEvent.setup>, label: st
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useDeleteReadingLogMock.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useDeleteReadingLog>);
 });
 
 describe("RegisterReadHistory", () => {
+  it("exclui um registro do histórico", async () => {
+    mockMutation();
+    const deleteMutate = vi.fn();
+    useDeleteReadingLogMock.mockReturnValue({
+      mutate: deleteMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useDeleteReadingLog>);
+    const user = userEvent.setup();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={120}
+        logs={[
+          {
+            id: "log-1",
+            pages_read: 120,
+            feeling: "amei",
+            created_at: "2026-07-10T12:00:00Z",
+          },
+        ]}
+      />,
+    );
+
+    await user.click(screen.getByLabelText("Excluir registro"));
+
+    expect(deleteMutate.mock.calls[0][0]).toBe("log-1");
+  });
+
   it("mostra o progresso atual e o total de páginas", () => {
     mockMutation();
 

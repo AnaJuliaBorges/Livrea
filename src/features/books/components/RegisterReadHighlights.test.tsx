@@ -4,6 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import RegisterReadHighlights from "./RegisterReadHighlights";
 import {
+  useDeleteHighlight,
   useSaveHighlight,
   useUpdateHighlight,
 } from "../hooks/useReadingTracking";
@@ -17,6 +18,7 @@ vi.mock("../hooks/useReadingTracking");
 
 const useSaveHighlightMock = vi.mocked(useSaveHighlight);
 const useUpdateHighlightMock = vi.mocked(useUpdateHighlight);
+const useDeleteHighlightMock = vi.mocked(useDeleteHighlight);
 
 const highlights: BookHighlightEntry[] = [
   { id: "hl-1", page: 42, quote: "Uma frase marcante" },
@@ -41,9 +43,29 @@ function mockMutations({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  useDeleteHighlightMock.mockReturnValue({
+    mutate: vi.fn(),
+    isPending: false,
+  } as unknown as ReturnType<typeof useDeleteHighlight>);
 });
 
 describe("RegisterReadHighlights", () => {
+  it("exclui um destaque", async () => {
+    mockMutations();
+    const deleteMutate = vi.fn();
+    useDeleteHighlightMock.mockReturnValue({
+      mutate: deleteMutate,
+      isPending: false,
+    } as unknown as ReturnType<typeof useDeleteHighlight>);
+    const user = userEvent.setup();
+
+    render(<RegisterReadHighlights bookId="book-1" highlights={highlights} />);
+
+    await user.click(screen.getByText("Excluir"));
+
+    expect(deleteMutate.mock.calls[0][0]).toBe("hl-1");
+  });
+
   it("mostra mensagem quando não há destaques", () => {
     mockMutations();
     render(<RegisterReadHighlights bookId="book-1" highlights={[]} />);

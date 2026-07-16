@@ -145,3 +145,61 @@ export async function saveReview(
 
   if (error) throw error;
 }
+
+// Apaga um registro do histórico e recua a página atual pro maior progresso
+// restante (senão a barra de progresso ficaria mentindo pra sempre).
+export async function deleteReadingLog(bookId: string, logId: string) {
+  const userId = await requireUserId();
+
+  const { error } = await supabase
+    .from("reading_logs")
+    .delete()
+    .eq("id", logId)
+    .eq("user_id", userId);
+
+  if (error) throw error;
+
+  const { data: remaining, error: remainingError } = await supabase
+    .from("reading_logs")
+    .select("pages_read")
+    .eq("user_id", userId)
+    .eq("book_id", bookId)
+    .order("pages_read", { ascending: false })
+    .limit(1);
+
+  if (remainingError) throw remainingError;
+
+  const { error: updateError } = await supabase
+    .from("user_library")
+    .update({ current_page: remaining?.[0]?.pages_read ?? 0 })
+    .eq("user_id", userId)
+    .eq("book_id", bookId);
+
+  if (updateError) throw updateError;
+}
+
+export async function deleteHighlight(highlightId: string) {
+  const userId = await requireUserId();
+
+  const { error } = await supabase
+    .from("book_highlights")
+    .delete()
+    .eq("id", highlightId)
+    .eq("user_id", userId);
+
+  if (error) throw error;
+}
+
+// A avaliação mora na user_library — excluir é zerar nota e texto
+// (a linha fica, preservando status/progresso da leitura)
+export async function deleteReview(bookId: string) {
+  const userId = await requireUserId();
+
+  const { error } = await supabase
+    .from("user_library")
+    .update({ rating: null, review: null })
+    .eq("user_id", userId)
+    .eq("book_id", bookId);
+
+  if (error) throw error;
+}

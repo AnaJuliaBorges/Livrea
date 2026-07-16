@@ -1,11 +1,15 @@
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatDateString } from "../utils/formatDate";
 import { ProgressRead } from "@/components/ProgressRead";
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { useSaveReadingProgress } from "../hooks/useReadingTracking";
+import {
+  useDeleteReadingLog,
+  useSaveReadingProgress,
+} from "../hooks/useReadingTracking";
 import type {
   ReadingFeeling,
   ReadingLogEntry,
@@ -47,8 +51,19 @@ export default function RegisterReadHistory({
 
   const { mutateAsync: saveProgress, isPending } =
     useSaveReadingProgress(bookId);
+  const deleteLog = useDeleteReadingLog(bookId);
 
   const finished = totalPages > 0 && lastProgress >= totalPages;
+
+  const handleDeleteLog = (logId: string) => {
+    deleteLog.mutate(logId, {
+      onSuccess: () => toast.success("Registro excluído."),
+      onError: (error) => {
+        console.error("Error deleting reading log:", error);
+        toast.error("Não foi possível excluir o registro. Tente novamente.");
+      },
+    });
+  };
 
   async function handleSave() {
     if (!feelingSelected) return;
@@ -153,7 +168,18 @@ export default function RegisterReadHistory({
             <ContainerBorder key={log.id}>
               <div className="flex justify-between items-center">
                 <p className="text-xl">{detail.feeling?.emoji}</p>
-                <p className="text-sm text-gray-600">{detail.date}</p>
+                <div className="flex items-center gap-3">
+                  <p className="text-sm text-gray-600">{detail.date}</p>
+                  <button
+                    type="button"
+                    aria-label="Excluir registro"
+                    className="text-destructive disabled:opacity-50"
+                    disabled={deleteLog.isPending}
+                    onClick={() => handleDeleteLog(log.id)}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
               </div>
               <div className="flex flex-col gap-2">
                 <ProgressRead value={detail.percentage} />
