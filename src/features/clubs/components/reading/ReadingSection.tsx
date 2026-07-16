@@ -3,7 +3,6 @@ import { useBook } from "@/features/books/hooks/useBook";
 import { BookPlus, EditIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui";
-import { mockClubInteractions } from "@/mocks/clubes";
 import { useState } from "react";
 import { SetClubReadingModal } from "../SetClubReadingModal";
 import { useDeleteClubReading } from "../../hooks/useDeleteClubReading";
@@ -23,7 +22,6 @@ export default function ReadingSection({ club }: Props) {
   // O livro da leitura atual também é usado aqui (BookRatingBox + modal de
   // exclusão); o React Query deduplica com o useBook do BookReadingCard.
   const { data: book } = useBook(club.currentReading?.id);
-  const interactions = mockClubInteractions;
 
   // Qual sub-tela está aberta e sobre QUAL livro (leitura atual ou uma
   // leitura passada do histórico) — sem o bookId as sub-telas não sabem
@@ -56,7 +54,8 @@ export default function ReadingSection({ club }: Props) {
   if (activeView?.tab === "highlights") {
     return (
       <HighlightsSection
-        interactions={interactions}
+        clubId={club.id}
+        bookId={activeView.bookId}
         onBack={() => setActiveView(null)}
       />
     );
