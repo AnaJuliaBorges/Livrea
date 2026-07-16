@@ -21,6 +21,7 @@ import ClubDetails from "./features/clubs/pages/ClubDetails";
 import ClubSettings from "./features/clubs/pages/ClubSettings";
 import ForgotPassword from "./features/auth/pages/ForgotPasswordPage";
 import ResetPassword from "./features/auth/pages/ResetPasswordPage";
+import Notifications from "./features/notifications/pages/Notifications";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +99,11 @@ export const router = createBrowserRouter([
       {
         path: "perfil",
         element: <Profile />,
+        loader: protectedLoader,
+      },
+      {
+        path: "notificacoes",
+        element: <Notifications />,
         loader: protectedLoader,
       },
       {

@@ -4,13 +4,20 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ItemClub from "@/features/clubs/components/ItemClub";
-import { Bookmark, BookmarkMinus, BookmarkPlus, Settings } from "lucide-react";
+import {
+  Bell,
+  Bookmark,
+  BookmarkMinus,
+  BookmarkPlus,
+  Settings,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BookListCard } from "@/features/books/components/BookListCard";
 import { Tag } from "../components/Tag";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUserProfile } from "../hooks/useUserProfile";
+import { useUnreadNotificationsCount } from "@/features/notifications/hooks/useNotifications";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
@@ -19,6 +26,7 @@ export default function Profile() {
   const isOwnProfile = !id;
   const myProfile = useMyProfile(isOwnProfile);
   const otherProfile = useUserProfile(isOwnProfile ? undefined : id);
+  const unreadCount = useUnreadNotificationsCount();
   const {
     data: profile,
     isLoading,
@@ -78,7 +86,7 @@ export default function Profile() {
   return (
     <div className="mb-10">
       <div className="relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 bg-gradient-to-br from-violet-800 via-purple-900 to-slate-950">
-        <BackButton />
+        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
           <Avatar className="w-32 h-32 shadow-xl border-2 border-gray-400">
@@ -108,7 +116,22 @@ export default function Profile() {
             )}
           </div>
           {isOwnProfile && (
-            <Settings onClick={() => navigate("/perfil/editar")} />
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                aria-label="Notificações"
+                className="relative"
+                onClick={() => navigate("/notificacoes")}
+              >
+                <Bell />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              <Settings onClick={() => navigate("/perfil/editar")} />
+            </div>
           )}
         </div>
 

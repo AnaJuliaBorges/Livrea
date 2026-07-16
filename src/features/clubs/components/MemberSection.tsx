@@ -46,8 +46,8 @@ function JoinRequestsSection({ club }: { club: Club }) {
     return null;
   }
 
-  const handleApprove = (requestId: string, name: string) => {
-    approve.mutate(requestId, {
+  const handleApprove = (requestId: string, userId: string, name: string) => {
+    approve.mutate({ requestId, userId }, {
       onSuccess: () => toast.success(`${name} agora participa do clube!`),
       onError: (error) => {
         console.error("Error approving join request:", error);
@@ -70,7 +70,8 @@ function JoinRequestsSection({ club }: { club: Club }) {
       <p className="font-medium text-sm mb-2">Pedidos</p>
       {requests.map((request) => {
         const isProcessing =
-          (approve.isPending && approve.variables === request.requestId) ||
+          (approve.isPending &&
+            approve.variables?.requestId === request.requestId) ||
           (reject.isPending && reject.variables === request.requestId);
 
         return (
@@ -107,7 +108,9 @@ function JoinRequestsSection({ club }: { club: Club }) {
                 type="button"
                 aria-label={`Aprovar pedido de ${request.name}`}
                 disabled={isProcessing}
-                onClick={() => handleApprove(request.requestId, request.name)}
+                onClick={() =>
+                  handleApprove(request.requestId, request.userId, request.name)
+                }
               >
                 <SquarePlus className="text-secondary" />
               </button>

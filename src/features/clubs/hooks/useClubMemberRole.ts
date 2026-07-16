@@ -4,6 +4,11 @@ import {
   promoteClubMember,
   removeClubMember,
 } from "../services/clubMemberRole";
+import {
+  notifyMemberDemoted,
+  notifyMemberPromoted,
+  notifyMemberRemoved,
+} from "../services/sendClubPushNotification";
 
 function useInvalidateAfterRoleChange(clubId: string) {
   const queryClient = useQueryClient();
@@ -24,7 +29,12 @@ export function usePromoteClubMember(clubId: string) {
 
   return useMutation({
     mutationFn: (userId: string) => promoteClubMember(clubId, userId),
-    onSuccess: invalidate,
+    onSuccess: (_data, userId) => {
+      invalidate();
+      notifyMemberPromoted(clubId, userId).catch((error) =>
+        console.error("Erro ao notificar promoção:", error),
+      );
+    },
   });
 }
 
@@ -33,7 +43,12 @@ export function useDemoteClubMember(clubId: string) {
 
   return useMutation({
     mutationFn: (userId: string) => demoteClubMember(clubId, userId),
-    onSuccess: invalidate,
+    onSuccess: (_data, userId) => {
+      invalidate();
+      notifyMemberDemoted(clubId, userId).catch((error) =>
+        console.error("Erro ao notificar rebaixamento:", error),
+      );
+    },
   });
 }
 
@@ -42,6 +57,11 @@ export function useRemoveClubMember(clubId: string) {
 
   return useMutation({
     mutationFn: (userId: string) => removeClubMember(clubId, userId),
-    onSuccess: invalidate,
+    onSuccess: (_data, userId) => {
+      invalidate();
+      notifyMemberRemoved(clubId, userId).catch((error) =>
+        console.error("Erro ao notificar remoção:", error),
+      );
+    },
   });
 }

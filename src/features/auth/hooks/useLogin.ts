@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { AuthError } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { ensurePushSubscription } from "@/lib/push";
 import { useAuth } from "./useAuth";
 
 export function useLogin() {
@@ -22,6 +23,9 @@ export function useLogin() {
       if (error) throw error;
       if (data.user) {
         await getUser(data);
+        // registra este aparelho pra receber notificações — fire-and-forget,
+        // nunca atrasa nem quebra o login
+        void ensurePushSubscription();
       }
     } catch (err) {
       if (err instanceof AuthError && err.code === "invalid_credentials") {

@@ -38,6 +38,8 @@ export default defineConfig({
         // js/css/html); chamadas ao Supabase e às APIs de livros não são
         // interceptadas — sem runtime caching de API de propósito
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        // anexa os handlers de web push (push/notificationclick) ao SW gerado
+        importScripts: ["push-sw.js"],
       },
     }),
   ],

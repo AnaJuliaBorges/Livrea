@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { requestToJoinClub } from "../services/requestToJoinClub";
+import { notifyClubJoinRequest } from "../services/sendClubPushNotification";
 
 export function useRequestToJoinClub(clubId: string) {
   const queryClient = useQueryClient();
@@ -7,6 +8,11 @@ export function useRequestToJoinClub(clubId: string) {
   return useMutation({
     mutationFn: () => requestToJoinClub(clubId),
     onSuccess: () => {
+      // notifica os admins (a Edge Function só envia se ficou um pedido
+      // pendente — clube público entra direto e não notifica)
+      notifyClubJoinRequest(clubId).catch((error) =>
+        console.error("Erro ao notificar admins do pedido:", error),
+      );
       queryClient.invalidateQueries({ queryKey: ["club", clubId] });
       queryClient.invalidateQueries({ queryKey: ["club-members", clubId] });
       queryClient.invalidateQueries({ queryKey: ["clubs"] });

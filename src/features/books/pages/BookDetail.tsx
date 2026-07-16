@@ -70,7 +70,7 @@ export function BookDetail() {
   return (
     <>
       <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-gradient-to-br from-violet-800 via-purple-900 to-slate-950">
-        <BackButton />
+        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
 
         <div className="absolute left-1/2 top-1/4 -translate-x-1/2 rounded-lg shadow-xl">
           <BookImage book={book} height="h-52" />

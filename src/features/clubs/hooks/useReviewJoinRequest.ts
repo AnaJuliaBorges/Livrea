@@ -3,6 +3,7 @@ import {
   approveJoinRequest,
   rejectJoinRequest,
 } from "../services/reviewJoinRequest";
+import { notifyJoinRequestApproved } from "../services/sendClubPushNotification";
 
 function useInvalidateAfterReview(clubId: string) {
   const queryClient = useQueryClient();
@@ -24,8 +25,15 @@ export function useApproveJoinRequest(clubId: string) {
   const invalidate = useInvalidateAfterReview(clubId);
 
   return useMutation({
-    mutationFn: approveJoinRequest,
-    onSuccess: invalidate,
+    // userId é do dono do pedido — usado só pra notificar o aprovado
+    mutationFn: ({ requestId }: { requestId: string; userId: string }) =>
+      approveJoinRequest(requestId),
+    onSuccess: (_data, { userId }) => {
+      invalidate();
+      notifyJoinRequestApproved(clubId, userId).catch((error) =>
+        console.error("Erro ao notificar membro aprovado:", error),
+      );
+    },
   });
 }
 

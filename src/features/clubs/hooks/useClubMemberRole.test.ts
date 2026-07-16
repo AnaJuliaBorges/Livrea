@@ -9,6 +9,11 @@ import {
   promoteClubMember,
   removeClubMember,
 } from "../services/clubMemberRole";
+import {
+  notifyMemberDemoted,
+  notifyMemberPromoted,
+  notifyMemberRemoved,
+} from "../services/sendClubPushNotification";
 import { createWrapper } from "./testQueryClient";
 
 vi.mock("../services/clubMemberRole", () => ({
@@ -16,15 +21,24 @@ vi.mock("../services/clubMemberRole", () => ({
   demoteClubMember: vi.fn(),
   removeClubMember: vi.fn(),
 }));
+vi.mock("../services/sendClubPushNotification", () => ({
+  notifyMemberPromoted: vi.fn(),
+  notifyMemberDemoted: vi.fn(),
+  notifyMemberRemoved: vi.fn(),
+}));
 
 const promoteClubMemberMock = vi.mocked(promoteClubMember);
 const demoteClubMemberMock = vi.mocked(demoteClubMember);
 const removeClubMemberMock = vi.mocked(removeClubMember);
+const notifyPromotedMock = vi.mocked(notifyMemberPromoted);
+const notifyDemotedMock = vi.mocked(notifyMemberDemoted);
+const notifyRemovedMock = vi.mocked(notifyMemberRemoved);
 
 beforeEach(() => {
-  promoteClubMemberMock.mockReset();
-  demoteClubMemberMock.mockReset();
-  removeClubMemberMock.mockReset();
+  vi.clearAllMocks();
+  notifyPromotedMock.mockResolvedValue(undefined);
+  notifyDemotedMock.mockResolvedValue(undefined);
+  notifyRemovedMock.mockResolvedValue(undefined);
 });
 
 describe("usePromoteClubMember", () => {
@@ -42,6 +56,7 @@ describe("usePromoteClubMember", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(promoteClubMemberMock).toHaveBeenCalledWith("club-1", "user-2");
+    expect(notifyPromotedMock).toHaveBeenCalledWith("club-1", "user-2");
   });
 });
 
@@ -60,6 +75,7 @@ describe("useDemoteClubMember", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(demoteClubMemberMock).toHaveBeenCalledWith("club-1", "user-2");
+    expect(notifyDemotedMock).toHaveBeenCalledWith("club-1", "user-2");
   });
 });
 
@@ -78,5 +94,6 @@ describe("useRemoveClubMember", () => {
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
     expect(removeClubMemberMock).toHaveBeenCalledWith("club-1", "user-2");
+    expect(notifyRemovedMock).toHaveBeenCalledWith("club-1", "user-2");
   });
 });
