@@ -63,6 +63,13 @@ describe("RegisterReadHighlights", () => {
 
     await user.click(screen.getByText("Excluir"));
 
+    // nada é excluído antes de confirmar no modal
+    expect(deleteMutate).not.toHaveBeenCalled();
+
+    // com o modal aberto há dois "Excluir": a ação do card e a confirmação
+    const confirmButtons = screen.getAllByRole("button", { name: "Excluir" });
+    await user.click(confirmButtons[confirmButtons.length - 1]);
+
     expect(deleteMutate.mock.calls[0][0]).toBe("hl-1");
   });
 

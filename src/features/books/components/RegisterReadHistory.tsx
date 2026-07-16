@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { formatDateString } from "../utils/formatDate";
 import { ProgressRead } from "@/components/ProgressRead";
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import {
   useDeleteReadingLog,
   useSaveReadingProgress,
@@ -52,12 +53,18 @@ export default function RegisterReadHistory({
   const { mutateAsync: saveProgress, isPending } =
     useSaveReadingProgress(bookId);
   const deleteLog = useDeleteReadingLog(bookId);
+  const [logToDelete, setLogToDelete] = useState<string | null>(null);
 
   const finished = totalPages > 0 && lastProgress >= totalPages;
 
-  const handleDeleteLog = (logId: string) => {
-    deleteLog.mutate(logId, {
-      onSuccess: () => toast.success("Registro excluído."),
+  const handleDeleteLog = () => {
+    if (!logToDelete) return;
+
+    deleteLog.mutate(logToDelete, {
+      onSuccess: () => {
+        setLogToDelete(null);
+        toast.success("Registro excluído.");
+      },
       onError: (error) => {
         console.error("Error deleting reading log:", error);
         toast.error("Não foi possível excluir o registro. Tente novamente.");
@@ -175,7 +182,7 @@ export default function RegisterReadHistory({
                     aria-label="Excluir registro"
                     className="text-destructive disabled:opacity-50"
                     disabled={deleteLog.isPending}
-                    onClick={() => handleDeleteLog(log.id)}
+                    onClick={() => setLogToDelete(log.id)}
                   >
                     <Trash2 size={16} />
                   </button>
@@ -191,6 +198,16 @@ export default function RegisterReadHistory({
           );
         })}
       </div>
+
+      {logToDelete && (
+        <ConfirmDialog
+          title="Excluir registro"
+          description="Esse registro de progresso será apagado e a página atual voltará pro maior progresso restante. Essa ação não pode ser desfeita."
+          isPending={deleteLog.isPending}
+          onConfirm={handleDeleteLog}
+          onClose={() => setLogToDelete(null)}
+        />
+      )}
     </div>
   );
 }

@@ -67,6 +67,11 @@ describe("RegisterReadHistory", () => {
 
     await user.click(screen.getByLabelText("Excluir registro"));
 
+    // nada é excluído antes de confirmar no modal
+    expect(deleteMutate).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole("button", { name: "Excluir" }));
+
     expect(deleteMutate.mock.calls[0][0]).toBe("log-1");
   });
 

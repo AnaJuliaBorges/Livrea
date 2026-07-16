@@ -1,4 +1,5 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Button, Input, Textarea } from "@/components/ui";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -29,10 +30,18 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
   const { mutateAsync: updateHighlight, isPending: isUpdating } =
     useUpdateHighlight(bookId);
   const deleteHighlight = useDeleteHighlight(bookId);
+  const [highlightToDelete, setHighlightToDelete] = useState<string | null>(
+    null,
+  );
 
-  const handleDelete = (highlightId: string) => {
-    deleteHighlight.mutate(highlightId, {
-      onSuccess: () => toast.success("Destaque excluído."),
+  const handleDelete = () => {
+    if (!highlightToDelete) return;
+
+    deleteHighlight.mutate(highlightToDelete, {
+      onSuccess: () => {
+        setHighlightToDelete(null);
+        toast.success("Destaque excluído.");
+      },
       onError: (error) => {
         console.error("Error deleting highlight:", error);
         toast.error("Não foi possível excluir o destaque. Tente novamente.");
@@ -153,7 +162,7 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
                     variant="link"
                     size="sm"
                     disabled={deleteHighlight.isPending}
-                    onClick={() => handleDelete(highlight.id)}
+                    onClick={() => setHighlightToDelete(highlight.id)}
                   >
                     Excluir
                   </Button>
@@ -199,6 +208,16 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
           {showRegisterHighlight ? "Cancelar" : "Adicionar"}
         </Button>
       </ContainerBorder>
+
+      {highlightToDelete && (
+        <ConfirmDialog
+          title="Excluir destaque"
+          description="Esse destaque será apagado. Essa ação não pode ser desfeita."
+          isPending={deleteHighlight.isPending}
+          onConfirm={handleDelete}
+          onClose={() => setHighlightToDelete(null)}
+        />
+      )}
     </div>
   );
 }

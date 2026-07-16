@@ -1,4 +1,5 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Button, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Star } from "lucide-react";
@@ -134,33 +135,13 @@ export default function RegisterReadReview({ bookId, rating, review }: Props) {
       </div>
 
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4 flex flex-col gap-4">
-            <h2 className="text-lg font-medium">Excluir avaliação</h2>
-
-            <p className="text-sm text-muted-foreground">
-              Sua nota e resenha deste livro serão apagadas. Essa ação não pode
-              ser desfeita.
-            </p>
-
-            <div className="flex gap-3 justify-end">
-              <Button
-                variant="link"
-                onClick={() => setShowDeleteModal(false)}
-                disabled={deleteReview.isPending}
-              >
-                Cancelar
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleDelete}
-                disabled={deleteReview.isPending}
-              >
-                {deleteReview.isPending ? "Excluindo..." : "Excluir"}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <ConfirmDialog
+          title="Excluir avaliação"
+          description="Sua nota e resenha deste livro serão apagadas. Essa ação não pode ser desfeita."
+          isPending={deleteReview.isPending}
+          onConfirm={handleDelete}
+          onClose={() => setShowDeleteModal(false)}
+        />
       )}
     </ContainerBorder>
   );
