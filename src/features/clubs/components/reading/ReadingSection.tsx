@@ -65,8 +65,9 @@ export default function ReadingSection({ club }: Props) {
   if (activeView?.tab === "reviews") {
     return (
       <ReviewsSection
+        clubId={club.id}
+        bookId={activeView.bookId}
         onBack={() => setActiveView(null)}
-        interactions={interactions}
       />
     );
   }
