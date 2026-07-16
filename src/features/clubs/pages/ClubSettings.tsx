@@ -275,14 +275,16 @@ function ClubSettingsForm({ club }: { club: Club }) {
         {updateClub.isPending ? "Salvando..." : "Salvar alterações"}
       </Button>
 
-      <Button
-        variant="ghost"
-        className="w-full text-destructive"
-        size="sm"
-        onClick={() => setShowDeleteDialog(true)}
-      >
-        Excluir clube
-      </Button>
+      {club.isOwner && (
+        <Button
+          variant="ghost"
+          className="w-full text-destructive"
+          size="sm"
+          onClick={() => setShowDeleteDialog(true)}
+        >
+          Excluir clube
+        </Button>
+      )}
 
       {showDeleteDialog && (
         <DeleteClubDialog

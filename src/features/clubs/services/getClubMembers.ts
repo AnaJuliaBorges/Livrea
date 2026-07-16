@@ -6,6 +6,7 @@ type RawClubMember = {
   name: string;
   avatar_url: string | null;
   is_admin: boolean;
+  is_owner: boolean;
 };
 
 export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
@@ -20,5 +21,6 @@ export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
     name: member.name,
     avatarUrl: member.avatar_url,
     isAdmin: member.is_admin,
+    isOwner: member.is_owner,
   }));
 }

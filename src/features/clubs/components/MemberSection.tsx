@@ -1,15 +1,24 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui";
 import { useClubMembers } from "../hooks/useClubMembers";
 import { useJoinRequests } from "../hooks/useJoinRequests";
 import {
   useApproveJoinRequest,
   useRejectJoinRequest,
 } from "../hooks/useReviewJoinRequest";
-import { SquarePlus, X } from "lucide-react";
+import {
+  useDemoteClubMember,
+  usePromoteClubMember,
+  useRemoveClubMember,
+} from "../hooks/useClubMemberRole";
+import { RemoveMemberDialog } from "./RemoveMemberDialog";
+import { SquarePlus, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { Club } from "../dtos";
+import { getErrorMessage } from "@/lib/utils";
+import type { Club, ClubMember } from "../dtos";
 
 interface Props {
   club: Club;
@@ -113,6 +122,48 @@ function JoinRequestsSection({ club }: { club: Club }) {
 export default function MembersSection({ club }: Props) {
   const navigate = useNavigate();
   const { data: members, isLoading, isError } = useClubMembers(club.id);
+  const promote = usePromoteClubMember(club.id);
+  const demote = useDemoteClubMember(club.id);
+  const removeMember = useRemoveClubMember(club.id);
+  const [memberToRemove, setMemberToRemove] = useState<ClubMember | null>(null);
+
+  const handleToggleRole = (member: ClubMember) => {
+    const mutation = member.isAdmin ? demote : promote;
+
+    mutation.mutate(member.id, {
+      onSuccess: () =>
+        toast.success(
+          member.isAdmin
+            ? `${member.name} não é mais administrador.`
+            : `${member.name} agora é administrador do clube!`,
+        ),
+      onError: (error) => {
+        console.error("Error changing member role:", error);
+        toast.error(
+          getErrorMessage(error) ??
+            "Não foi possível alterar o papel. Tente novamente.",
+        );
+      },
+    });
+  };
+
+  const handleRemoveMember = () => {
+    if (!memberToRemove) return;
+
+    removeMember.mutate(memberToRemove.id, {
+      onSuccess: () => {
+        toast.success(`${memberToRemove.name} foi removido do clube.`);
+        setMemberToRemove(null);
+      },
+      onError: (error) => {
+        console.error("Error removing member:", error);
+        toast.error(
+          getErrorMessage(error) ??
+            "Não foi possível remover o participante. Tente novamente.",
+        );
+      },
+    });
+  };
 
   if (isLoading) {
     return (
@@ -144,35 +195,82 @@ export default function MembersSection({ club }: Props) {
 
       <div className="flex flex-col gap-2">
         <p className="font-medium text-sm mb-2">Participantes</p>
-        {members.map((member) => (
-          <div
-            key={member.id}
-            onClick={() => navigate(`/perfil/${member.id}`)}
-            className="cursor-pointer"
-          >
-            <ContainerBorder className="flex-row justify-between items-center">
-              <div className="flex gap-2 items-center">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage
-                    src={member.avatarUrl ?? undefined}
-                    alt={member.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-xs">
-                    {initialsOf(member.name)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-sm font-medium">{member.name}</p>
-                  {member.isAdmin && (
-                    <p className="text-[10px] text-primary">Administrador</p>
-                  )}
+        {members.map((member) => {
+          // dono gerencia papéis de todos, menos do próprio dono
+          const canManageRole = club.isOwner && !member.isOwner;
+          const isProcessing =
+            (promote.isPending && promote.variables === member.id) ||
+            (demote.isPending && demote.variables === member.id);
+
+          return (
+            <div
+              key={member.id}
+              onClick={() => navigate(`/perfil/${member.id}`)}
+              className="cursor-pointer"
+            >
+              <ContainerBorder className="flex-row justify-between items-center">
+                <div className="flex gap-2 items-center">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage
+                      src={member.avatarUrl ?? undefined}
+                      alt={member.name}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="text-xs">
+                      {initialsOf(member.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{member.name}</p>
+                    {member.isOwner ? (
+                      <p className="text-[10px] text-primary">Criador</p>
+                    ) : (
+                      member.isAdmin && (
+                        <p className="text-[10px] text-primary">Administrador</p>
+                      )
+                    )}
+                  </div>
                 </div>
-              </div>
-            </ContainerBorder>
-          </div>
-        ))}
+                {canManageRole && (
+                  <div className="flex items-center gap-3 shrink-0">
+                    <Button
+                      variant="link"
+                      className="text-xs h-auto p-0"
+                      disabled={isProcessing}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        handleToggleRole(member);
+                      }}
+                    >
+                      {member.isAdmin ? "Remover admin" : "Tornar admin"}
+                    </Button>
+                    <button
+                      type="button"
+                      aria-label={`Remover ${member.name} do clube`}
+                      className="text-destructive"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        setMemberToRemove(member);
+                      }}
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                )}
+              </ContainerBorder>
+            </div>
+          );
+        })}
       </div>
+
+      {memberToRemove && (
+        <RemoveMemberDialog
+          memberName={memberToRemove.name}
+          isRemoving={removeMember.isPending}
+          onConfirm={handleRemoveMember}
+          onClose={() => setMemberToRemove(null)}
+        />
+      )}
     </div>
   );
 }

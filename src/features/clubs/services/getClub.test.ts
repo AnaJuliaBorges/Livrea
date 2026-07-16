@@ -33,6 +33,7 @@ const rawClub = {
   genres: [{ id: 1, name: "Fantasia" }],
   is_member: true,
   is_admin: false,
+  is_owner: false,
   has_pending_request: false,
   current_reading: { id: "book-1", title: "Duna" },
   next_meeting: {
@@ -73,6 +74,7 @@ describe("getClub", () => {
       isPrivate: false,
       isMember: true,
       isAdmin: false,
+      isOwner: false,
       hasPendingRequest: false,
       participantLimit: 20,
       type: "in_person",

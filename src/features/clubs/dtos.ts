@@ -30,6 +30,8 @@ export interface Club {
   isPrivate: boolean;
   isMember: boolean;
   isAdmin: boolean;
+  // dono = criador do clube; pode excluir e promover/rebaixar admins
+  isOwner: boolean;
   hasPendingRequest: boolean;
   participantLimit: number | null;
   type: string;
@@ -99,9 +101,11 @@ export interface ClubMember {
   name: string;
   avatarUrl: string | null;
   isAdmin: boolean;
+  isOwner: boolean;
 }
 
-export interface MeetingAttendanceMember extends ClubMember {
+// presença no encontro não lida com dono/promoção, então não carrega isOwner
+export interface MeetingAttendanceMember extends Omit<ClubMember, "isOwner"> {
   confirmed: boolean;
 }
 

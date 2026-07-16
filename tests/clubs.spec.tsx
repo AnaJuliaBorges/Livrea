@@ -126,6 +126,7 @@ function rawClubDetail(overrides: Record<string, unknown> = {}) {
     genres: [{ id: 1, name: "Fantasia" }],
     is_member: false,
     is_admin: false,
+    is_owner: false,
     has_pending_request: false,
     current_reading: null,
     next_meeting: null,
@@ -157,7 +158,13 @@ type ClubsMockOptions = {
   clubDetails?: Record<string, ReturnType<typeof rawClubDetail>>;
   clubMembers?: Record<
     string,
-    { id: string; name: string; avatar_url: string | null; is_admin: boolean }[]
+    {
+      id: string;
+      name: string;
+      avatar_url: string | null;
+      is_admin: boolean;
+      is_owner: boolean;
+    }[]
   >;
   userProfiles?: Record<string, ReturnType<typeof rawUserProfile>>;
   genres?: { id: number; name: string; google_category: string[] | null }[];
@@ -256,6 +263,14 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
   });
 
   await mockRoute(page, "**/rest/v1/rpc/delete_club*", async (route) => {
+    await route.fulfill(jsonResponse(null));
+  });
+
+  await mockRoute(page, "**/rest/v1/rpc/promote_club_member*", async (route) => {
+    await route.fulfill(jsonResponse(null));
+  });
+
+  await mockRoute(page, "**/rest/v1/rpc/demote_club_member*", async (route) => {
     await route.fulfill(jsonResponse(null));
   });
 }
@@ -417,6 +432,7 @@ test.describe("Clubes", () => {
           name: "Clube Admin E2E",
           is_member: true,
           is_admin: true,
+          is_owner: true,
         }),
       },
     });
@@ -455,6 +471,7 @@ test.describe("Clubes", () => {
             name: "Lucas Martins",
             avatar_url: null,
             is_admin: false,
+            is_owner: false,
           },
         ],
       },
@@ -479,5 +496,63 @@ test.describe("Clubes", () => {
     await expect(page.getByText("Lucas Martins")).toBeVisible();
     // perfil de outra pessoa: sem ícone de configurações (não pode editar)
     await expect(page.locator("svg.lucide-settings")).toHaveCount(0);
+  });
+
+  test("o dono promove um participante a admin", async ({ page }) => {
+    await setupClubMocks(page, {
+      myClubs: [
+        rawClubListItem({
+          id: "club-own-1",
+          name: "Clube do Dono E2E",
+          is_member: true,
+          is_admin: true,
+        }),
+      ],
+      clubDetails: {
+        "club-own-1": rawClubDetail({
+          id: "club-own-1",
+          name: "Clube do Dono E2E",
+          is_member: true,
+          is_admin: true,
+          is_owner: true,
+        }),
+      },
+      clubMembers: {
+        "club-own-1": [
+          {
+            id: USER_ID,
+            name: "Ana E2E Clubes",
+            avatar_url: null,
+            is_admin: true,
+            is_owner: true,
+          },
+          {
+            id: "user-2",
+            name: "Lucas Martins",
+            avatar_url: null,
+            is_admin: false,
+            is_owner: false,
+          },
+        ],
+      },
+    });
+    await login(page);
+    await goToMyClubs(page);
+
+    await page.getByText("Clube do Dono E2E").click();
+    await page.waitForURL("**/clubes/club-own-1");
+
+    await page.getByRole("tab", { name: "Participantes" }).click();
+
+    // dono não tem ação no próprio nome, só no outro participante
+    await expect(
+      page.getByRole("button", { name: "Tornar admin" }),
+    ).toHaveCount(1);
+
+    await page.getByRole("button", { name: "Tornar admin" }).click();
+
+    await expect(
+      page.getByText("Lucas Martins agora é administrador do clube!"),
+    ).toBeVisible();
   });
 });

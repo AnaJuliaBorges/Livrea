@@ -26,12 +26,14 @@ describe("getClubMembers", () => {
           name: "Ana Júlia Borges",
           avatar_url: "https://cdn/avatars/user-1.png",
           is_admin: true,
+          is_owner: true,
         },
         {
           id: "user-2",
           name: "Lucas Martins",
           avatar_url: null,
           is_admin: false,
+          is_owner: false,
         },
       ]),
     );
@@ -47,12 +49,14 @@ describe("getClubMembers", () => {
         name: "Ana Júlia Borges",
         avatarUrl: "https://cdn/avatars/user-1.png",
         isAdmin: true,
+        isOwner: true,
       },
       {
         id: "user-2",
         name: "Lucas Martins",
         avatarUrl: null,
         isAdmin: false,
+        isOwner: false,
       },
     ]);
   });
