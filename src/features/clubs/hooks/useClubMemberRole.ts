@@ -11,6 +11,11 @@ function useInvalidateAfterRoleChange(clubId: string) {
   return () => {
     queryClient.invalidateQueries({ queryKey: ["club-members", clubId] });
     queryClient.invalidateQueries({ queryKey: ["club", clubId] });
+    // remoção de membro tira a nota/progresso dele da média do clube
+    queryClient.invalidateQueries({ queryKey: ["club-book-rating", clubId] });
+    queryClient.invalidateQueries({
+      queryKey: ["club-reading-readers", clubId],
+    });
   };
 }
 

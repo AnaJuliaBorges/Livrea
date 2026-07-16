@@ -10,6 +10,12 @@ export function useRequestToJoinClub(clubId: string) {
       queryClient.invalidateQueries({ queryKey: ["club", clubId] });
       queryClient.invalidateQueries({ queryKey: ["club-members", clubId] });
       queryClient.invalidateQueries({ queryKey: ["clubs"] });
+      // em clube público o usuário já entra como membro — a nota e o
+      // progresso dele passam a contar
+      queryClient.invalidateQueries({ queryKey: ["club-book-rating", clubId] });
+      queryClient.invalidateQueries({
+        queryKey: ["club-reading-readers", clubId],
+      });
     },
   });
 }

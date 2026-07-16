@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import OverviewSection from "../components/OverviewSection";
 import MembersSection from "../components/MemberSection";
-import ReadingSection from "../components/ReadingSection";
+import ReadingSection from "../components/reading/ReadingSection";
 import { useClub } from "../hooks/useClub";
 import { useRequestToJoinClub } from "../hooks/useRequestToJoinClub";
 
