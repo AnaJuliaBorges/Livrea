@@ -163,9 +163,9 @@ export default function OverviewSection({ club }: Props) {
 
         {club.isAdmin && club.currentReading && (
           <Button
-            variant="outline"
             className="mt-2 text-sm"
             onClick={() => setShowCompleteReadingModal(true)}
+            size="sm"
           >
             Marcar encontro como concluído
           </Button>
