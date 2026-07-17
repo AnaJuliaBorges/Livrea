@@ -24,8 +24,10 @@ import { supabase } from "@/lib/supabase";
 import { useStates, useCities } from "@/hooks/useLocations";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
+import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";
 import { uploadAvatar } from "../services/uploadAvatar";
 import type { UserProfile } from "../dtos";
+import { HEADER_COLORS, DEFAULT_HEADER_COLOR } from "@/lib/headerColors";
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
@@ -55,7 +57,10 @@ export function EditProfile() {
     queryFn: async () => (await supabase.auth.getUser()).data.user,
   });
 
-  if (isLoading || isLoadingAuth) {
+  const { data: headerColor, isLoading: isLoadingColor } =
+    useProfileHeaderColor(profile?.id);
+
+  if (isLoading || isLoadingAuth || isLoadingColor) {
     return (
       <p className="mt-20 text-center text-muted-foreground">
         Carregando perfil...
@@ -71,15 +76,23 @@ export function EditProfile() {
     );
   }
 
-  return <EditProfileForm profile={profile} email={authUser?.email ?? ""} />;
+  return (
+    <EditProfileForm
+      profile={profile}
+      email={authUser?.email ?? ""}
+      initialHeaderColor={headerColor ?? DEFAULT_HEADER_COLOR}
+    />
+  );
 }
 
 function EditProfileForm({
   profile,
   email,
+  initialHeaderColor,
 }: {
   profile: UserProfile;
   email: string;
+  initialHeaderColor: string;
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -88,6 +101,8 @@ function EditProfileForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
+  // fora do RHF: não é campo validável, só uma escolha da paleta
+  const [headerColor, setHeaderColor] = useState(initialHeaderColor);
 
   const avatarPreview = useMemo(
     () => (avatarFile ? URL.createObjectURL(avatarFile) : undefined),
@@ -158,6 +173,7 @@ function EditProfileForm({
         bio: data.bio || null,
         stateId: data.state_id,
         cityId: data.city_id,
+        headerColor,
       });
 
       if (avatarFile) {
@@ -180,6 +196,9 @@ function EditProfileForm({
       }
 
       await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
+      await queryClient.invalidateQueries({
+        queryKey: ["profile-header-color", profile.id],
+      });
 
       toast.success("Perfil atualizado!");
       navigate("/perfil");
@@ -362,6 +381,27 @@ function EditProfileForm({
               {errors.bio.message}
             </FieldDescription>
           )}
+        </Field>
+
+        <Field>
+          <FieldDescription>Cor do cabeçalho do perfil</FieldDescription>
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(HEADER_COLORS).map(([key, { label, gradient }]) => (
+              <button
+                key={key}
+                type="button"
+                aria-label={label}
+                title={label}
+                aria-pressed={headerColor === key}
+                onClick={() => setHeaderColor(key)}
+                className={`size-9 rounded-full ${gradient} transition ${
+                  headerColor === key
+                    ? "ring-2 ring-primary ring-offset-2"
+                    : "opacity-70 hover:opacity-100"
+                }`}
+              />
+            ))}
+          </div>
         </Field>
       </form>
 

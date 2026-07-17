@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft, MessageCircleMore, Send, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import placeholder from "../../../assets/placeholder.png";
@@ -13,12 +13,32 @@ import MembersSection from "../components/MemberSection";
 import ReadingSection from "../components/reading/ReadingSection";
 import { useClub } from "../hooks/useClub";
 import { useRequestToJoinClub } from "../hooks/useRequestToJoinClub";
+import { headerGradient } from "@/lib/headerColors";
 
 export default function ClubDetails() {
   const { id } = useParams();
   const { data: club, isLoading, isError } = useClub(id);
   const navigate = useNavigate();
   const requestToJoin = useRequestToJoinClub(id ?? "");
+
+  const handleShare = async () => {
+    if (!club) return;
+
+    const url = `${window.location.origin}/clubes/${club.id}`;
+
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: club.name, url });
+      } else {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link do clube copiado!");
+      }
+    } catch (error) {
+      // usuário fechou o menu de compartilhar — não é erro
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      toast.error("Não foi possível compartilhar o link.");
+    }
+  };
 
   const handleRequestToJoin = () => {
     if (!club) return;
@@ -62,7 +82,9 @@ export default function ClubDetails() {
 
   return (
     <>
-      <div className="relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 bg-linear-to-br from-violet-800 via-purple-900 to-slate-950">
+      <div
+        className={`relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 ${headerGradient(club.headerColor)}`}
+      >
         <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
 
         {club.isAdmin && (
@@ -77,11 +99,30 @@ export default function ClubDetails() {
         )}
 
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 rounded-lg ">
+          <Button
+            size="icon"
+            aria-label="Compartilhar clube"
+            onClick={handleShare}
+            className="absolute top-[55%] -left-14 -translate-y-1/2 rounded-full text-black border bg-gray-100 hover:bg-gray-300"
+          >
+            <Send className="size-5" />
+          </Button>
           <img
             src={club.coverUrl ?? placeholder}
             alt={club.name}
             className="h-35 w-50 border-2 rounded-lg brightness-95 object-cover"
           />
+
+          {club.isMember && (
+            <Button
+              size="icon"
+              aria-label="Compartilhar clube"
+              onClick={handleShare}
+              className="absolute top-[55%] -right-14 -translate-y-1/2 rounded-full text-black border bg-gray-100 hover:bg-gray-300"
+            >
+              <MessageCircleMore className="size-5" />
+            </Button>
+          )}
         </div>
       </div>
       <div className="flex flex-col gap-2 items-center mt-24 mb-6">

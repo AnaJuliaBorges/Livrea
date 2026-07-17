@@ -24,6 +24,8 @@ import { useGenres } from "@/features/books/hooks/useGenres";
 import { useClub } from "../hooks/useClub";
 import { useUpdateClub } from "../hooks/useUpdateClub";
 import { useDeleteClub } from "../hooks/useDeleteClub";
+import { useSetClubHeaderColor } from "../hooks/useSetClubHeaderColor";
+import { HEADER_COLORS } from "@/lib/headerColors";
 import { DeleteClubDialog } from "../components/DeleteClubDialog";
 import type { Club } from "../dtos";
 
@@ -42,6 +44,7 @@ const meetingTypeToEnum: Record<string, string> = {
 function ClubSettingsForm({ club }: { club: Club }) {
   const navigate = useNavigate();
   const updateClub = useUpdateClub(club.id);
+  const setClubHeaderColor = useSetClubHeaderColor(club.id);
   const deleteClub = useDeleteClub();
 
   const [name, setName] = useState(club.name);
@@ -57,6 +60,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
   const [meetingType, setMeetingType] = useState(
     meetingTypeToPt[club.type] ?? "presencial",
   );
+  const [headerColor, setHeaderColor] = useState(club.headerColor);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const { data: genres, isLoading: isLoadingGenres } = useGenres();
@@ -85,16 +89,17 @@ function ClubSettingsForm({ club }: { club: Club }) {
     JSON.stringify([...selectedGenres].sort()) !==
       JSON.stringify([...club.genres.map((g) => g.id)].sort()) ||
     cityId !== (club.cityId ? String(club.cityId) : "") ||
-    meetingType !== (meetingTypeToPt[club.type] ?? "presencial");
+    meetingType !== (meetingTypeToPt[club.type] ?? "presencial") ||
+    headerColor !== club.headerColor;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!name.trim() || selectedGenres.length === 0 || !cityId) {
       toast.error("Preencha nome, cidade e ao menos um gênero.");
       return;
     }
 
-    updateClub.mutate(
-      {
+    try {
+      await updateClub.mutateAsync({
         clubId: club.id,
         name: name.trim(),
         description,
@@ -102,18 +107,19 @@ function ClubSettingsForm({ club }: { club: Club }) {
         genreIds: selectedGenres,
         cityId: Number(cityId),
         meetingType: meetingTypeToEnum[meetingType],
-      },
-      {
-        onSuccess: () => {
-          toast.success("Configurações salvas!");
-          navigate(`/clubes/${club.id}`);
-        },
-        onError: (error) => {
-          console.error("Error updating club settings:", error);
-          toast.error("Não foi possível salvar. Tente novamente.");
-        },
-      },
-    );
+      });
+
+      // a cor vive em outra RPC (set_club_header_color), fora do update_club
+      if (headerColor !== club.headerColor) {
+        await setClubHeaderColor.mutateAsync(headerColor);
+      }
+
+      toast.success("Configurações salvas!");
+      navigate(`/clubes/${club.id}`);
+    } catch (error) {
+      console.error("Error updating club settings:", error);
+      toast.error("Não foi possível salvar. Tente novamente.");
+    }
   };
 
   const handleDeleteClub = () => {
@@ -166,6 +172,29 @@ function ClubSettingsForm({ club }: { club: Club }) {
             onChange={(event) => setRules(event.target.value)}
             className="min-h-24"
           />
+        </Field>
+
+        <Field>
+          <FieldLabel>Cor do cabeçalho</FieldLabel>
+          <div className="flex flex-wrap gap-3">
+            {Object.entries(HEADER_COLORS).map(
+              ([key, { label, gradient }]) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={label}
+                  title={label}
+                  aria-pressed={headerColor === key}
+                  onClick={() => setHeaderColor(key)}
+                  className={`size-9 rounded-full ${gradient} transition ${
+                    headerColor === key
+                      ? "ring-2 ring-primary ring-offset-2"
+                      : "opacity-70 hover:opacity-100"
+                  }`}
+                />
+              ),
+            )}
+          </div>
         </Field>
 
         <Field>
@@ -269,10 +298,14 @@ function ClubSettingsForm({ club }: { club: Club }) {
 
       <Button
         className="w-full"
-        disabled={!hasChanges || updateClub.isPending}
+        disabled={
+          !hasChanges || updateClub.isPending || setClubHeaderColor.isPending
+        }
         onClick={handleSave}
       >
-        {updateClub.isPending ? "Salvando..." : "Salvar alterações"}
+        {updateClub.isPending || setClubHeaderColor.isPending
+          ? "Salvando..."
+          : "Salvar alterações"}
       </Button>
 
       {club.isOwner && (

@@ -18,6 +18,7 @@ const params = {
   bio: "Leitora voraz",
   stateId: 26,
   cityId: 3509502,
+  headerColor: "teal",
 };
 
 describe("updateProfile", () => {
@@ -38,6 +39,7 @@ describe("updateProfile", () => {
       bio: "Leitora voraz",
       state_id: 26,
       city_id: 3509502,
+      header_color: "teal",
     });
     expect(eqMock).toHaveBeenCalledWith("id", "user-1");
   });

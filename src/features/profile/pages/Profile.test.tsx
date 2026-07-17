@@ -11,17 +11,20 @@ import {
   useFollowUser,
   useUnfollowUser,
 } from "../hooks/useFollow";
+import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";
 import type { UserProfile } from "../dtos";
 
 vi.mock("../hooks/useMyProfile");
 vi.mock("../hooks/useUserProfile");
 vi.mock("../hooks/useFollow");
+vi.mock("../hooks/useProfileHeaderColor");
 
 const useMyProfileMock = vi.mocked(useMyProfile);
 const useUserProfileMock = vi.mocked(useUserProfile);
 const useFollowInfoMock = vi.mocked(useFollowInfo);
 const useFollowUserMock = vi.mocked(useFollowUser);
 const useUnfollowUserMock = vi.mocked(useUnfollowUser);
+const useProfileHeaderColorMock = vi.mocked(useProfileHeaderColor);
 
 const followMutate = vi.fn();
 const unfollowMutate = vi.fn();
@@ -154,6 +157,9 @@ describe("Profile", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFollowState({ followersCount: 0, isFollowing: false });
+    useProfileHeaderColorMock.mockReturnValue({
+      data: "purple",
+    } as ReturnType<typeof useProfileHeaderColor>);
   });
 
   it("mostra o estado de carregamento", () => {

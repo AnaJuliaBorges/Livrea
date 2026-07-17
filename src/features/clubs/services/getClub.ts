@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { Club } from "../dtos";
+import { DEFAULT_HEADER_COLOR } from "@/lib/headerColors";
 
 type RawClub = {
   id: string;
@@ -7,6 +8,7 @@ type RawClub = {
   description: string | null;
   rules: string | null;
   cover_url: string | null;
+  header_color: string | null;
   visibility: boolean;
   participant_limit: number | null;
   frequency: string | null;
@@ -47,6 +49,7 @@ function mapClub(raw: RawClub): Club {
     name: raw.name,
     description: raw.description ?? "",
     coverUrl: raw.cover_url,
+    headerColor: raw.header_color ?? DEFAULT_HEADER_COLOR,
     isPrivate: !raw.visibility,
     isMember: raw.is_member,
     isAdmin: raw.is_admin,

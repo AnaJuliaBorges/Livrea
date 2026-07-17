@@ -25,6 +25,8 @@ import {
   useFollowUser,
   useUnfollowUser,
 } from "../hooks/useFollow";
+import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";
+import { headerGradient } from "@/lib/headerColors";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
@@ -40,6 +42,7 @@ export default function Profile() {
     isError,
   } = isOwnProfile ? myProfile : otherProfile;
   const { data: followInfo } = useFollowInfo(profile?.id);
+  const { data: headerColor } = useProfileHeaderColor(profile?.id);
   const followMutation = useFollowUser(id);
   const unfollowMutation = useUnfollowUser(id);
 
@@ -95,7 +98,9 @@ export default function Profile() {
 
   return (
     <div className="mb-10">
-      <div className="relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 bg-gradient-to-br from-violet-800 via-purple-900 to-slate-950">
+      <div
+        className={`relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 ${headerGradient(headerColor)}`}
+      >
         <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">

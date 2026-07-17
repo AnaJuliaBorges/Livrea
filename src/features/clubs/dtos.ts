@@ -27,6 +27,8 @@ export interface Club {
   name: string;
   description: string;
   coverUrl: string | null;
+  // chave da paleta HEADER_COLORS (clubs.header_color)
+  headerColor: string;
   isPrivate: boolean;
   isMember: boolean;
   isAdmin: boolean;

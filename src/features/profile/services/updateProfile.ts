@@ -6,6 +6,8 @@ export type UpdateProfileParams = {
   bio: string | null;
   stateId: number;
   cityId: number;
+  // chave da paleta HEADER_COLORS (profiles.header_color)
+  headerColor: string;
 };
 
 export async function updateProfile({
@@ -14,6 +16,7 @@ export async function updateProfile({
   bio,
   stateId,
   cityId,
+  headerColor,
 }: UpdateProfileParams) {
   const { error } = await supabase
     .from("profiles")
@@ -22,6 +25,7 @@ export async function updateProfile({
       bio,
       state_id: stateId,
       city_id: cityId,
+      header_color: headerColor,
     })
     .eq("id", userId);
 

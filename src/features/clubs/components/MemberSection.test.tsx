@@ -66,6 +66,7 @@ const baseClub: Club = {
   name: "Clube da Fantasia",
   description: "",
   coverUrl: null,
+  headerColor: "purple",
   isPrivate: false,
   isMember: true,
   isAdmin: false,

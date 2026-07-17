@@ -19,6 +19,7 @@ const rawClub = {
   description: "Lemos fantasia",
   rules: "Respeite todo mundo.",
   cover_url: "https://cdn/club-covers/uid/1.png",
+  header_color: "teal",
   visibility: true,
   participant_limit: 20,
   frequency: "monthly",
@@ -71,6 +72,7 @@ describe("getClub", () => {
       name: "Clube da Fantasia",
       description: "Lemos fantasia",
       coverUrl: "https://cdn/club-covers/uid/1.png",
+      headerColor: "teal",
       isPrivate: false,
       isMember: true,
       isAdmin: false,
@@ -127,6 +129,7 @@ describe("getClub", () => {
         city_name: null,
         state_sigla: null,
         next_meeting: null,
+        header_color: null,
       }),
     );
 
@@ -139,6 +142,7 @@ describe("getClub", () => {
       cityName: "",
       stateAbbreviation: "",
       nextMeeting: null,
+      headerColor: "purple",
     });
   });
 
