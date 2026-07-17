@@ -17,6 +17,7 @@ export default function Signup() {
 
   const data = useSignUpWizardStore((state) => state.data);
   const stepButton = useSignUpWizardStore((state) => state.stepButton);
+  const prevStep = useSignUpWizardStore((state) => state.prevStep);
 
   const steps = [
     data.googleSignUp ? GoogleFirstStep : FirstStep,
@@ -43,7 +44,8 @@ export default function Signup() {
           <Button
             className="w-content"
             variant="link"
-            onClick={() => navigate("/")}
+            // volta um passo do wizard; no primeiro passo sai pra home
+            onClick={() => (data.step > 1 ? prevStep() : navigate("/"))}
           >
             <ArrowLeftIcon />
           </Button>

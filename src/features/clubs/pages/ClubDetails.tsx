@@ -13,13 +13,32 @@ import MembersSection from "../components/MemberSection";
 import ReadingSection from "../components/reading/ReadingSection";
 import { useClub } from "../hooks/useClub";
 import { useRequestToJoinClub } from "../hooks/useRequestToJoinClub";
+import { useLeaveClub } from "../hooks/useLeaveClub";
+import { LeaveClubDialog } from "../components/LeaveClubDialog";
 import { headerGradient } from "@/lib/headerColors";
+import { useState } from "react";
 
 export default function ClubDetails() {
   const { id } = useParams();
   const { data: club, isLoading, isError } = useClub(id);
   const navigate = useNavigate();
   const requestToJoin = useRequestToJoinClub(id ?? "");
+  const leaveClub = useLeaveClub(id ?? "");
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
+
+  const handleLeaveClub = () => {
+    leaveClub.mutate(undefined, {
+      onSuccess: () => {
+        setShowLeaveDialog(false);
+        toast.success("Você saiu do clube.");
+        navigate("/clubes");
+      },
+      onError: (error) => {
+        console.error("Error leaving club:", error);
+        toast.error("Não foi possível sair do clube. Tente novamente.");
+      },
+    });
+  };
 
   const handleShare = async () => {
     if (!club) return;
@@ -167,11 +186,30 @@ export default function ClubDetails() {
         </TabsContent>
         <TabsContent value="members">
           <MembersSection club={club} />
+          {club.isMember && !club.isOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-destructive"
+              onClick={() => setShowLeaveDialog(true)}
+            >
+              Sair do clube
+            </Button>
+          )}
         </TabsContent>
         <TabsContent value="reading">
           <ReadingSection club={club} />
         </TabsContent>
       </Tabs>
+
+      {showLeaveDialog && (
+        <LeaveClubDialog
+          clubName={club.name}
+          isLeaving={leaveClub.isPending}
+          onConfirm={handleLeaveClub}
+          onClose={() => setShowLeaveDialog(false)}
+        />
+      )}
     </>
   );
 }

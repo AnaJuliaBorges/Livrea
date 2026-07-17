@@ -64,6 +64,8 @@ const corsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "*",
   "access-control-allow-methods": "*",
+  // sem expor content-range o browser não lê a contagem (count: exact)
+  "access-control-expose-headers": "content-range",
 };
 
 const nowIso = new Date().toISOString();
@@ -141,6 +143,32 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
   await page.route("**/rest/v1/rpc/get_my_profile*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(jsonResponse(profile));
+  });
+
+  // endpoints novos usados pela página de perfil — sem mock, as queries
+  // batem na rede de verdade e atrasam os testes com retries
+  await page.route("**/rest/v1/rpc/get_profile_header_color*", async (route) => {
+    if (route.request().method() === "OPTIONS") return preflight(route);
+    await route.fulfill(jsonResponse("purple"));
+  });
+
+  await page.route("**/rest/v1/notifications*", async (route) => {
+    if (route.request().method() === "OPTIONS") return preflight(route);
+    await route.fulfill(jsonResponse([]));
+  });
+
+  // follows: HEAD = contagem de seguidores, GET = maybeSingle do "eu sigo?"
+  await page.route("**/rest/v1/follows*", async (route) => {
+    const method = route.request().method();
+    if (method === "OPTIONS") return preflight(route);
+    if (method === "HEAD") {
+      await route.fulfill({
+        status: 200,
+        headers: { ...corsHeaders, "content-range": "*/0" },
+      });
+      return;
+    }
+    await route.fulfill(jsonResponse(null));
   });
 }
 
@@ -240,5 +268,33 @@ test.describe("Perfil", () => {
       "Bio de teste e2e",
     );
     await expect(page.getByPlaceholder("Email")).toHaveValue(EMAIL);
+  });
+
+  test("altera a cor do cabeçalho do perfil e salva", async ({ page }) => {
+    await setupMocks(page);
+
+    // captura o corpo do update em profiles pra conferir a cor enviada
+    let patchBody: Record<string, unknown> | null = null;
+    await page.route("**/rest/v1/profiles*", async (route) => {
+      if (route.request().method() === "OPTIONS") {
+        await route.fulfill({ status: 204, headers: corsHeaders });
+        return;
+      }
+      if (route.request().method() === "PATCH") {
+        patchBody = route.request().postDataJSON() as Record<string, unknown>;
+      }
+      await route.fulfill(jsonResponse([]));
+    });
+
+    await login(page);
+    await goToProfile(page);
+    await page.locator("svg.lucide-settings").click();
+    await page.waitForURL("**/perfil/editar");
+
+    await page.getByRole("button", { name: "Azul" }).click();
+    await page.getByRole("button", { name: "Salvar alterações" }).click();
+
+    await expect(page.getByText("Perfil atualizado!")).toBeVisible();
+    await expect.poll(() => patchBody?.header_color).toBe("blue");
   });
 });

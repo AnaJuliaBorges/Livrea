@@ -8,6 +8,8 @@ const corsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "*",
   "access-control-allow-methods": "*",
+  // sem expor content-range o browser não lê a contagem (count: exact)
+  "access-control-expose-headers": "content-range",
 };
 
 const nowIso = new Date().toISOString();
@@ -128,6 +130,7 @@ function rawClubDetail(overrides: Record<string, unknown> = {}) {
     is_admin: false,
     is_owner: false,
     has_pending_request: false,
+    header_color: null,
     current_reading: null,
     next_meeting: null,
     reading_history: [],
@@ -170,6 +173,8 @@ type ClubsMockOptions = {
   genres?: { id: number; name: string; google_category: string[] | null }[];
   states?: { id: number; name: string; sigla: string }[];
   cities?: { id: number; name: string; state_id: number }[];
+  // linhas cruas de profile_genres — alimenta os "Clubes indicados pra você"
+  profileGenreRows?: { genre_id: number }[];
 };
 
 async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
@@ -208,8 +213,57 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
   });
 
   await mockRoute(page, "**/rest/v1/profile_genres*", async (route) => {
+    await route.fulfill(jsonResponse(opts.profileGenreRows ?? []));
+  });
+
+  // Endpoints do perfil/social usados pelas páginas visitadas nos fluxos de
+  // clube (perfil de participante, sino de notificações). Sem mock eles
+  // batem na rede de verdade e atrasam os testes com retries.
+  await mockRoute(page, "**/rest/v1/notifications*", async (route) => {
     await route.fulfill(jsonResponse([]));
   });
+
+  // follows: HEAD = contagem de seguidores (content-range), GET = maybeSingle
+  // do "eu sigo?" (null = não segue). Testes de follow sobrescrevem esta rota.
+  await mockRoute(page, "**/rest/v1/follows*", async (route) => {
+    const method = route.request().method();
+    if (method === "HEAD") {
+      await route.fulfill({
+        status: 200,
+        headers: { ...corsHeaders, "content-range": "*/0" },
+      });
+      return;
+    }
+    if (method === "GET") {
+      await route.fulfill(jsonResponse(null));
+      return;
+    }
+    await route.fulfill({ status: 204, headers: corsHeaders });
+  });
+
+  await mockRoute(
+    page,
+    "**/rest/v1/rpc/get_profile_header_color*",
+    async (route) => {
+      await route.fulfill(jsonResponse("purple"));
+    },
+  );
+
+  await mockRoute(page, "**/functions/v1/send-push*", async (route) => {
+    await route.fulfill(jsonResponse({ ok: true }));
+  });
+
+  await mockRoute(page, "**/rest/v1/rpc/leave_club*", async (route) => {
+    await route.fulfill(jsonResponse(null));
+  });
+
+  await mockRoute(
+    page,
+    "**/rest/v1/rpc/set_club_header_color*",
+    async (route) => {
+      await route.fulfill(jsonResponse(null));
+    },
+  );
 
   await mockRoute(page, "**/rest/v1/genres*", async (route) => {
     await route.fulfill(jsonResponse(genres));
@@ -554,5 +608,279 @@ test.describe("Clubes", () => {
     await expect(
       page.getByText("Lucas Martins agora é administrador do clube!"),
     ).toBeVisible();
+  });
+
+  test("membro sai do clube pela aba Participantes", async ({ page }) => {
+    await setupClubMocks(page, {
+      myClubs: [
+        rawClubListItem({
+          id: "club-leave-1",
+          name: "Clube pra Sair E2E",
+          is_member: true,
+        }),
+      ],
+      clubDetails: {
+        "club-leave-1": rawClubDetail({
+          id: "club-leave-1",
+          name: "Clube pra Sair E2E",
+          is_member: true,
+        }),
+      },
+      clubMembers: {
+        "club-leave-1": [
+          {
+            id: USER_ID,
+            name: "Ana E2E Clubes",
+            avatar_url: null,
+            is_admin: false,
+            is_owner: false,
+          },
+        ],
+      },
+    });
+    await login(page);
+    await goToMyClubs(page);
+
+    await page.getByText("Clube pra Sair E2E").click();
+    await page.waitForURL("**/clubes/club-leave-1");
+
+    await page.getByRole("tab", { name: "Participantes" }).click();
+    await page.getByRole("button", { name: "Sair do clube" }).click();
+
+    // diálogo de confirmação
+    await page.getByRole("button", { name: "Sair", exact: true }).click();
+
+    await expect(page.getByText("Você saiu do clube.")).toBeVisible();
+    await page.waitForURL("**/clubes");
+  });
+
+  test("segue e deixa de seguir um participante pelo perfil", async ({
+    page,
+  }) => {
+    await setupClubMocks(page, {
+      browseClubs: [rawClubListItem({ id: "club-1", name: "Clube Y" })],
+      clubDetails: {
+        "club-1": rawClubDetail({ id: "club-1", name: "Clube Y" }),
+      },
+      clubMembers: {
+        "club-1": [
+          {
+            id: "user-2",
+            name: "Lucas Martins",
+            avatar_url: null,
+            is_admin: false,
+            is_owner: false,
+          },
+        ],
+      },
+      userProfiles: {
+        "user-2": rawUserProfile({ id: "user-2", name: "Lucas Martins" }),
+      },
+    });
+
+    // mock com estado, registrado depois do setup pra ter precedência:
+    // POST segue, DELETE deixa de seguir, GET/HEAD refletem o estado atual
+    let isFollowing = false;
+    await mockRoute(page, "**/rest/v1/follows*", async (route) => {
+      const method = route.request().method();
+      if (method === "HEAD") {
+        await route.fulfill({
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            "content-range": isFollowing ? "0-0/1" : "*/0",
+          },
+        });
+        return;
+      }
+      if (method === "GET") {
+        await route.fulfill(
+          jsonResponse(isFollowing ? { follower_id: USER_ID } : null),
+        );
+        return;
+      }
+      if (method === "POST") {
+        isFollowing = true;
+        await route.fulfill({ status: 201, headers: corsHeaders });
+        return;
+      }
+      if (method === "DELETE") {
+        isFollowing = false;
+        await route.fulfill({ status: 204, headers: corsHeaders });
+        return;
+      }
+      await route.fulfill(jsonResponse(null));
+    });
+
+    await login(page);
+
+    await page.getByText("Clube Y").click();
+    await page.waitForURL("**/clubes/club-1");
+
+    await page.getByRole("tab", { name: "Participantes" }).click();
+    await page.getByText("Lucas Martins").click();
+    await page.waitForURL("**/perfil/user-2");
+
+    const followButton = page.getByRole("button", { name: "Seguir" });
+    await expect(followButton).toBeEnabled();
+    await followButton.click();
+
+    // após seguir, o botão vira "Deixar de seguir" e a contagem sobe
+    const unfollowButton = page.getByRole("button", {
+      name: "Deixar de seguir",
+    });
+    await expect(unfollowButton).toBeVisible();
+    await expect(
+      page.getByText("seguidores", { exact: true }).locator(".."),
+    ).toContainText("1");
+
+    await unfollowButton.click();
+    await expect(page.getByRole("button", { name: "Seguir" })).toBeVisible();
+  });
+
+  test("compartilha o link do clube copiando pra área de transferência", async ({
+    page,
+    context,
+    browserName,
+  }) => {
+    test.skip(
+      browserName !== "chromium",
+      "permissão de clipboard só é controlável no Chromium",
+    );
+
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    // força o caminho de copiar link (sem o menu nativo de compartilhar)
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "share", { value: undefined });
+    });
+
+    await setupClubMocks(page, {
+      browseClubs: [rawClubListItem({ id: "club-share-1", name: "Clube Z" })],
+      clubDetails: {
+        "club-share-1": rawClubDetail({ id: "club-share-1", name: "Clube Z" }),
+      },
+    });
+    await login(page);
+
+    await page.getByText("Clube Z").click();
+    await page.waitForURL("**/clubes/club-share-1");
+
+    await page
+      .getByRole("button", { name: "Compartilhar clube" })
+      .first()
+      .click();
+
+    await expect(page.getByText("Link do clube copiado!")).toBeVisible();
+
+    const clipboard = await page.evaluate(() =>
+      navigator.clipboard.readText(),
+    );
+    expect(clipboard).toContain("/clubes/club-share-1");
+  });
+
+  test("busca ignora acentos e esconde os clubes indicados", async ({
+    page,
+  }) => {
+    await setupClubMocks(page, {
+      browseClubs: [
+        rawClubListItem({
+          id: "club-acc-1",
+          name: "Clube da Fantásia Épica",
+          genres: [{ id: 1, name: "Fantasia" }],
+        }),
+      ],
+      profileGenreRows: [{ genre_id: 1 }],
+    });
+    await login(page);
+
+    // com gênero em comum e sem busca, o carrossel de indicados aparece
+    await expect(page.getByText("Clubes indicados pra você")).toBeVisible();
+
+    // busca sem acento acha o clube acentuado; carrossel some
+    await page.getByPlaceholder("Buscar clubes").fill("fantasia");
+    await expect(
+      page.getByText("Clubes indicados pra você"),
+    ).not.toBeVisible();
+    await expect(page.getByText("Clube da Fantásia Épica")).toBeVisible();
+
+    // busca sem resultado mostra a mensagem de vazio
+    await page.getByPlaceholder("Buscar clubes").fill("inexistente");
+    await expect(page.getByText("❌ Nenhum clube encontrado")).toBeVisible();
+  });
+
+  test("admin altera a cor do cabeçalho do clube", async ({ page }) => {
+    await setupClubMocks(page, {
+      myClubs: [
+        rawClubListItem({
+          id: "club-admin-1",
+          name: "Clube Admin E2E",
+          is_member: true,
+          is_admin: true,
+        }),
+      ],
+      clubDetails: {
+        "club-admin-1": rawClubDetail({
+          id: "club-admin-1",
+          name: "Clube Admin E2E",
+          is_member: true,
+          is_admin: true,
+        }),
+      },
+    });
+
+    // captura a cor enviada pra RPC (registrado depois do setup = precedência)
+    let sentColor: string | null = null;
+    await mockRoute(
+      page,
+      "**/rest/v1/rpc/set_club_header_color*",
+      async (route) => {
+        const body = route.request().postDataJSON() as { p_color?: string };
+        sentColor = body?.p_color ?? null;
+        await route.fulfill(jsonResponse(null));
+      },
+    );
+
+    await login(page);
+    await goToMyClubs(page);
+
+    await page.getByText("Clube Admin E2E").click();
+    await page.waitForURL("**/clubes/club-admin-1");
+
+    await page.locator("svg.lucide-settings").click();
+    await page.waitForURL("**/clubes/club-admin-1/configuracoes");
+
+    await page.getByRole("button", { name: "Azul" }).click();
+    await page.getByRole("button", { name: "Salvar alterações" }).click();
+
+    await expect(page.getByText("Configurações salvas!")).toBeVisible();
+    await expect.poll(() => sentColor).toBe("blue");
+  });
+
+  test("no criar clube, o voltar retorna um passo mantendo os dados", async ({
+    page,
+  }) => {
+    await setupClubMocks(page);
+    await login(page);
+
+    await page.goto("/meus-clubes/criar");
+
+    await page.getByPlaceholder("Nome").fill("Clube Wizard E2E");
+    await page.getByPlaceholder("Descrição").fill("Descrição do wizard");
+    await page.getByPlaceholder("Regras").fill("Regras do wizard");
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    await expect(
+      page.getByText("Configure como serão os encontros do clube"),
+    ).toBeVisible();
+
+    // voltar deve retornar ao passo 1 com os campos preenchidos
+    await page.locator("button:has(svg.lucide-arrow-left)").first().click();
+
+    await expect(
+      page.getByText("Configurações iniciais do seu Clube do Livro"),
+    ).toBeVisible();
+    await expect(page.getByPlaceholder("Nome")).toHaveValue(
+      "Clube Wizard E2E",
+    );
   });
 });

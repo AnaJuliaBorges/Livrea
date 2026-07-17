@@ -143,8 +143,10 @@ export default function CreateClub() {
           <Button
             className="w-content"
             variant="link"
-            onClick={() => setStep((prev) => Math.max(prev - 1, 1))}
-            disabled={step === 1}
+            // volta um passo do wizard; no primeiro passo sai da tela
+            onClick={() =>
+              step > 1 ? setStep((prev) => prev - 1) : navigate(-1)
+            }
           >
             <ArrowLeftIcon className="text-secondary" />
           </Button>

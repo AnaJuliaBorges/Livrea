@@ -26,6 +26,16 @@ const sectionLabels: Record<ClubMatchGroup, string> = {
 
 const sectionOrder: ClubMatchGroup[] = ["city", "state", "online", "other"];
 
+// máximo de tags de gênero no card de clube indicado; o resto vira "+N"
+const MAX_GENRE_TAGS = 3;
+
+// busca ignora acentos e caixa ("poesía" acha "Poesia" e vice-versa)
+const normalizeSearch = (text: string) =>
+  text
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
 export default function ListClubs() {
   const { data: profile } = useMyProfile();
   const {
@@ -41,8 +51,10 @@ export default function ListClubs() {
 
   const { data: preferredGenreIds } = useProfileGenreIds();
 
+  const isSearching = search.trim() !== "";
+
   const filteredClubs = (clubs ?? []).filter((club) =>
-    club.name.toLowerCase().includes(search.trim().toLowerCase()),
+    normalizeSearch(club.name).includes(normalizeSearch(search.trim())),
   );
 
   // Indicados: clubes que o usuário não participa e que têm pelo menos um
@@ -122,7 +134,7 @@ export default function ListClubs() {
         />
       </div>
 
-      {recommendedClubs.length > 0 && (
+      {!isSearching && recommendedClubs.length > 0 && (
         <div>
           <p className="font-medium mb-2">Clubes indicados pra você</p>
           <Carousel className="w-full">
@@ -155,7 +167,7 @@ export default function ListClubs() {
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      {club.genres.map((genre) => (
+                      {club.genres.slice(0, MAX_GENRE_TAGS).map((genre) => (
                         <span
                           key={genre}
                           className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm"
@@ -163,6 +175,14 @@ export default function ListClubs() {
                           {genre}
                         </span>
                       ))}
+                      {club.genres.length > MAX_GENRE_TAGS && (
+                        <span
+                          className="px-3 py-1 bg-[#f1f1f1] rounded-sm text-sm text-muted-foreground"
+                          title={club.genres.slice(MAX_GENRE_TAGS).join(", ")}
+                        >
+                          +{club.genres.length - MAX_GENRE_TAGS}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </CarouselItem>
