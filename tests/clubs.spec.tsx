@@ -822,6 +822,109 @@ test.describe("Clubes", () => {
     await expect(page.getByText("❌ Nenhum clube encontrado")).toBeVisible();
   });
 
+  test("abre o chat do clube, revela spoiler e envia mensagem", async ({
+    page,
+  }) => {
+    await setupClubMocks(page, {
+      myClubs: [
+        rawClubListItem({
+          id: "club-chat-1",
+          name: "Clube do Chat E2E",
+          is_member: true,
+        }),
+      ],
+      clubDetails: {
+        "club-chat-1": rawClubDetail({
+          id: "club-chat-1",
+          name: "Clube do Chat E2E",
+          is_member: true,
+        }),
+      },
+    });
+
+    // mensagens com estado: enviar acrescenta à lista (registrado depois do
+    // setup pra ter precedência sobre o glob get_club*)
+    const chatMessages: Record<string, unknown>[] = [
+      {
+        id: "msg-1",
+        content: "Terminei o capítulo 5!",
+        is_spoiler: false,
+        created_at: new Date().toISOString(),
+        is_mine: false,
+        author: {
+          id: "user-2",
+          name: "Lucas Martins",
+          avatar_url: null,
+          is_admin: true,
+        },
+      },
+      {
+        id: "msg-2",
+        content: "O dragão morre no final",
+        is_spoiler: true,
+        created_at: new Date().toISOString(),
+        is_mine: false,
+        author: {
+          id: "user-3",
+          name: "Maria Lourdes",
+          avatar_url: null,
+          is_admin: false,
+        },
+      },
+    ];
+
+    await mockRoute(page, "**/rest/v1/rpc/get_club_messages*", async (route) => {
+      await route.fulfill(jsonResponse(chatMessages));
+    });
+
+    await mockRoute(page, "**/rest/v1/rpc/send_club_message*", async (route) => {
+      const body = route.request().postDataJSON() as {
+        p_content?: string;
+        p_is_spoiler?: boolean;
+      };
+      chatMessages.push({
+        id: `msg-${chatMessages.length + 1}`,
+        content: body?.p_content ?? "",
+        is_spoiler: body?.p_is_spoiler ?? false,
+        created_at: new Date().toISOString(),
+        is_mine: true,
+        author: {
+          id: USER_ID,
+          name: "Ana E2E Clubes",
+          avatar_url: null,
+          is_admin: false,
+        },
+      });
+      await route.fulfill(jsonResponse(null));
+    });
+
+    await login(page);
+    await goToMyClubs(page);
+
+    await page.getByText("Clube do Chat E2E").click();
+    await page.waitForURL("**/clubes/club-chat-1");
+
+    await page.getByRole("button", { name: "Chat do clube" }).click();
+    await page.waitForURL("**/clubes/club-chat-1/chat");
+
+    // mensagem normal aparece com autor e badge de admin
+    await expect(page.getByText("Terminei o capítulo 5!")).toBeVisible();
+    await expect(page.getByText("Lucas Martins")).toBeVisible();
+    await expect(page.getByText("Administrador ✓")).toBeVisible();
+
+    // spoiler vem escondido; clicar revela
+    await expect(page.getByText("Alerta de spoiler")).toBeVisible();
+    await page.getByRole("button", { name: "Revelar spoiler" }).click();
+    await expect(page.getByText("Alerta de spoiler")).not.toBeVisible();
+    await expect(page.getByText("O dragão morre no final")).toBeVisible();
+
+    // envia uma mensagem e ela aparece na conversa
+    await page.getByPlaceholder("Mensagem", { exact: true }).fill("Olá pessoal!");
+    await page.getByRole("button", { name: "Enviar mensagem" }).click();
+
+    await expect(page.getByText("Olá pessoal!")).toBeVisible();
+  });
+
   test("filtra a lista por tipo, gênero e privacidade", async ({ page }) => {
     await setupClubMocks(page, {
       browseClubs: [

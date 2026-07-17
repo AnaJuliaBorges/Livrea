@@ -135,8 +135,8 @@ export default function ClubDetails() {
           {club.isMember && (
             <Button
               size="icon"
-              aria-label="Compartilhar clube"
-              onClick={handleShare}
+              aria-label="Chat do clube"
+              onClick={() => navigate(`/clubes/${club.id}/chat`)}
               className="absolute top-[55%] -right-14 -translate-y-1/2 rounded-full text-black border bg-gray-100 hover:bg-gray-300"
             >
               <MessageCircleMore className="size-5" />

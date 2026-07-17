@@ -22,6 +22,7 @@ import ClubSettings from "./features/clubs/pages/ClubSettings";
 import ForgotPassword from "./features/auth/pages/ForgotPasswordPage";
 import ResetPassword from "./features/auth/pages/ResetPasswordPage";
 import Notifications from "./features/notifications/pages/Notifications";
+import ClubChat from "./features/chat/pages/ClubChat";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -70,6 +71,11 @@ export const router = createBrowserRouter([
       {
         path: "clubes/:id/configuracoes",
         element: <ClubSettings />,
+        loader: protectedLoader,
+      },
+      {
+        path: "clubes/:id/chat",
+        element: <ClubChat />,
         loader: protectedLoader,
       },
       {
