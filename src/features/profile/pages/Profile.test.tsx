@@ -6,13 +6,49 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import Profile from "./Profile";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUserProfile } from "../hooks/useUserProfile";
+import {
+  useFollowInfo,
+  useFollowUser,
+  useUnfollowUser,
+} from "../hooks/useFollow";
 import type { UserProfile } from "../dtos";
 
 vi.mock("../hooks/useMyProfile");
 vi.mock("../hooks/useUserProfile");
+vi.mock("../hooks/useFollow");
 
 const useMyProfileMock = vi.mocked(useMyProfile);
 const useUserProfileMock = vi.mocked(useUserProfile);
+const useFollowInfoMock = vi.mocked(useFollowInfo);
+const useFollowUserMock = vi.mocked(useFollowUser);
+const useUnfollowUserMock = vi.mocked(useUnfollowUser);
+
+const followMutate = vi.fn();
+const unfollowMutate = vi.fn();
+
+function mockFollowState(state: {
+  followersCount?: number;
+  isFollowing?: boolean;
+  loaded?: boolean;
+}) {
+  useFollowInfoMock.mockReturnValue({
+    data:
+      state.loaded === false
+        ? undefined
+        : {
+            followersCount: state.followersCount ?? 0,
+            isFollowing: state.isFollowing ?? false,
+          },
+  } as ReturnType<typeof useFollowInfo>);
+  useFollowUserMock.mockReturnValue({
+    mutate: followMutate,
+    isPending: false,
+  } as unknown as ReturnType<typeof useFollowUser>);
+  useUnfollowUserMock.mockReturnValue({
+    mutate: unfollowMutate,
+    isPending: false,
+  } as unknown as ReturnType<typeof useUnfollowUser>);
+}
 
 function mockQueryState(state: {
   data?: UserProfile;
@@ -117,6 +153,7 @@ function renderOtherProfile(userId: string) {
 describe("Profile", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockFollowState({ followersCount: 0, isFollowing: false });
   });
 
   it("mostra o estado de carregamento", () => {
@@ -239,6 +276,68 @@ describe("Profile", () => {
     expect(
       screen.getByText("Este usuário ainda não participa de nenhum clube."),
     ).toBeInTheDocument();
+  });
+
+  it("não mostra o botão de seguir no próprio perfil", () => {
+    mockQueryState({ data: profile });
+
+    renderProfile();
+
+    expect(
+      screen.queryByRole("button", { name: "Seguir" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("mostra o botão de seguir no perfil de outra pessoa e segue ao clicar", async () => {
+    const user = userEvent.setup();
+    mockQueryState({ data: profile });
+
+    renderOtherProfile("user-1");
+
+    const followButton = screen.getByRole("button", { name: "Seguir" });
+    expect(followButton).toBeInTheDocument();
+
+    await user.click(followButton);
+
+    expect(followMutate).toHaveBeenCalled();
+    expect(unfollowMutate).not.toHaveBeenCalled();
+  });
+
+  it("quando já segue, o botão vira Deixar de seguir e desfaz ao clicar", async () => {
+    const user = userEvent.setup();
+    mockQueryState({ data: profile });
+    mockFollowState({ isFollowing: true });
+
+    renderOtherProfile("user-1");
+
+    const unfollowButton = screen.getByRole("button", {
+      name: "Deixar de seguir",
+    });
+
+    await user.click(unfollowButton);
+
+    expect(unfollowMutate).toHaveBeenCalled();
+    expect(followMutate).not.toHaveBeenCalled();
+  });
+
+  it("desabilita o botão de seguir enquanto o estado de follow não carrega", () => {
+    mockQueryState({ data: profile });
+    mockFollowState({ loaded: false });
+
+    renderOtherProfile("user-1");
+
+    expect(screen.getByRole("button", { name: "Seguir" })).toBeDisabled();
+  });
+
+  it("mostra a contagem de seguidores no card de seguidores", () => {
+    mockQueryState({ data: profile });
+    mockFollowState({ followersCount: 5 });
+
+    renderProfile();
+
+    expect(screen.getByText("seguidores").previousSibling).toHaveTextContent(
+      "5",
+    );
   });
 
   it("usa rótulos genéricos de aba (Clubes/Livros) no perfil de outra pessoa", () => {

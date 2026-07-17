@@ -17,6 +17,9 @@
 //   { type: "member_removed", clubId, userId }
 //     userId foi removido do clube → notifica. Valida: chamador admin +
 //     alvo NÃO é mais membro.
+//   { type: "new_follower", userId }
+//     Chamador começou a seguir userId → notifica o seguido.
+//     Valida que a linha em follows (chamador → userId) existe.
 //
 // Segurança: o JWT do chamador identifica quem dispara; os dados vêm do
 // banco (service role), nunca do payload. Secrets necessários no projeto:
@@ -116,6 +119,38 @@ Deno.serve(async (req) => {
     }
 
     const { type, clubId, userId } = await req.json();
+
+    // evento de seguidor não envolve clube — tratado antes da busca do clube
+    if (type === "new_follower") {
+      const { data: follow } = await admin
+        .from("follows")
+        .select("follower_id")
+        .eq("follower_id", user.id)
+        .eq("followed_id", userId)
+        .maybeSingle();
+
+      if (!follow) {
+        return new Response(JSON.stringify({ skipped: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const { data: profile } = await admin
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+
+      await sendToUsers([userId], {
+        title: "Novo seguidor 📚",
+        body: `${profile?.name ?? "Alguém"} começou a seguir você.`,
+        url: `/perfil/${user.id}`,
+      });
+
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     const { data: club } = await admin
       .from("clubs")

@@ -10,6 +10,8 @@ import {
   BookmarkMinus,
   BookmarkPlus,
   Settings,
+  SquareMinus,
+  SquarePlus,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -18,6 +20,11 @@ import { Tag } from "../components/Tag";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { useUnreadNotificationsCount } from "@/features/notifications/hooks/useNotifications";
+import {
+  useFollowInfo,
+  useFollowUser,
+  useUnfollowUser,
+} from "../hooks/useFollow";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
@@ -32,6 +39,9 @@ export default function Profile() {
     isLoading,
     isError,
   } = isOwnProfile ? myProfile : otherProfile;
+  const { data: followInfo } = useFollowInfo(profile?.id);
+  const followMutation = useFollowUser(id);
+  const unfollowMutation = useUnfollowUser(id);
 
   if (isLoading) {
     return (
@@ -115,7 +125,7 @@ export default function Profile() {
               />
             )}
           </div>
-          {isOwnProfile && (
+          {isOwnProfile ? (
             <div className="flex items-center gap-4">
               <button
                 type="button"
@@ -132,6 +142,30 @@ export default function Profile() {
               </button>
               <Settings onClick={() => navigate("/perfil/editar")} />
             </div>
+          ) : (
+            <button
+              type="button"
+              aria-label={
+                followInfo?.isFollowing ? "Deixar de seguir" : "Seguir"
+              }
+              disabled={
+                !followInfo ||
+                followMutation.isPending ||
+                unfollowMutation.isPending
+              }
+              className="disabled:opacity-50"
+              onClick={() =>
+                followInfo?.isFollowing
+                  ? unfollowMutation.mutate()
+                  : followMutation.mutate()
+              }
+            >
+              {followInfo?.isFollowing ? (
+                <SquareMinus className="size-5 text-secondary" />
+              ) : (
+                <SquarePlus className="size-5 text-secondary" />
+              )}
+            </button>
           )}
         </div>
 
@@ -140,8 +174,7 @@ export default function Profile() {
         <div className="grid grid-cols-3 gap-2 my-2">
           {qntyComponent(qntyReadBooks, "livros lidos")}
           {qntyComponent(qntyClubs, "clubes")}
-          {/* amizades ainda não existem no schema */}
-          {qntyComponent(0, "amigos")}
+          {qntyComponent(followInfo?.followersCount ?? 0, "seguidores")}
         </div>
 
         <Tabs defaultValue="clubs" className="w-full">
