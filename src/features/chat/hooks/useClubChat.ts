@@ -3,7 +3,7 @@ import { getClubMessages, sendClubMessage } from "../services/clubChat";
 
 // Polling simples no lugar de realtime: bem mais barato de manter e
 // suficiente pro ritmo de um clube de leitura.
-const POLL_INTERVAL_MS = 5000;
+const POLL_INTERVAL_MS = 2000;
 
 export function useClubMessages(clubId: string | undefined, enabled: boolean) {
   return useQuery({
