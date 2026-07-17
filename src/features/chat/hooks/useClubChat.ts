@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getClubMessages, sendClubMessage } from "../services/clubChat";
+import { notifyClubMessage } from "../services/sendChatPushNotification";
 
 // Polling simples no lugar de realtime: bem mais barato de manter e
 // suficiente pro ritmo de um clube de leitura.
@@ -28,6 +29,11 @@ export function useSendClubMessage(clubId: string) {
     }) => sendClubMessage(clubId, content, isSpoiler),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["club-messages", clubId] });
+      // fire-and-forget: a Edge Function valida tudo no banco e aplica o
+      // anti-spam; falha aqui não desfaz o envio da mensagem
+      notifyClubMessage(clubId).catch((error) =>
+        console.error("Erro ao notificar mensagem do clube:", error),
+      );
     },
   });
 }
