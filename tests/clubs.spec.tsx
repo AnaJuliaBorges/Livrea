@@ -849,6 +849,7 @@ test.describe("Clubes", () => {
         id: "msg-1",
         content: "Terminei o capítulo 5!",
         is_spoiler: false,
+        hide_spoiler: false,
         created_at: new Date().toISOString(),
         is_mine: false,
         author: {
@@ -862,6 +863,7 @@ test.describe("Clubes", () => {
         id: "msg-2",
         content: "O dragão morre no final",
         is_spoiler: true,
+        hide_spoiler: true,
         created_at: new Date().toISOString(),
         is_mine: false,
         author: {
@@ -886,6 +888,7 @@ test.describe("Clubes", () => {
         id: `msg-${chatMessages.length + 1}`,
         content: body?.p_content ?? "",
         is_spoiler: body?.p_is_spoiler ?? false,
+        hide_spoiler: false,
         created_at: new Date().toISOString(),
         is_mine: true,
         author: {

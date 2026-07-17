@@ -19,9 +19,12 @@ function formatTime(iso: string) {
 }
 
 export function MessageBubble({ message }: { message: ClubMessage }) {
-  // spoiler começa borrado; clique revela (estado local, por mensagem)
+  // spoiler começa borrado; clique revela (estado local, por mensagem).
+  // hideSpoiler já vem calculado pro leitor (quem passou do ponto do
+  // remetente não precisa do borrão) e a própria mensagem nunca é
+  // escondida de quem enviou — o remetente só vê a tag "Spoiler".
   const [revealed, setRevealed] = useState(false);
-  const hidden = message.isSpoiler && !revealed;
+  const hidden = message.hideSpoiler && !message.isMine && !revealed;
 
   return (
     <div
@@ -53,7 +56,7 @@ export function MessageBubble({ message }: { message: ClubMessage }) {
             type="button"
             aria-label="Revelar spoiler"
             onClick={() => setRevealed(true)}
-            className="relative text-left"
+            className="relative min-w-40 text-left"
           >
             <p aria-hidden className="text-sm blur-sm select-none">
               {message.content}
@@ -65,14 +68,22 @@ export function MessageBubble({ message }: { message: ClubMessage }) {
             </span>
           </button>
         ) : (
-          <p className="whitespace-pre-wrap break-words text-sm">
+          <p className="whitespace-pre-wrap wrap-break-word text-sm">
             {message.content}
           </p>
         )}
 
-        <p className="self-end text-[10px] text-muted-foreground">
-          {formatTime(message.createdAt)}
-        </p>
+        <div className="flex items-center gap-2 self-end">
+          {/* com o conteúdo visível, a tag preserva o aviso de spoiler */}
+          {message.isSpoiler && !hidden && (
+            <span className="text-[10px] font-medium text-primary">
+              Spoiler
+            </span>
+          )}
+          <p className="text-[10px] text-muted-foreground">
+            {formatTime(message.createdAt)}
+          </p>
+        </div>
       </div>
     </div>
   );

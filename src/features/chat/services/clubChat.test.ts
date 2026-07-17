@@ -17,6 +17,7 @@ const rawMessage = {
   id: "msg-1",
   content: "Terminei o capítulo 5!",
   is_spoiler: false,
+  hide_spoiler: false,
   created_at: "2026-07-17T14:22:00Z",
   is_mine: false,
   author: {
@@ -45,6 +46,7 @@ describe("getClubMessages", () => {
         id: "msg-1",
         content: "Terminei o capítulo 5!",
         isSpoiler: false,
+        hideSpoiler: false,
         createdAt: "2026-07-17T14:22:00Z",
         isMine: false,
         author: {
@@ -61,6 +63,29 @@ describe("getClubMessages", () => {
     rpcMock.mockResolvedValue(rpcResult(null));
 
     await expect(getClubMessages("club-1")).resolves.toEqual([]);
+  });
+
+  it("sem hide_spoiler (RPC antiga), borra toda mensagem marcada", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult([
+        { ...rawMessage, is_spoiler: true, hide_spoiler: undefined },
+      ]),
+    );
+
+    const [message] = await getClubMessages("club-1");
+
+    expect(message.hideSpoiler).toBe(true);
+  });
+
+  it("mantém a tag mas libera o borrão quando o leitor já passou do ponto", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult([{ ...rawMessage, is_spoiler: true, hide_spoiler: false }]),
+    );
+
+    const [message] = await getClubMessages("club-1");
+
+    expect(message.isSpoiler).toBe(true);
+    expect(message.hideSpoiler).toBe(false);
   });
 
   it("propaga o erro da RPC", async () => {
