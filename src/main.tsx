@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "@/features/auth/pages/LoginPage";
-import { protectedLoader } from "./routes/ProtectedRoute";
+import { protectedLoader, publicOnlyLoader } from "./routes/ProtectedRoute";
 import App from "./App";
 
 import "./index.css";
@@ -39,10 +39,11 @@ export const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <Home /> },
+      { index: true, element: <Home />, loader: publicOnlyLoader },
       {
         path: "login",
         element: <Login />,
+        loader: publicOnlyLoader,
       },
       {
         path: "cadastrar",

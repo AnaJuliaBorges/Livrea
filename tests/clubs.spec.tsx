@@ -610,6 +610,20 @@ test.describe("Clubes", () => {
     ).toBeVisible();
   });
 
+  test("com sessão ativa, home e login redirecionam pra lista de clubes", async ({
+    page,
+  }) => {
+    await setupClubMocks(page);
+    await login(page);
+
+    // simula reabrir o app (PWA abre em "/"): full load com sessão salva
+    await page.goto("/");
+    await page.waitForURL("**/clubes");
+
+    await page.goto("/login");
+    await page.waitForURL("**/clubes");
+  });
+
   test("membro sai do clube pela aba Participantes", async ({ page }) => {
     await setupClubMocks(page, {
       myClubs: [
