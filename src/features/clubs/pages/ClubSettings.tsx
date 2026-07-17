@@ -26,20 +26,9 @@ import { useUpdateClub } from "../hooks/useUpdateClub";
 import { useDeleteClub } from "../hooks/useDeleteClub";
 import { useSetClubHeaderColor } from "../hooks/useSetClubHeaderColor";
 import { HEADER_COLORS } from "@/lib/headerColors";
+import { MEETING_TYPES } from "../constants";
 import { DeleteClubDialog } from "../components/DeleteClubDialog";
 import type { Club } from "../dtos";
-
-// enum club_meeting_type do banco <-> valor pt usado no formulário
-const meetingTypeToPt: Record<string, string> = {
-  in_person: "presencial",
-  hybrid: "hibrido",
-  online: "online",
-};
-const meetingTypeToEnum: Record<string, string> = {
-  presencial: "in_person",
-  hibrido: "hybrid",
-  online: "online",
-};
 
 function ClubSettingsForm({ club }: { club: Club }) {
   const navigate = useNavigate();
@@ -57,9 +46,8 @@ function ClubSettingsForm({ club }: { club: Club }) {
     club.stateId ? String(club.stateId) : "",
   );
   const [cityId, setCityId] = useState(club.cityId ? String(club.cityId) : "");
-  const [meetingType, setMeetingType] = useState(
-    meetingTypeToPt[club.type] ?? "presencial",
-  );
+  // valor do enum club_meeting_type direto (in_person/hybrid/online)
+  const [meetingType, setMeetingType] = useState(club.type);
   const [headerColor, setHeaderColor] = useState(club.headerColor);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -89,7 +77,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
     JSON.stringify([...selectedGenres].sort()) !==
       JSON.stringify([...club.genres.map((g) => g.id)].sort()) ||
     cityId !== (club.cityId ? String(club.cityId) : "") ||
-    meetingType !== (meetingTypeToPt[club.type] ?? "presencial") ||
+    meetingType !== club.type ||
     headerColor !== club.headerColor;
 
   const handleSave = async () => {
@@ -106,7 +94,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
         rules,
         genreIds: selectedGenres,
         cityId: Number(cityId),
-        meetingType: meetingTypeToEnum[meetingType],
+        meetingType,
       });
 
       // a cor vive em outra RPC (set_club_header_color), fora do update_club
@@ -232,11 +220,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
         <Field>
           <FieldLabel>Tipo de encontros</FieldLabel>
           <RadioGroup value={meetingType} onValueChange={setMeetingType}>
-            {[
-              { value: "presencial", label: "Presencial" },
-              { value: "hibrido", label: "Híbrido" },
-              { value: "online", label: "Online" },
-            ].map((option) => (
+            {MEETING_TYPES.map((option) => (
               <div key={option.value} className="flex items-center gap-3">
                 <RadioGroupItem value={option.value} id={option.value} />
                 <Label className="font-normal" htmlFor={option.value}>

@@ -822,6 +822,59 @@ test.describe("Clubes", () => {
     await expect(page.getByText("❌ Nenhum clube encontrado")).toBeVisible();
   });
 
+  test("filtra a lista por tipo, gênero e privacidade", async ({ page }) => {
+    await setupClubMocks(page, {
+      browseClubs: [
+        rawClubListItem({
+          id: "club-f1",
+          name: "Clube Online Fantasia",
+          type: "online",
+          visibility: true,
+          genres: [{ id: 1, name: "Fantasia" }],
+        }),
+        rawClubListItem({
+          id: "club-f2",
+          name: "Clube Presencial Mistério",
+          type: "in_person",
+          visibility: false,
+          genres: [{ id: 2, name: "Mistério" }],
+        }),
+      ],
+      genres: [
+        { id: 1, name: "Fantasia", google_category: null },
+        { id: 2, name: "Mistério", google_category: null },
+      ],
+    });
+    await login(page);
+
+    await expect(page.getByText("Clube Online Fantasia")).toBeVisible();
+    await expect(page.getByText("Clube Presencial Mistério")).toBeVisible();
+
+    // tipo: só o clube online fica
+    await page.getByLabel("Filtrar por tipo").click();
+    await page.getByRole("option", { name: "Online" }).click();
+    await expect(page.getByText("Clube Presencial Mistério")).not.toBeVisible();
+    await expect(page.getByText("Clube Online Fantasia")).toBeVisible();
+
+    await page.getByLabel("Filtrar por tipo").click();
+    await page.getByRole("option", { name: "Todos os tipos" }).click();
+
+    // gênero: só o clube de Mistério fica
+    await page.getByLabel("Filtrar por gênero").click();
+    await page.getByRole("option", { name: "Mistério" }).click();
+    await expect(page.getByText("Clube Online Fantasia")).not.toBeVisible();
+    await expect(page.getByText("Clube Presencial Mistério")).toBeVisible();
+
+    await page.getByLabel("Filtrar por gênero").click();
+    await page.getByRole("option", { name: "Todos os gêneros" }).click();
+
+    // privacidade: só o clube privado fica
+    await page.getByLabel("Filtrar por privacidade").click();
+    await page.getByRole("option", { name: "Privado" }).click();
+    await expect(page.getByText("Clube Online Fantasia")).not.toBeVisible();
+    await expect(page.getByText("Clube Presencial Mistério")).toBeVisible();
+  });
+
   test("admin altera a cor do cabeçalho do clube", async ({ page }) => {
     await setupClubMocks(page, {
       myClubs: [
