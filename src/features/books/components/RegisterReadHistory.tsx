@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui";
+import { Button, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -40,6 +40,7 @@ export default function RegisterReadHistory({
   const [feelingSelected, setFeelingSelected] = useState<ReadingFeeling | "">(
     "",
   );
+  const [note, setNote] = useState("");
   const [currentPage, setCurrentPage] = useState(lastProgress);
 
   // após salvar, o progresso confirmado pelo servidor vira a nova base
@@ -76,8 +77,9 @@ export default function RegisterReadHistory({
     if (!feelingSelected) return;
 
     try {
-      await saveProgress({ currentPage, feeling: feelingSelected });
+      await saveProgress({ currentPage, feeling: feelingSelected, note });
       setFeelingSelected("");
+      setNote("");
       toast.success("Registro salvo!");
     } catch {
       toast.error("Não foi possível salvar o registro. Tente novamente.");
@@ -124,6 +126,15 @@ export default function RegisterReadHistory({
                   +
                 </Button>
               </div>
+            </div>
+
+            <div>
+              <Textarea
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                placeholder="Anotação (opcional): o que achou desse trecho?"
+                className="min-h-20 bg-white"
+              />
             </div>
 
             <div>
@@ -189,6 +200,11 @@ export default function RegisterReadHistory({
                 </div>
               </div>
               <div className="flex flex-col gap-2">
+                {log.note && (
+                  <p className="whitespace-pre-wrap text-sm text-gray-700">
+                    "{log.note}"
+                  </p>
+                )}
                 <ProgressRead value={detail.percentage} />
                 <span className="text-xs text-gray-500">
                   {detail.pages} páginas lidas

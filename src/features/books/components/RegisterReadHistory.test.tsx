@@ -59,6 +59,7 @@ describe("RegisterReadHistory", () => {
             id: "log-1",
             pages_read: 120,
             feeling: "amei",
+            note: null,
             created_at: "2026-07-10T12:00:00Z",
           },
         ]}
@@ -115,7 +116,15 @@ describe("RegisterReadHistory", () => {
         id: "log-1",
         pages_read: 150,
         feeling: "gostei",
+        note: "Capítulo forte, gostei do plot twist.",
         created_at: "2026-01-01T00:00:00",
+      },
+      {
+        id: "log-2",
+        pages_read: 100,
+        feeling: "ok",
+        note: null,
+        created_at: "2025-12-30T00:00:00",
       },
     ];
 
@@ -129,6 +138,10 @@ describe("RegisterReadHistory", () => {
     );
 
     expect(screen.getByText("150 páginas lidas")).toBeInTheDocument();
+    // anotação aparece só no registro que tem
+    expect(
+      screen.getByText('"Capítulo forte, gostei do plot twist."'),
+    ).toBeInTheDocument();
   });
 
   it("esconde a seção de progresso quando a leitura já terminou", () => {
@@ -210,8 +223,41 @@ describe("RegisterReadHistory", () => {
 
     await user.click(screen.getByText("Salvar registro"));
 
-    expect(save).toHaveBeenCalledWith({ currentPage: 50, feeling: "gostei" });
+    expect(save).toHaveBeenCalledWith({
+      currentPage: 50,
+      feeling: "gostei",
+      note: "",
+    });
     expect(toast.success).toHaveBeenCalledWith("Registro salvo!");
+  });
+
+  it("envia a anotação junto com o registro e limpa o campo após salvar", async () => {
+    const user = userEvent.setup();
+    const save = mockMutation();
+    save.mockResolvedValue(undefined);
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={50}
+        logs={[]}
+      />,
+    );
+
+    const noteInput = screen.getByPlaceholderText(
+      "Anotação (opcional): o que achou desse trecho?",
+    );
+    await user.type(noteInput, "Que reviravolta!");
+    await selectFeeling(user, "amei");
+    await user.click(screen.getByText("Salvar registro"));
+
+    expect(save).toHaveBeenCalledWith({
+      currentPage: 50,
+      feeling: "amei",
+      note: "Que reviravolta!",
+    });
+    expect(noteInput).toHaveValue("");
   });
 
   it("mostra erro quando salvar o registro falha", async () => {

@@ -87,10 +87,13 @@ export default function ReadingSection({ club }: Props) {
       <div className="flex flex-col gap-4">
         {club.readingHistory.map((pastBook) => (
           <PastReadingItem
-            key={pastBook.id}
+            key={pastBook.readingId}
             clubId={club.id}
             bookId={pastBook.id}
+            readingId={pastBook.readingId}
+            note={pastBook.note}
             isMember={club.isMember}
+            isAdmin={club.isAdmin}
             onSelectTab={(tab) => setActiveView({ tab, bookId: pastBook.id })}
           />
         ))}

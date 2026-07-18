@@ -47,11 +47,13 @@ const rawClub = {
   },
   reading_history: [
     {
+      reading_id: "reading-1",
       id: "book-2",
       title: "O Hobbit",
       image_thumbnail: "thumb.png",
       image_medium: "medium.png",
       image_large: "large.png",
+      note: "Leitura que rendeu o melhor encontro do ano.",
     },
   ],
 };
@@ -101,13 +103,39 @@ describe("getClub", () => {
       rules: "Respeite todo mundo.",
       readingHistory: [
         {
+          readingId: "reading-1",
           id: "book-2",
           title: "O Hobbit",
           imageThumbnail: "thumb.png",
           imageMedium: "medium.png",
           imageLarge: "large.png",
+          note: "Leitura que rendeu o melhor encontro do ano.",
         },
       ],
+    });
+  });
+
+  it("sem reading_id/note (RPC antiga), usa o id do livro e nota null", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult({
+        ...rawClub,
+        reading_history: [
+          {
+            id: "book-2",
+            title: "O Hobbit",
+            image_thumbnail: null,
+            image_medium: null,
+            image_large: null,
+          },
+        ],
+      }),
+    );
+
+    const club = await getClub("club-1");
+
+    expect(club?.readingHistory[0]).toMatchObject({
+      readingId: "book-2",
+      note: null,
     });
   });
 

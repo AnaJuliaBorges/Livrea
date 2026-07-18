@@ -41,10 +41,12 @@ export function useSaveReadingProgress(bookId?: string) {
     mutationFn: ({
       currentPage,
       feeling,
+      note,
     }: {
       currentPage: number;
       feeling: ReadingFeeling;
-    }) => saveReadingProgress(bookId!, currentPage, feeling),
+      note?: string;
+    }) => saveReadingProgress(bookId!, currentPage, feeling, note),
     onSettled: invalidate,
   });
 }

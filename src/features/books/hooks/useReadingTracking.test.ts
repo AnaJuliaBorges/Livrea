@@ -85,11 +85,15 @@ describe("useSaveReadingProgress", () => {
     });
 
     act(() => {
-      result.current.mutate({ currentPage: 50, feeling: "gostei" });
+      result.current.mutate({
+        currentPage: 50,
+        feeling: "gostei",
+        note: "boa!",
+      });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(saveProgressMock).toHaveBeenCalledWith("book-1", 50, "gostei");
+    expect(saveProgressMock).toHaveBeenCalledWith("book-1", 50, "gostei", "boa!");
     await waitFor(() => expect(getTrackingMock).toHaveBeenCalled());
   });
 });

@@ -7,6 +7,7 @@ export type ReadingLogEntry = {
   id: string;
   pages_read: number;
   feeling: ReadingFeeling;
+  note: string | null;
   created_at: string;
 };
 
@@ -38,7 +39,7 @@ export async function getReadingTracking(
       .maybeSingle(),
     supabase
       .from("reading_logs")
-      .select("id, pages_read, feeling, created_at")
+      .select("id, pages_read, feeling, note, created_at")
       .eq("user_id", userId)
       .eq("book_id", bookId)
       .order("created_at", { ascending: false }),
@@ -78,6 +79,7 @@ export async function saveReadingProgress(
   bookId: string,
   currentPage: number,
   feeling: ReadingFeeling,
+  note?: string,
 ) {
   const userId = await requireUserId();
   await ensureLibraryRow(userId, bookId);
@@ -95,6 +97,7 @@ export async function saveReadingProgress(
     book_id: bookId,
     pages_read: currentPage,
     feeling,
+    note: note?.trim() || null,
   });
 
   if (error) throw error;

@@ -15,11 +15,15 @@ export interface Reading {
 }
 
 export interface ReadingHistoryBook {
+  // id da linha em club_readings (a nota é por leitura, não por livro)
+  readingId: string;
   id: string;
   title: string;
   imageThumbnail: string | null;
   imageMedium: string | null;
   imageLarge: string | null;
+  // texto sobre a leitura finalizada, escrito pelo admin
+  note: string | null;
 }
 
 export interface Club {

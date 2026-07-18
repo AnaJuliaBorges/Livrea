@@ -20,6 +20,12 @@
 //   { type: "new_follower", userId }
 //     Chamador começou a seguir userId → notifica o seguido.
 //     Valida que a linha em follows (chamador → userId) existe.
+//   { type: "club_message", clubId }
+//     Chamador mandou mensagem no chat → notifica os demais membros.
+//     Valida: chamador é membro + tem mensagem recente dele no clube (o
+//     conteúdo do preview vem do banco, nunca do payload). Anti-spam: quem
+//     já tem notificação NÃO LIDA deste chat não recebe outra — volta a
+//     ser notificado depois de ler/limpar. Spoiler não vaza no preview.
 //
 // Segurança: o JWT do chamador identifica quem dispara; os dados vêm do
 // banco (service role), nunca do payload. Secrets necessários no projeto:
@@ -286,6 +292,77 @@ Deno.serve(async (req) => {
       };
 
       await sendToUsers([userId], payloads[type]);
+    } else if (type === "club_message") {
+      const [{ data: callerMember }, { data: lastMessage }] =
+        await Promise.all([
+          admin
+            .from("club_members")
+            .select("user_id")
+            .eq("club_id", clubId)
+            .eq("user_id", user.id)
+            .maybeSingle(),
+          admin
+            .from("club_messages")
+            .select("content, is_spoiler, created_at")
+            .eq("club_id", clubId)
+            .eq("user_id", user.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle(),
+        ]);
+
+      // só notifica se o chamador realmente acabou de mandar mensagem
+      const isRecent =
+        lastMessage &&
+        Date.now() - new Date(lastMessage.created_at).getTime() <
+          2 * 60 * 1000;
+
+      if (!callerMember || !isRecent) {
+        return new Response(JSON.stringify({ skipped: true }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const [{ data: profile }, { data: members }] = await Promise.all([
+        admin.from("profiles").select("name").eq("id", user.id).single(),
+        admin
+          .from("club_members")
+          .select("user_id")
+          .eq("club_id", clubId),
+      ]);
+
+      const chatUrl = `/clubes/${club.id}/chat`;
+      const others = (members ?? [])
+        .map((member) => member.user_id)
+        .filter((memberId) => memberId !== user.id);
+
+      // anti-spam: quem já tem notificação não lida deste chat fica de fora
+      const { data: unread } = await admin
+        .from("notifications")
+        .select("user_id")
+        .in("user_id", others)
+        .eq("url", chatUrl)
+        .eq("read", false);
+
+      const alreadyNotified = new Set(
+        (unread ?? []).map((notification) => notification.user_id),
+      );
+      const recipients = others.filter(
+        (memberId) => !alreadyNotified.has(memberId),
+      );
+
+      const senderName = profile?.name ?? "Alguém";
+      const body = lastMessage.is_spoiler
+        ? `${senderName} enviou uma mensagem com spoiler.`
+        : `${senderName}: ${lastMessage.content.slice(0, 80)}${
+            lastMessage.content.length > 80 ? "…" : ""
+          }`;
+
+      await sendToUsers(recipients, {
+        title: `Nova mensagem no clube ${club.name}`,
+        body,
+        url: chatUrl,
+      });
     } else {
       return new Response(JSON.stringify({ error: "tipo inválido" }), {
         status: 400,

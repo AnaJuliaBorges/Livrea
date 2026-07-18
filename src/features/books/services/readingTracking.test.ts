@@ -185,7 +185,22 @@ describe("saveReadingProgress", () => {
       book_id: "book-1",
       pages_read: 150,
       feeling: "gostei",
+      note: null,
     });
+  });
+
+  it("salva a anotação aparada; texto só de espaços vira null", async () => {
+    await saveReadingProgress("book-1", 150, "gostei", "  achei tenso!  ");
+
+    expect(logsTable.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ note: "achei tenso!" }),
+    );
+
+    await saveReadingProgress("book-1", 160, "ok", "   ");
+
+    expect(logsTable.insert).toHaveBeenLastCalledWith(
+      expect.objectContaining({ note: null }),
+    );
   });
 
   it("lança o erro do insert do log", async () => {

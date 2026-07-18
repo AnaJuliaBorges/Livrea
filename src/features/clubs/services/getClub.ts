@@ -35,11 +35,13 @@ type RawClub = {
     is_confirmed_by_me: boolean;
   } | null;
   reading_history: {
+    reading_id?: string;
     id: string;
     title: string;
     image_thumbnail: string | null;
     image_medium: string | null;
     image_large: string | null;
+    note?: string | null;
   }[];
 };
 
@@ -79,11 +81,14 @@ function mapClub(raw: RawClub): Club {
       : null,
     rules: raw.rules ?? "",
     readingHistory: raw.reading_history.map((book) => ({
+      // RPC antiga não manda reading_id — cai no id do livro só como key
+      readingId: book.reading_id ?? book.id,
       id: book.id,
       title: book.title,
       imageThumbnail: book.image_thumbnail,
       imageMedium: book.image_medium,
       imageLarge: book.image_large,
+      note: book.note ?? null,
     })),
   };
 }
