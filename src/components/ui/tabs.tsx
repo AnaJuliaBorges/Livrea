@@ -5,12 +5,17 @@ import { cn } from "@/lib/utils";
 
 function Tabs({
   className,
+  onValueChange,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Root>) {
   return (
     <TabsPrimitive.Root
       data-slot="tabs"
       className={cn("flex flex-col gap-2 rounded-md", className)}
+      onValueChange={(value) => {
+        window.scrollTo(0, 0);
+        onValueChange?.(value);
+      }}
       {...props}
     />
   );

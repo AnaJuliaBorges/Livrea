@@ -45,7 +45,7 @@ export default function Login() {
 
   return (
     <div className="flex flex-col">
-      <header className="grid grid-cols-3 items-center h-16 px-4">
+      <header className="grid grid-cols-3 items-center h-16">
         <div>
           <Button
             className="w-content"

@@ -39,7 +39,7 @@ export default function Signup() {
 
   return (
     <div className="flex flex-col">
-      <header className="flex items-center h-16 px-4 gap-4">
+      <header className="flex items-center h-16 gap-4">
         <div>
           <Button
             className="w-content"
@@ -64,7 +64,7 @@ export default function Signup() {
         </div>
       </div>
 
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%]">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] bg-accent rounded-3xl">
         <Button
           type="submit"
           form="signup-step-form"

@@ -1,10 +1,20 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { Layout } from "./components/LayoutWrapper";
 import { Toaster } from "./components/ui/sonner";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { ensurePushSubscription, getPushPermissionState } from "./lib/push";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
 
 export default function App() {
   // quem já deu permissão neste aparelho é re-inscrito silenciosamente a
@@ -21,6 +31,7 @@ export default function App() {
     <div>
       <main>
         <Layout>
+          <ScrollToTop />
           <Outlet />
           <Toaster />
           <Analytics />

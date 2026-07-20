@@ -53,12 +53,12 @@ export default function RegisterRead() {
         <h2>Registro de leitura</h2>
       </div>
       <div className="flex gap-4 items-center mb-8">
-        <BookImage book={book} height="h-40" />
-        <div>
-          <p className="text-lg font-medium">
+        <BookImage book={book} height="h-40" className="shrink-0" />
+        <div className="min-w-0">
+          <p className="text-lg font-medium line-clamp-2">
             {book.title_pt ?? book.title_original}
           </p>
-          <p className="text-sm">{book.authors.join(", ")}</p>
+          <p className="text-sm truncate">{book.authors.join(", ")}</p>
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { Button, Textarea } from "@/components/ui";
+import { Button, Input, Textarea } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -42,6 +42,8 @@ export default function RegisterReadHistory({
   );
   const [note, setNote] = useState("");
   const [currentPage, setCurrentPage] = useState(lastProgress);
+  const [isEditingPage, setIsEditingPage] = useState(false);
+  const [pageInput, setPageInput] = useState(String(lastProgress));
 
   // após salvar, o progresso confirmado pelo servidor vira a nova base
   // (ajuste de estado durante o render, sem efeito)
@@ -86,6 +88,15 @@ export default function RegisterReadHistory({
     }
   }
 
+  function commitPageInput() {
+    const parsed = Number(pageInput);
+    if (Number.isInteger(parsed)) {
+      const max = totalPages > 0 ? totalPages : Infinity;
+      setCurrentPage(Math.min(Math.max(parsed, 0), max));
+    }
+    setIsEditingPage(false);
+  }
+
   function getDetails(log: ReadingLogEntry) {
     const date = formatDateString(log.created_at);
     const feeling = feelings.find((feeling) => feeling.label === log.feeling);
@@ -113,10 +124,47 @@ export default function RegisterReadHistory({
                   -
                 </Button>
 
-                <p>
-                  <span className="text-xl font-bold">{currentPage}</span>/
-                  <span className="text-xs font-medium">{totalPages}</span>
-                </p>
+                {isEditingPage ? (
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    autoFocus
+                    min={0}
+                    max={totalPages > 0 ? totalPages : undefined}
+                    value={pageInput}
+                    onChange={(event) => setPageInput(event.target.value)}
+                    onBlur={commitPageInput}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        commitPageInput();
+                      }
+                      if (event.key === "Escape") {
+                        setIsEditingPage(false);
+                      }
+                    }}
+                    className="h-8 w-16 px-2 py-1 text-center text-sm"
+                  />
+                ) : (
+                  <p
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => {
+                      setPageInput(String(currentPage));
+                      setIsEditingPage(true);
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        setPageInput(String(currentPage));
+                        setIsEditingPage(true);
+                      }
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <span className="text-xl font-bold">{currentPage}</span>/
+                    <span className="text-xs font-medium">{totalPages}</span>
+                  </p>
+                )}
 
                 <Button
                   className="bg-white text-primary font-semibold rounded-xl"
