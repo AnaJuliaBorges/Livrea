@@ -40,6 +40,13 @@ const isbndbBook = {
   image: "https://images.isbndb.com/covers/duna.jpg",
 };
 
+const isbndbBookOtherEdition = {
+  isbn13: "9788599296355",
+  title: "Duna Messias",
+  authors: ["Frank Herbert"],
+  image: "https://images.isbndb.com/covers/duna-messias.jpg",
+};
+
 const googleItem = {
   id: "vol-1",
   volumeInfo: {
@@ -57,8 +64,9 @@ describe("searchClubReadingBooks", () => {
     googleMock.mockReset();
   });
 
-  it("retorna resultados do banco sem consultar as APIs externas", async () => {
+  it("combina resultados do banco e da ISBNDB sem consultar o Google", async () => {
     rpcMock.mockResolvedValue(rpcResult([dbBook]));
+    isbndbMock.mockResolvedValue([isbndbBookOtherEdition] as never);
 
     const results = await searchClubReadingBooks("duna");
 
@@ -66,6 +74,30 @@ describe("searchClubReadingBooks", () => {
       p_query: "duna",
       p_limit: 10,
     });
+    expect(isbndbMock).toHaveBeenCalledWith("duna", 10, 1);
+    expect(results).toEqual([
+      {
+        key: "db-book-1",
+        title: "Duna",
+        authors: ["Frank Herbert"],
+        thumbnail: "thumb.png",
+        source: "db",
+        bookId: "book-1",
+      },
+      expect.objectContaining({
+        key: "ext-9788599296355",
+        source: "external",
+      }),
+    ]);
+    expect(googleMock).not.toHaveBeenCalled();
+  });
+
+  it("não duplica o mesmo livro quando aparece no banco e na ISBNDB, priorizando o banco", async () => {
+    rpcMock.mockResolvedValue(rpcResult([dbBook]));
+    isbndbMock.mockResolvedValue([isbndbBook] as never);
+
+    const results = await searchClubReadingBooks("duna");
+
     expect(results).toEqual([
       {
         key: "db-book-1",
@@ -76,8 +108,18 @@ describe("searchClubReadingBooks", () => {
         bookId: "book-1",
       },
     ]);
-    expect(isbndbMock).not.toHaveBeenCalled();
-    expect(googleMock).not.toHaveBeenCalled();
+  });
+
+  it("ignora acento e caixa ao comparar título/autor entre banco e ISBNDB", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult([{ ...dbBook, title: "DUNA", authors: ["frank herbert"] }]),
+    );
+    isbndbMock.mockResolvedValue([isbndbBook] as never);
+
+    const results = await searchClubReadingBooks("duna");
+
+    expect(results).toHaveLength(1);
+    expect(results[0].source).toBe("db");
   });
 
   it("cai para a ISBNDB quando o banco não tem resultados", async () => {
@@ -92,6 +134,25 @@ describe("searchClubReadingBooks", () => {
       title: "Duna",
     });
     expect(results[0].externalBook?.info.isbn).toBe("9788544106051");
+    expect(googleMock).not.toHaveBeenCalled();
+  });
+
+  it("segue com o resultado do banco quando a ISBNDB falha", async () => {
+    rpcMock.mockResolvedValue(rpcResult([dbBook]));
+    isbndbMock.mockRejectedValue(new Error("timeout"));
+
+    const results = await searchClubReadingBooks("duna");
+
+    expect(results).toEqual([
+      {
+        key: "db-book-1",
+        title: "Duna",
+        authors: ["Frank Herbert"],
+        thumbnail: "thumb.png",
+        source: "db",
+        bookId: "book-1",
+      },
+    ]);
     expect(googleMock).not.toHaveBeenCalled();
   });
 

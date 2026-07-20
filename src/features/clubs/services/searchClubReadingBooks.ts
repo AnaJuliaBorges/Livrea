@@ -57,21 +57,44 @@ function mapExternal(books: Book[]): ClubReadingSearchResult[] {
     }));
 }
 
-// Busca em cascata: banco primeiro, depois ISBNDB e por fim Google Books —
-// para na primeira fonte que retornar resultados.
+// Chave título+autores normalizada (sem acento, minúscula) pra achar o
+// mesmo livro em fontes diferentes, que não compartilham nenhum id.
+function dedupeKey(title: string, authors: string[]): string {
+  const normalize = (value: string) =>
+    value
+      .normalize("NFD")
+      .replace(new RegExp("[\\u0300-\\u036f]", "g"), "")
+      .trim()
+      .toLowerCase();
+
+  return `${normalize(title)}|${authors.map(normalize).sort().join(",")}`;
+}
+
+// Banco e ISBNDB são buscados em paralelo e combinados (com prioridade pro
+// banco em caso de duplicata); Google Books só entra se essa combinação não
+// retornar nada.
 export async function searchClubReadingBooks(
   query: string,
 ): Promise<ClubReadingSearchResult[]> {
-  const dbResults = await searchDb(query);
-  if (dbResults.length > 0) return dbResults;
+  const [dbResults, isbndbResults] = await Promise.all([
+    searchDb(query),
+    searchIsbndbByQuery(query, 10, 1)
+      .then((books) => mapExternal(books.map(mapIsbndb)))
+      .catch((error) => {
+        console.error("Erro na busca ISBNDB, seguindo com banco/Google:", error);
+        return [] as ClubReadingSearchResult[];
+      }),
+  ]);
 
-  try {
-    const isbndbBooks = await searchIsbndbByQuery(query, 10, 1);
-    const results = mapExternal(isbndbBooks.map(mapIsbndb));
-    if (results.length > 0) return results;
-  } catch (error) {
-    console.error("Erro na busca ISBNDB, tentando Google:", error);
-  }
+  const dbKeys = new Set(
+    dbResults.map((book) => dedupeKey(book.title, book.authors)),
+  );
+  const newIsbndbResults = isbndbResults.filter(
+    (book) => !dbKeys.has(dedupeKey(book.title, book.authors)),
+  );
+
+  const combined = [...dbResults, ...newIsbndbResults];
+  if (combined.length > 0) return combined;
 
   const googleItems = await searchGoogleBooks(query);
   return mapExternal(googleItems.map(mapGoogleBook)).slice(0, 10);
