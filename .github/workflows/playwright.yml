@@ -29,7 +29,6 @@ jobs:
           VITE_SUPABASE_URL: "https://test-project.supabase.co"
           VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: "test-supabase-anon-key"
           VITE_GOOGLE_BOOKS_API_KEY: "test-google-books-key"
-          VITE_ISBNDB_API_KEY: "test-isbndb-key"
       - uses: actions/upload-artifact@v4
         if: always( )
         with:

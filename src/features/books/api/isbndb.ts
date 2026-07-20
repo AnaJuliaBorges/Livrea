@@ -1,39 +1,40 @@
+import { supabase } from "@/lib/supabase";
 import type {
   IsbndbBook,
   IsbndbBookResponse,
   IsbndbResponse,
 } from "../types/isbndb";
 
-const ISBNDB_API_KEY = import.meta.env.VITE_ISBNDB_API_KEY;
-const ISBNDB_BASE_URL = "https://api2.isbndb.com";
+// As chamadas passam pela Edge Function `isbndb` (supabase/functions/isbndb),
+// que guarda a chave da API como secret do servidor — a chave não vai no
+// bundle. A function exige JWT, então só usuário logado consome a cota.
+// Livro inexistente já chega como { book: null } (o 404 é tratado lá).
+async function invokeIsbndb<T>(
+  body: {
+    action: "books" | "subject" | "book";
+    term: string;
+    pageSize?: number;
+    page?: number;
+  },
+  errorMessage: string,
+): Promise<T> {
+  const { data, error } = await supabase.functions.invoke("isbndb", { body });
+
+  if (error) throw new Error(errorMessage);
+
+  return data as T;
+}
 
 export async function searchIsbndbByGenre(
   genre: string,
   pageSize: number = 20,
   page: number = 1,
 ): Promise<IsbndbBook[]> {
-  if (!ISBNDB_API_KEY) {
-    throw new Error("VITE_ISBNDB_API_KEY não configurada");
-  }
-
-  const url = new URL(
-    `${ISBNDB_BASE_URL}/subject/${encodeURIComponent(genre)}`,
+  const data = await invokeIsbndb<IsbndbResponse>(
+    { action: "subject", term: genre, pageSize, page },
+    "Erro ao buscar livros na ISBNDB",
   );
-  url.searchParams.append("language", "pt-br");
-  url.searchParams.append("pageSize", pageSize.toString());
-  url.searchParams.append("page", page.toString());
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: ISBNDB_API_KEY,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Erro ao buscar livros na ISBNDB: ${response.statusText}`);
-  }
-
-  const data: IsbndbResponse = await response.json();
   return data.books ?? [];
 }
 
@@ -42,26 +43,11 @@ export async function searchIsbndbByGenre(
 export async function getIsbndbBookByIsbn(
   isbn: string,
 ): Promise<IsbndbBook | null> {
-  if (!ISBNDB_API_KEY) {
-    throw new Error("VITE_ISBNDB_API_KEY não configurada");
-  }
-
-  const response = await fetch(
-    `${ISBNDB_BASE_URL}/book/${encodeURIComponent(isbn)}`,
-    {
-      headers: {
-        Authorization: ISBNDB_API_KEY,
-      },
-    },
+  const data = await invokeIsbndb<IsbndbBookResponse>(
+    { action: "book", term: isbn },
+    "Erro ao buscar livro na ISBNDB",
   );
 
-  if (response.status === 404) return null;
-
-  if (!response.ok) {
-    throw new Error(`Erro ao buscar livro na ISBNDB: ${response.statusText}`);
-  }
-
-  const data: IsbndbBookResponse = await response.json();
   return data.book ?? null;
 }
 
@@ -70,26 +56,10 @@ export async function searchIsbndbByQuery(
   pageSize: number = 20,
   page: number = 1,
 ): Promise<IsbndbBook[]> {
-  if (!ISBNDB_API_KEY) {
-    throw new Error("VITE_ISBNDB_API_KEY não configurada");
-  }
+  const data = await invokeIsbndb<IsbndbResponse>(
+    { action: "books", term: query, pageSize, page },
+    "Erro ao buscar livros na ISBNDB",
+  );
 
-  const url = new URL(`${ISBNDB_BASE_URL}/books/${encodeURIComponent(query)}`);
-  url.searchParams.append("shouldMatchAll", "false");
-  url.searchParams.append("language", "por");
-  url.searchParams.append("pageSize", pageSize.toString());
-  url.searchParams.append("page", page.toString());
-
-  const response = await fetch(url.toString(), {
-    headers: {
-      Authorization: ISBNDB_API_KEY,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Erro ao buscar livros na ISBNDB: ${response.statusText}`);
-  }
-
-  const data: IsbndbResponse = await response.json();
   return data.books ?? [];
 }

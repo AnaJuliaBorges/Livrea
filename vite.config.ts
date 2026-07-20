@@ -53,13 +53,13 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: "./src/test/setup.ts",
     // testes não devem depender de segredos reais nem do .env local: o CI
-    // não injeta VITE_ISBNDB_API_KEY/VITE_GOOGLE_BOOKS_API_KEY, e o nome
-    // que ele injeta para o Supabase (VITE_SUPABASE_ANON_KEY) não bate com
-    // o que src/lib/supabase.ts lê (VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY) —
+    // não injeta VITE_GOOGLE_BOOKS_API_KEY, e o nome que ele injeta para o
+    // Supabase (VITE_SUPABASE_ANON_KEY) não bate com o que
+    // src/lib/supabase.ts lê (VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY) —
     // sem isso, createClient() lança "supabaseKey is required" já no import
-    // em qualquer teste que carregue o módulo real (mockado ou não)
+    // em qualquer teste que carregue o módulo real (mockado ou não).
+    // (A chave da ISBNDB saiu do frontend — vive na Edge Function isbndb.)
     env: {
-      VITE_ISBNDB_API_KEY: "test-isbndb-key",
       VITE_GOOGLE_BOOKS_API_KEY: "test-google-books-key",
       VITE_SUPABASE_URL: "https://test-project.supabase.co",
       VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY: "test-supabase-anon-key",

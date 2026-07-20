@@ -26,9 +26,9 @@ npm run test:e2e:report     # open last html report
 
 Run a single unit test file: `npx vitest run src/components/ui/button.test.tsx`. Run a single Playwright spec: `npx playwright test tests/auth.spec.tsx`.
 
-Required env vars (`.env`, not committed): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`, `VITE_GOOGLE_BOOKS_API_KEY`, `VITE_ISBNDB_API_KEY`.
+Required env vars (`.env`, not committed): `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY`, `VITE_GOOGLE_BOOKS_API_KEY`. The ISBNDB key is NOT a frontend var — it lives as the `ISBNDB_API_KEY` secret of the `isbndb` Edge Function (`supabase/functions/isbndb`), which proxies all ISBNDB calls so the paid key never ships in the bundle.
 
-> Note: neither CI workflow depends on real secrets for these vars anymore. `vite.config.ts` sets fake values for all four via `test.env` (used by `vitest.yml`), and `.github/workflows/playwright.yml` sets fake values directly as step `env:` for the `npm run dev` server Playwright's `webServer` spins up — `src/lib/supabase.ts` calls `createClient()` at module load and throws if these are missing, which previously made the whole app fail to render in the Playwright pipeline (surfaced as the `warmup.setup.ts` step timing out waiting for the login page). Real network calls in tests are intercepted via mocks (`vi.mock`/`page.route`), so fake values are sufficient — no GitHub secrets required for either pipeline.
+> Note: neither CI workflow depends on real secrets for these vars anymore. `vite.config.ts` sets fake values for all three via `test.env` (used by `vitest.yml`), and `.github/workflows/playwright.yml` sets fake values directly as step `env:` for the `npm run dev` server Playwright's `webServer` spins up — `src/lib/supabase.ts` calls `createClient()` at module load and throws if these are missing, which previously made the whole app fail to render in the Playwright pipeline (surfaced as the `warmup.setup.ts` step timing out waiting for the login page). Real network calls in tests are intercepted via mocks (`vi.mock`/`page.route`), so fake values are sufficient — no GitHub secrets required for either pipeline.
 
 ## Architecture
 

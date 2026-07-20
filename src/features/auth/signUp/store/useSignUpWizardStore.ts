@@ -56,8 +56,16 @@ export const useSignUpWizardStore = create<SignUpWizardStore>()(
     }),
     {
       name: "signup_wizard",
-      // só os dados do wizard vão pro localStorage; estado de UI não
-      partialize: (state) => ({ data: state.data }),
+      // só os dados do wizard vão pro localStorage; estado de UI não.
+      // A senha fica de fora: em claro no localStorage ela sobreviveria a
+      // um cadastro abandonado. Só o submit do passo 1 usa a senha (a conta
+      // já existe dos passos 2 em diante), então após um F5 basta redigitá-la
+      partialize: (state) => ({
+        data: {
+          ...state.data,
+          account: { ...state.data.account, password: "" },
+        },
+      }),
     },
   ),
 );

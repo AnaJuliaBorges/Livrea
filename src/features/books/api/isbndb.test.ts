@@ -1,48 +1,53 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { supabase } from "@/lib/supabase";
 import {
   searchIsbndbByGenre,
   getIsbndbBookByIsbn,
   searchIsbndbByQuery,
 } from "./isbndb";
 
-function jsonResponse(body: unknown, ok = true, status = 200) {
-  return {
-    ok,
-    status,
-    statusText: "Erro",
-    json: async () => body,
-  } as Response;
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    functions: {
+      invoke: vi.fn(),
+    },
+  },
+}));
+
+const invokeMock = vi.mocked(supabase.functions.invoke);
+
+function invokeResult(data: unknown, error: unknown = null) {
+  return { data, error } as Awaited<
+    ReturnType<typeof supabase.functions.invoke>
+  >;
 }
 
 beforeEach(() => {
-  vi.stubGlobal("fetch", vi.fn());
+  invokeMock.mockReset();
 });
-
-afterEach(() => {
-  vi.unstubAllGlobals();
-});
-
-const fetchMock = () => vi.mocked(fetch);
 
 describe("searchIsbndbByGenre", () => {
-  it("retorna os livros da resposta", async () => {
-    fetchMock().mockResolvedValue(
-      jsonResponse({ books: [{ isbn: "1", isbn13: "1", title: "Livro" }] }),
+  it("chama a Edge Function com action subject e retorna os livros", async () => {
+    invokeMock.mockResolvedValue(
+      invokeResult({ books: [{ isbn: "1", isbn13: "1", title: "Livro" }] }),
     );
 
     const result = await searchIsbndbByGenre("Fantasy");
 
+    expect(invokeMock).toHaveBeenCalledWith("isbndb", {
+      body: { action: "subject", term: "Fantasy", pageSize: 20, page: 1 },
+    });
     expect(result).toEqual([{ isbn: "1", isbn13: "1", title: "Livro" }]);
   });
 
   it("retorna array vazio quando a resposta não tem books", async () => {
-    fetchMock().mockResolvedValue(jsonResponse({}));
+    invokeMock.mockResolvedValue(invokeResult({}));
 
     expect(await searchIsbndbByGenre("Fantasy")).toEqual([]);
   });
 
-  it("lança erro quando a resposta não é ok", async () => {
-    fetchMock().mockResolvedValue(jsonResponse(null, false));
+  it("lança erro quando a function falha", async () => {
+    invokeMock.mockResolvedValue(invokeResult(null, new Error("boom")));
 
     await expect(searchIsbndbByGenre("Fantasy")).rejects.toThrow(
       "Erro ao buscar livros na ISBNDB",
@@ -51,32 +56,27 @@ describe("searchIsbndbByGenre", () => {
 });
 
 describe("getIsbndbBookByIsbn", () => {
-  it("retorna o livro da resposta", async () => {
-    fetchMock().mockResolvedValue(
-      jsonResponse({ book: { isbn: "1", isbn13: "1", title: "Livro" } }),
+  it("chama a Edge Function com action book e retorna o livro", async () => {
+    invokeMock.mockResolvedValue(
+      invokeResult({ book: { isbn: "1", isbn13: "1", title: "Livro" } }),
     );
 
-    expect(await getIsbndbBookByIsbn("1")).toEqual({
-      isbn: "1",
-      isbn13: "1",
-      title: "Livro",
+    const result = await getIsbndbBookByIsbn("1");
+
+    expect(invokeMock).toHaveBeenCalledWith("isbndb", {
+      body: { action: "book", term: "1" },
     });
+    expect(result).toEqual({ isbn: "1", isbn13: "1", title: "Livro" });
   });
 
-  it("retorna null quando a resposta não tem book", async () => {
-    fetchMock().mockResolvedValue(jsonResponse({}));
+  it("retorna null quando o livro não existe (book null)", async () => {
+    invokeMock.mockResolvedValue(invokeResult({ book: null }));
 
     expect(await getIsbndbBookByIsbn("1")).toBeNull();
   });
 
-  it("retorna null em 404", async () => {
-    fetchMock().mockResolvedValue(jsonResponse(null, false, 404));
-
-    expect(await getIsbndbBookByIsbn("1")).toBeNull();
-  });
-
-  it("lança erro quando a resposta não é ok e não é 404", async () => {
-    fetchMock().mockResolvedValue(jsonResponse(null, false, 500));
+  it("lança erro quando a function falha", async () => {
+    invokeMock.mockResolvedValue(invokeResult(null, new Error("boom")));
 
     await expect(getIsbndbBookByIsbn("1")).rejects.toThrow(
       "Erro ao buscar livro na ISBNDB",
@@ -85,59 +85,30 @@ describe("getIsbndbBookByIsbn", () => {
 });
 
 describe("searchIsbndbByQuery", () => {
-  it("retorna os livros da resposta", async () => {
-    fetchMock().mockResolvedValue(
-      jsonResponse({ books: [{ isbn: "1", isbn13: "1", title: "Livro" }] }),
+  it("chama a Edge Function com action books e retorna os livros", async () => {
+    invokeMock.mockResolvedValue(
+      invokeResult({ books: [{ isbn: "1", isbn13: "1", title: "Livro" }] }),
     );
 
-    expect(await searchIsbndbByQuery("duna")).toEqual([
-      { isbn: "1", isbn13: "1", title: "Livro" },
-    ]);
+    const result = await searchIsbndbByQuery("duna", 10, 2);
+
+    expect(invokeMock).toHaveBeenCalledWith("isbndb", {
+      body: { action: "books", term: "duna", pageSize: 10, page: 2 },
+    });
+    expect(result).toEqual([{ isbn: "1", isbn13: "1", title: "Livro" }]);
   });
 
   it("retorna array vazio quando a resposta não tem books", async () => {
-    fetchMock().mockResolvedValue(jsonResponse({}));
+    invokeMock.mockResolvedValue(invokeResult({}));
 
     expect(await searchIsbndbByQuery("duna")).toEqual([]);
   });
 
-  it("lança erro quando a resposta não é ok", async () => {
-    fetchMock().mockResolvedValue(jsonResponse(null, false));
+  it("lança erro quando a function falha", async () => {
+    invokeMock.mockResolvedValue(invokeResult(null, new Error("boom")));
 
     await expect(searchIsbndbByQuery("duna")).rejects.toThrow(
       "Erro ao buscar livros na ISBNDB",
-    );
-  });
-});
-
-describe("sem VITE_ISBNDB_API_KEY configurada", () => {
-  beforeEach(() => {
-    vi.stubEnv("VITE_ISBNDB_API_KEY", "");
-    vi.resetModules();
-  });
-
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
-
-  it("searchIsbndbByGenre lança erro", async () => {
-    const mod = await import("./isbndb");
-    await expect(mod.searchIsbndbByGenre("Fantasy")).rejects.toThrow(
-      "VITE_ISBNDB_API_KEY não configurada",
-    );
-  });
-
-  it("getIsbndbBookByIsbn lança erro", async () => {
-    const mod = await import("./isbndb");
-    await expect(mod.getIsbndbBookByIsbn("1")).rejects.toThrow(
-      "VITE_ISBNDB_API_KEY não configurada",
-    );
-  });
-
-  it("searchIsbndbByQuery lança erro", async () => {
-    const mod = await import("./isbndb");
-    await expect(mod.searchIsbndbByQuery("duna")).rejects.toThrow(
-      "VITE_ISBNDB_API_KEY não configurada",
     );
   });
 });

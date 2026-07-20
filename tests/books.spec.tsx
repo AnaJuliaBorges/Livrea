@@ -179,16 +179,20 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(dbBooks));
   });
 
-  await mockRoute(page, "https://api2.isbndb.com/subject/**", async (route) => {
-    await route.fulfill(jsonResponse({ books: isbndbGenreBooks, total: isbndbGenreBooks.length }));
-  });
+  // a ISBNDB agora é chamada via Edge Function (proxy que esconde a chave);
+  // a action no corpo diz qual endpoint upstream seria usado
+  await mockRoute(page, "**/functions/v1/isbndb", async (route) => {
+    const { action } = (route.request().postDataJSON() ?? {}) as {
+      action?: string;
+    };
 
-  await mockRoute(page, "https://api2.isbndb.com/books/**", async (route) => {
-    await route.fulfill(jsonResponse({ books: isbndbQueryBooks, total: isbndbQueryBooks.length }));
-  });
-
-  await mockRoute(page, "https://api2.isbndb.com/book/**", async (route) => {
-    await route.fulfill(jsonResponse({}, 404));
+    if (action === "subject") {
+      await route.fulfill(jsonResponse({ books: isbndbGenreBooks, total: isbndbGenreBooks.length }));
+    } else if (action === "books") {
+      await route.fulfill(jsonResponse({ books: isbndbQueryBooks, total: isbndbQueryBooks.length }));
+    } else {
+      await route.fulfill(jsonResponse({ book: null }));
+    }
   });
 
   await mockRoute(page, "https://www.googleapis.com/books/v1/**", async (route) => {

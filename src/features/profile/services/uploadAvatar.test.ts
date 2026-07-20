@@ -89,6 +89,27 @@ describe("uploadAvatar", () => {
     expect(result).toBe(publicUrl);
   });
 
+  it("deriva a extensão do MIME validado, ignorando o nome do arquivo", async () => {
+    const dotted = new File(["x"], "foto.perfil.html", { type: "image/jpeg" });
+
+    await uploadAvatar("user-1", dotted);
+
+    expect(uploadMock).toHaveBeenCalledWith(
+      "user-1/avatar.jpg",
+      dotted,
+      expect.anything(),
+    );
+  });
+
+  it("rejeita arquivo com MIME fora da whitelist de imagens", async () => {
+    const html = new File(["<script>"], "avatar.png", { type: "text/html" });
+
+    await expect(uploadAvatar("user-1", html)).rejects.toThrow(
+      /Formato de imagem não suportado/,
+    );
+    expect(uploadMock).not.toHaveBeenCalled();
+  });
+
   it("lança o erro do upload e não atualiza o perfil", async () => {
     uploadMock.mockResolvedValue({ error: new Error("upload falhou") });
 

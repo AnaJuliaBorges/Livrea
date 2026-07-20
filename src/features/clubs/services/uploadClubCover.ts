@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { imageExtension } from "@/lib/imageUpload";
 
 // Sobe a capa para o bucket público club-covers em {user_id}/{timestamp}.{ext}
 // (a policy de INSERT só permite escrever na pasta do próprio usuário).
@@ -13,8 +14,7 @@ export async function uploadClubCover(file: File): Promise<string> {
     );
   }
 
-  const extension = file.name.split(".").pop() ?? "jpg";
-  const path = `${session.user.id}/${Date.now()}.${extension}`;
+  const path = `${session.user.id}/${Date.now()}.${imageExtension(file)}`;
 
   const { error } = await supabase.storage
     .from("club-covers")

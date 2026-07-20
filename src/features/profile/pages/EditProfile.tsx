@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ArrowLeft, Camera, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
 import { useStates, useCities } from "@/hooks/useLocations";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
@@ -119,8 +120,8 @@ function EditProfileForm({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setAvatarError("Selecione um arquivo de imagem");
+    if (!isAllowedImage(file)) {
+      setAvatarError(ALLOWED_IMAGE_MESSAGE);
       return;
     }
 

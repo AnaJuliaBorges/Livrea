@@ -4,6 +4,7 @@ import { Button, Field, FieldSet, Input, Textarea } from "@/components/ui";
 import placeholder from "../../../assets/placeholder.png";
 import { Download } from "lucide-react";
 import { useCreateClubStore } from "../store/useCreateClubStore";
+import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
 
 const MAX_COVER_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -41,8 +42,8 @@ export function FirstStep({
 
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      toast.error("Selecione um arquivo de imagem para a capa.");
+    if (!isAllowedImage(file)) {
+      toast.error(ALLOWED_IMAGE_MESSAGE);
       return;
     }
 

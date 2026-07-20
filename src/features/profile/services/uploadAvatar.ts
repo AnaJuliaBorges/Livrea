@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { imageExtension } from "@/lib/imageUpload";
 
 export async function uploadAvatar(userId: string, file: File) {
   const {
@@ -11,8 +12,7 @@ export async function uploadAvatar(userId: string, file: File) {
     );
   }
 
-  const extension = file.name.split(".").pop() ?? "jpg";
-  const path = `${userId}/avatar.${extension}`;
+  const path = `${userId}/avatar.${imageExtension(file)}`;
 
   const { error: uploadError } = await supabase.storage
     .from("avatars")

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
 import { Camera } from "lucide-react";
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
@@ -48,8 +49,8 @@ export default function FirstStep() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setAvatarError("Selecione um arquivo de imagem");
+    if (!isAllowedImage(file)) {
+      setAvatarError(ALLOWED_IMAGE_MESSAGE);
       return;
     }
 

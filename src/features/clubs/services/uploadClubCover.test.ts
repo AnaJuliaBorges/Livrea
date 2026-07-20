@@ -61,16 +61,25 @@ describe("uploadClubCover", () => {
     });
   });
 
-  it("usa a última parte do nome como extensão", async () => {
-    const dotted = new File(["x"], "minha.capa.jpeg", { type: "image/jpeg" });
+  it("deriva a extensão do MIME validado, ignorando o nome do arquivo", async () => {
+    const dotted = new File(["x"], "minha.capa.html", { type: "image/jpeg" });
 
     await uploadClubCover(dotted);
 
     expect(uploadMock).toHaveBeenCalledWith(
-      "user-1/123.jpeg",
+      "user-1/123.jpg",
       dotted,
       expect.anything(),
     );
+  });
+
+  it("rejeita arquivo com MIME fora da whitelist de imagens", async () => {
+    const html = new File(["<script>"], "capa.png", { type: "text/html" });
+
+    await expect(uploadClubCover(html)).rejects.toThrow(
+      /Formato de imagem não suportado/,
+    );
+    expect(uploadMock).not.toHaveBeenCalled();
   });
 
   it("retorna a URL pública da capa", async () => {
