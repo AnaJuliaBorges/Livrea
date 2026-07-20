@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getClubMembers } from "../services/getClubMembers";
+import { getClubMembers } from "../services/clubMembers";
 
 export function useClubMembers(clubId: string | undefined) {
   return useQuery({

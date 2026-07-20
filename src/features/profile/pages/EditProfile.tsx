@@ -14,8 +14,8 @@ import {
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { AvatarPicker } from "@/components/AvatarPicker";
-import { LocationFields } from "@/components/LocationFields";
+import { AvatarPicker } from "@/components/shared/AvatarPicker";
+import { LocationFields } from "@/components/shared/LocationFields";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";

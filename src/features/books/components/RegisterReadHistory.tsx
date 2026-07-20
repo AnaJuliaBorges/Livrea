@@ -4,9 +4,9 @@ import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { formatDateString } from "@/lib/dates";
-import { ProgressRead } from "@/components/ProgressRead";
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ProgressRead } from "@/components/shared/ProgressRead";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import {
   useDeleteReadingLog,
   useSaveReadingProgress,

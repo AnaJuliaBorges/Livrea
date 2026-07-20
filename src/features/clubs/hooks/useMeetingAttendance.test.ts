@@ -1,10 +1,10 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { useMeetingAttendance } from "./useMeetingAttendance";
-import { getMeetingAttendance } from "../services/getMeetingAttendance";
+import { getMeetingAttendance } from "../services/meetings";
 import { createWrapper } from "./testQueryClient";
 import type { MeetingAttendanceMember } from "../dtos";
 
-vi.mock("../services/getMeetingAttendance", () => ({
+vi.mock("../services/meetings", () => ({
   getMeetingAttendance: vi.fn(),
 }));
 

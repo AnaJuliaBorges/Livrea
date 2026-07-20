@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { completeClubReading } from "../services/completeClubReading";
+import { completeClubReading } from "../services/clubReadings";
 
 export function useCompleteClubReading(clubId: string) {
   const queryClient = useQueryClient();

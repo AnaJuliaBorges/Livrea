@@ -1,9 +1,9 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useCompleteClubReading } from "./useCompleteClubReading";
-import { completeClubReading } from "../services/completeClubReading";
+import { completeClubReading } from "../services/clubReadings";
 import { createWrapper } from "./testQueryClient";
 
-vi.mock("../services/completeClubReading", () => ({
+vi.mock("../services/clubReadings", () => ({
   completeClubReading: vi.fn(),
 }));
 

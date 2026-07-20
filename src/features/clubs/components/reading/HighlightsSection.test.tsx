@@ -2,10 +2,10 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HighlightsSection } from "./HighlightsSection";
-import { getClubBookHighlights } from "../../services/getClubBookHighlights";
-import type { ClubBookHighlight } from "../../services/getClubBookHighlights";
+import { getClubBookHighlights } from "../../services/clubReadings";
+import type { ClubBookHighlight } from "../../services/clubReadings";
 
-vi.mock("../../services/getClubBookHighlights", () => ({
+vi.mock("../../services/clubReadings", () => ({
   getClubBookHighlights: vi.fn(),
 }));
 

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { GoogleIcon } from "@/components/GoogleIcon";
+import { GoogleIcon } from "@/components/shared/GoogleIcon";
 import logo from "../../../assets/livrea_logo_purple_sem_fundo.png";
 import { useNavigate } from "react-router-dom";
 import { signInWithGoogle } from "../services/signInWithGoogle";

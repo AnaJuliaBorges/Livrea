@@ -1,8 +1,8 @@
-import { LocalizationPin } from "@/components/LocalizationPin";
-import { BackButton } from "@/components/BackButton";
+import { LocalizationPin } from "@/components/shared/LocalizationPin";
+import { BackButton } from "@/components/shared/BackButton";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { UserAvatar } from "@/components/UserAvatar";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { ItemClub } from "@/features/clubs";
 import {
   Bell,

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { cancelMeetingAttendance } from "../services/cancelMeetingAttendance";
+import { cancelMeetingAttendance } from "../services/meetings";
 
 export function useCancelMeetingAttendance(clubId: string | undefined) {
   const queryClient = useQueryClient();

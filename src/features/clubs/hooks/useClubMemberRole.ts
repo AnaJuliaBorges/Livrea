@@ -3,7 +3,7 @@ import {
   demoteClubMember,
   promoteClubMember,
   removeClubMember,
-} from "../services/clubMemberRole";
+} from "../services/clubMembers";
 import {
   notifyMemberDemoted,
   notifyMemberPromoted,

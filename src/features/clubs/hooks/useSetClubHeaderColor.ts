@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setClubHeaderColor } from "../services/setClubHeaderColor";
+import { setClubHeaderColor } from "../services/clubs";
 
 export function useSetClubHeaderColor(clubId: string) {
   const queryClient = useQueryClient();

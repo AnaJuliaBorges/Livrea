@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getJoinRequests } from "../services/getJoinRequests";
+import { getJoinRequests } from "../services/joinRequests";
 
 export function useJoinRequests(clubId: string, enabled: boolean) {
   return useQuery({

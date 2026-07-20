@@ -1,6 +1,6 @@
 import placeholder from "../../../assets/placeholder.png";
-import { Tag } from "@/components/Tag";
-import { LocalizationPin } from "@/components/LocalizationPin";
+import { Tag } from "@/components/shared/Tag";
+import { LocalizationPin } from "@/components/shared/LocalizationPin";
 import { MeetingTypeTag } from "./MeetingTypeTag";
 import type { ClubSummary } from "@/features/profile";
 import { useNavigate } from "react-router-dom";

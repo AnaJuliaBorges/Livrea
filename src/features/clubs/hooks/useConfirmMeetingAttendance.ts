@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { confirmMeetingAttendance } from "../services/confirmMeetingAttendance";
+import { confirmMeetingAttendance } from "../services/meetings";
 
 export function useConfirmMeetingAttendance(clubId: string | undefined) {
   const queryClient = useQueryClient();

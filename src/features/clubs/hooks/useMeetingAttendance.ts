@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getMeetingAttendance } from "../services/getMeetingAttendance";
+import { getMeetingAttendance } from "../services/meetings";
 
 export function useMeetingAttendance(meetingId: string | undefined) {
   return useQuery({

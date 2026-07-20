@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { GoogleIcon } from "@/components/GoogleIcon";
+import { GoogleIcon } from "@/components/shared/GoogleIcon";
 
 export function GoogleButton({
   label,

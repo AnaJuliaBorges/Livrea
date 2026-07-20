@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { confirmMeetingAttendance } from "./confirmMeetingAttendance";
+import { confirmMeetingAttendance } from "./meetings";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

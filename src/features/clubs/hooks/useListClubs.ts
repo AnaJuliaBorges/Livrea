@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import type { ClubListItem } from "../dtos";
-import { listClubs, type ListClubsOptions } from "../services/listClubs";
+import { listClubs, type ListClubsOptions } from "../services/clubs";
 
 export function useListClubs(options: ListClubsOptions = {}) {
   return useQuery<ClubListItem[]>({

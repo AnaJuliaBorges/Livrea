@@ -1,7 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { searchGoogleBooks, searchIsbndbByQuery } from "@/features/books";
 import { searchClubReadingBooks } from "./searchClubReadingBooks";
-import { setClubReading } from "./setClubReading";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
@@ -179,30 +178,5 @@ describe("searchClubReadingBooks", () => {
     const results = await searchClubReadingBooks("duna");
 
     expect(results).toEqual([]);
-  });
-});
-
-describe("setClubReading", () => {
-  beforeEach(() => {
-    rpcMock.mockReset();
-  });
-
-  it("chama a RPC set_club_reading", async () => {
-    rpcMock.mockResolvedValue(rpcResult(null));
-
-    await setClubReading("club-1", "book-1");
-
-    expect(rpcMock).toHaveBeenCalledWith("set_club_reading", {
-      p_club_id: "club-1",
-      p_book_id: "book-1",
-    });
-  });
-
-  it("propaga o erro da RPC", async () => {
-    rpcMock.mockResolvedValue(rpcResult(null, new Error("não é admin")));
-
-    await expect(setClubReading("club-1", "book-1")).rejects.toThrow(
-      "não é admin",
-    );
   });
 });

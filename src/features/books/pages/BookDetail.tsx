@@ -1,8 +1,8 @@
 import { useParams } from "react-router-dom";
 import { MessageCircleMore, Star } from "lucide-react";
-import { BackButton } from "@/components/BackButton";
+import { BackButton } from "@/components/shared/BackButton";
 import { BookImage } from "../components/BookImage";
-import { Tag } from "@/components/Tag";
+import { Tag } from "@/components/shared/Tag";
 import {
   Select,
   SelectContent,
@@ -15,12 +15,12 @@ import { cn } from "@/lib/utils";
 import { headerGradient } from "@/lib/headerColors";
 import { toast } from "sonner";
 import { ReviewCard } from "../components/ReviewCard";
-import { ProgressRead } from "@/components/ProgressRead";
+import { ProgressRead } from "@/components/shared/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
 import { extractYear, formatDateString } from "@/lib/dates";
 import { getBookRatingDisplay } from "../utils/bookRating";
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { SafeHtml } from "@/components/SafeHtml";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { SafeHtml } from "@/components/shared/SafeHtml";
 import { useBook } from "../hooks/useBook";
 import {
   useSetUserBookStatus,

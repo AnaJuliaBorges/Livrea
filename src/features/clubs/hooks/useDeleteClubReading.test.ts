@@ -1,9 +1,9 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useDeleteClubReading } from "./useDeleteClubReading";
-import { deleteClubReading } from "../services/deleteClubReading";
+import { deleteClubReading } from "../services/clubReadings";
 import { createWrapper } from "./testQueryClient";
 
-vi.mock("../services/deleteClubReading", () => ({
+vi.mock("../services/clubReadings", () => ({
   deleteClubReading: vi.fn(),
 }));
 

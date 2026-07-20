@@ -1,14 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BookRatingBox } from "./BookRatingBox";
-import { getClubBookRating } from "../../services/getClubBookRating";
-import { getClubReadingReaders } from "../../services/getClubReadingReaders";
-import type { ClubReadingReader } from "../../services/getClubReadingReaders";
+import { getClubBookRating } from "../../services/clubReadings";
+import { getClubReadingReaders } from "../../services/clubReadings";
+import type { ClubReadingReader } from "../../services/clubReadings";
 
-vi.mock("../../services/getClubBookRating", () => ({
+vi.mock("../../services/clubReadings", () => ({
   getClubBookRating: vi.fn(),
-}));
-vi.mock("../../services/getClubReadingReaders", () => ({
   getClubReadingReaders: vi.fn(),
 }));
 

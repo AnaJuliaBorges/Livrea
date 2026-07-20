@@ -3,33 +3,29 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import MembersSection from "./MemberSection";
-import { getClubMembers } from "../services/getClubMembers";
-import { getJoinRequests } from "../services/getJoinRequests";
+import { getClubMembers } from "../services/clubMembers";
+import { getJoinRequests } from "../services/joinRequests";
 import {
   approveJoinRequest,
   rejectJoinRequest,
-} from "../services/reviewJoinRequest";
+} from "../services/joinRequests";
 import {
   demoteClubMember,
   promoteClubMember,
   removeClubMember,
-} from "../services/clubMemberRole";
+} from "../services/clubMembers";
 import type { Club, ClubMember } from "../dtos";
 
-vi.mock("../services/getClubMembers", () => ({
+vi.mock("../services/clubMembers", () => ({
   getClubMembers: vi.fn(),
-}));
-vi.mock("../services/getJoinRequests", () => ({
-  getJoinRequests: vi.fn(),
-}));
-vi.mock("../services/reviewJoinRequest", () => ({
-  approveJoinRequest: vi.fn(),
-  rejectJoinRequest: vi.fn(),
-}));
-vi.mock("../services/clubMemberRole", () => ({
   promoteClubMember: vi.fn(),
   demoteClubMember: vi.fn(),
   removeClubMember: vi.fn(),
+}));
+vi.mock("../services/joinRequests", () => ({
+  getJoinRequests: vi.fn(),
+  approveJoinRequest: vi.fn(),
+  rejectJoinRequest: vi.fn(),
 }));
 
 const getClubMembersMock = vi.mocked(getClubMembers);

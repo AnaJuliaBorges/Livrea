@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
-import { requestToJoinClub } from "./requestToJoinClub";
-import { getJoinRequests } from "./getJoinRequests";
-import { approveJoinRequest, rejectJoinRequest } from "./reviewJoinRequest";
+import { requestToJoinClub } from "./joinRequests";
+import { getJoinRequests } from "./joinRequests";
+import { approveJoinRequest, rejectJoinRequest } from "./joinRequests";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

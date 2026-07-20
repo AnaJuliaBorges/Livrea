@@ -1,5 +1,5 @@
 import { groupHighlights, normalizeQuote } from "./groupHighlights";
-import type { ClubBookHighlight } from "../services/getClubBookHighlights";
+import type { ClubBookHighlight } from "../services/clubReadings";
 
 function makeHighlight(
   overrides: Partial<ClubBookHighlight>,

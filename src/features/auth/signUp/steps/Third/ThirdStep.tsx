@@ -1,6 +1,6 @@
 import { BookResults } from "@/features/books";
 import { useThirdStepLogic } from "./useThirdStepLogic";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 
 export default function ThirdStep() {
   const {

@@ -3,9 +3,9 @@ import { ArrowLeft, MessageCircleMore, Send, Settings } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import placeholder from "../../../assets/placeholder.png";
-import { BackButton } from "@/components/BackButton";
-import { LocalizationPin } from "@/components/LocalizationPin";
-import { Tag } from "@/components/Tag";
+import { BackButton } from "@/components/shared/BackButton";
+import { LocalizationPin } from "@/components/shared/LocalizationPin";
+import { Tag } from "@/components/shared/Tag";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import OverviewSection from "../components/OverviewSection";

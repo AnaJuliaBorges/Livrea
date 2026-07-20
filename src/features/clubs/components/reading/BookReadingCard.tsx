@@ -1,4 +1,4 @@
-import { ContainerBorder } from "@/components/ContainerBorder";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
 import { BookImage } from "@/features/books";
 import { useBook } from "@/features/books";
 import { ChevronRight } from "lucide-react";

@@ -1,5 +1,5 @@
 import { BookText, House, MessageCircleMore, User } from "lucide-react";
-import { Button } from "./ui";
+import { Button } from "../ui";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import logo from "@/assets/livrea_logo_purple_sem_fundo.png";

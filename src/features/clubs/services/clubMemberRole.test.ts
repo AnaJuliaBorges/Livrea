@@ -3,7 +3,7 @@ import {
   demoteClubMember,
   promoteClubMember,
   removeClubMember,
-} from "./clubMemberRole";
+} from "./clubMembers";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

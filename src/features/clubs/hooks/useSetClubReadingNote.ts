@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { setClubReadingNote } from "../services/setClubReadingNote";
+import { setClubReadingNote } from "../services/clubReadings";
 
 export function useSetClubReadingNote(clubId: string) {
   const queryClient = useQueryClient();

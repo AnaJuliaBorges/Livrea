@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { BackButton } from "@/components/BackButton";
-import { ContainerBorder } from "@/components/ContainerBorder";
+import { BackButton } from "@/components/shared/BackButton";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
 import { Button } from "@/components/ui";
 import { BellOff, BellRing } from "lucide-react";
 import {

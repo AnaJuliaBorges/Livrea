@@ -1,4 +1,4 @@
-import type { ClubBookHighlight } from "../services/getClubBookHighlights";
+import type { ClubBookHighlight } from "../services/clubReadings";
 
 export interface HighlightGroupParticipant {
   userId: string;

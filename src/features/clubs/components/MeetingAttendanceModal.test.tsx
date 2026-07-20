@@ -2,15 +2,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MeetingAttendanceModal } from "./MeetingAttendanceModal";
-import { getMeetingAttendance } from "../services/getMeetingAttendance";
-import { cancelMeetingAttendance } from "../services/cancelMeetingAttendance";
+import { getMeetingAttendance } from "../services/meetings";
+import { cancelMeetingAttendance } from "../services/meetings";
 import { supabase } from "@/lib/supabase";
 import type { MeetingAttendanceMember } from "../dtos";
 
-vi.mock("../services/getMeetingAttendance", () => ({
+vi.mock("../services/meetings", () => ({
   getMeetingAttendance: vi.fn(),
-}));
-vi.mock("../services/cancelMeetingAttendance", () => ({
   cancelMeetingAttendance: vi.fn(),
 }));
 vi.mock("@/lib/supabase", () => ({

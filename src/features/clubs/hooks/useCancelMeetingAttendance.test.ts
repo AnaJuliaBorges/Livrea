@@ -1,9 +1,9 @@
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { useCancelMeetingAttendance } from "./useCancelMeetingAttendance";
-import { cancelMeetingAttendance } from "../services/cancelMeetingAttendance";
+import { cancelMeetingAttendance } from "../services/meetings";
 import { createWrapper } from "./testQueryClient";
 
-vi.mock("../services/cancelMeetingAttendance", () => ({
+vi.mock("../services/meetings", () => ({
   cancelMeetingAttendance: vi.fn(),
 }));
 

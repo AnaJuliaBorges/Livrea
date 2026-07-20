@@ -1,9 +1,9 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { useClubBookRating } from "./useClubBookRating";
-import { getClubBookRating } from "../services/getClubBookRating";
+import { getClubBookRating } from "../services/clubReadings";
 import { createWrapper } from "./testQueryClient";
 
-vi.mock("../services/getClubBookRating", () => ({
+vi.mock("../services/clubReadings", () => ({
   getClubBookRating: vi.fn(),
 }));
 

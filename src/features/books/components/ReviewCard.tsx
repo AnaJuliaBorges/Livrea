@@ -1,5 +1,5 @@
 import { Star } from "lucide-react";
-import { UserAvatar } from "@/components/UserAvatar";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import type { BookReview } from "../types/book";
 import { formatDate } from "@/lib/dates";
 

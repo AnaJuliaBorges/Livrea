@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "@/features/auth/pages/LoginPage";
 import { protectedLoader, publicOnlyLoader } from "./routes/guards";
-import { AppLayout, AuthLayout } from "./components/LayoutWrapper";
+import { AppLayout, AuthLayout } from "./components/layout/LayoutWrapper";
 import App from "./App";
 
 import "./index.css";

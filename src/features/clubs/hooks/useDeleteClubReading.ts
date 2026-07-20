@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteClubReading } from "../services/deleteClubReading";
+import { deleteClubReading } from "../services/clubReadings";
 
 export function useDeleteClubReading(clubId: string) {
   const queryClient = useQueryClient();

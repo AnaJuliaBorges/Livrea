@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReviewsSection } from "./ReviewsSection";
-import { getClubBookReviews } from "../../services/getClubBookReviews";
-import type { ClubBookReview } from "../../services/getClubBookReviews";
+import { getClubBookReviews } from "../../services/clubReadings";
+import type { ClubBookReview } from "../../services/clubReadings";
 
-vi.mock("../../services/getClubBookReviews", () => ({
+vi.mock("../../services/clubReadings", () => ({
   getClubBookReviews: vi.fn(),
 }));
 

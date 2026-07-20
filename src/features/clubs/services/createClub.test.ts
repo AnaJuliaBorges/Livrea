@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { createClub, type CreateClubInput } from "./createClub";
+import { createClub, type CreateClubInput } from "./clubs";
 import { uploadClubCover } from "./uploadClubCover";
 
 vi.mock("@/lib/supabase", () => ({

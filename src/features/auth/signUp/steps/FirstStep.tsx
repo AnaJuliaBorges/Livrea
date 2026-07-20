@@ -12,8 +12,8 @@ import {
   FieldDescription,
 } from "@/components/ui";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
-import { AvatarPicker } from "@/components/AvatarPicker";
-import { LocationFields } from "@/components/LocationFields";
+import { AvatarPicker } from "@/components/shared/AvatarPicker";
+import { LocationFields } from "@/components/shared/LocationFields";
 
 export default function FirstStep() {
   const data = useSignUpWizardStore((state) => state.data);

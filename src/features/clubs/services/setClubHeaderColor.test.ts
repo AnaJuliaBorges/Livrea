@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { setClubHeaderColor } from "./setClubHeaderColor";
+import { setClubHeaderColor } from "./clubs";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

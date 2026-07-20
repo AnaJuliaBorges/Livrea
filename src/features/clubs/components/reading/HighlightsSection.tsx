@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { UserAvatar } from "@/components/UserAvatar";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { Button } from "@/components/ui";
 import { ArrowLeft } from "lucide-react";
 import { useClubBookHighlights } from "../../hooks/useClubBookHighlights";

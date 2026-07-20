@@ -1,6 +1,6 @@
-import { ContainerBorder } from "@/components/ContainerBorder";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
 import { Separator } from "@/components/ui";
-import { ProgressRead } from "@/components/ProgressRead";
+import { ProgressRead } from "@/components/shared/ProgressRead";
 import type { BookTemp } from "@/features/books";
 import {
   formatRatingValue,

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { leaveClub } from "./leaveClub";
+import { leaveClub } from "./clubs";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {

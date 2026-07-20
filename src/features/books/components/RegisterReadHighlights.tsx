@@ -1,5 +1,5 @@
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { Button, Input, Textarea } from "@/components/ui";
 import { useState } from "react";
 import { toast } from "sonner";

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera } from "lucide-react";
 import { Button, FieldDescription } from "@/components/ui";
-import { UserAvatar } from "@/components/UserAvatar";
+import { UserAvatar } from "./UserAvatar";
 import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;

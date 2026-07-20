@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 import ItemClub from "../components/ItemClub";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Send, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Button, Input } from "@/components/ui";
-import { BackButton } from "@/components/BackButton";
+import { BackButton } from "@/components/shared/BackButton";
 import placeholder from "../../../assets/placeholder.png";
 import { headerGradient } from "@/lib/headerColors";
 import { useClub } from "@/features/clubs";

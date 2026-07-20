@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { getClubBookHighlights } from "../services/getClubBookHighlights";
+import { getClubBookHighlights } from "../services/clubReadings";
 
 export function useClubBookHighlights(
   clubId: string | undefined,

@@ -1,6 +1,6 @@
 import { BookResults } from "@/features/books";
 import { useFourthStepLogic } from "./useFourthStepLogic";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 
 export default function FourthStep() {
   const {

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { requestToJoinClub } from "../services/requestToJoinClub";
+import { requestToJoinClub } from "../services/joinRequests";
 import { notifyClubJoinRequest } from "../services/sendClubPushNotification";
 
 export function useRequestToJoinClub(clubId: string) {

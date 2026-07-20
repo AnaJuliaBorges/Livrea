@@ -1,5 +1,5 @@
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { UserAvatar } from "@/components/UserAvatar";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { Button } from "@/components/ui";
 import { useClubMembers } from "../hooks/useClubMembers";
 import { useJoinRequests } from "../hooks/useJoinRequests";

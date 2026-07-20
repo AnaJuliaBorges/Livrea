@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui";
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { UserAvatar } from "@/components/UserAvatar";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { supabase } from "@/lib/supabase";
 import { getErrorMessage } from "@/lib/utils";
 import { useMeetingAttendance } from "../hooks/useMeetingAttendance";

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FileWarning } from "lucide-react";
 import { toast } from "sonner";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 import { BookListCard } from "../components/BookListCard";
 import { useUpsertBook } from "../hooks/useUpsertBook";
 import type { Book } from "../types/book";

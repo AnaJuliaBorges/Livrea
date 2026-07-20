@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { upsertBook } from "@/features/books";
-import { setClubReading } from "../services/setClubReading";
+import { setClubReading } from "../services/clubReadings";
 import type { ClubReadingSearchResult } from "../services/searchClubReadingBooks";
 
 // Define a leitura atual a partir de um resultado da busca: livros externos

@@ -7,7 +7,7 @@ import { useListClubs } from "../hooks/useListClubs";
 import { useGenres } from "@/features/books";
 import { useMyProfile } from "@/features/profile";
 import { useProfileGenreIds } from "@/features/profile";
-import { SearchInput } from "@/components/SearchInput";
+import { SearchInput } from "@/components/shared/SearchInput";
 import {
   matchesFilters,
   matchesSearch,

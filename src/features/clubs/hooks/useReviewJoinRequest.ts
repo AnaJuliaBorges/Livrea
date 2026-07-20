@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   approveJoinRequest,
   rejectJoinRequest,
-} from "../services/reviewJoinRequest";
+} from "../services/joinRequests";
 import { notifyJoinRequestApproved } from "../services/sendClubPushNotification";
 
 function useInvalidateAfterReview(clubId: string) {

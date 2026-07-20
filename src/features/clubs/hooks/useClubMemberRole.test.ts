@@ -8,7 +8,7 @@ import {
   demoteClubMember,
   promoteClubMember,
   removeClubMember,
-} from "../services/clubMemberRole";
+} from "../services/clubMembers";
 import {
   notifyMemberDemoted,
   notifyMemberPromoted,
@@ -16,7 +16,7 @@ import {
 } from "../services/sendClubPushNotification";
 import { createWrapper } from "./testQueryClient";
 
-vi.mock("../services/clubMemberRole", () => ({
+vi.mock("../services/clubMembers", () => ({
   promoteClubMember: vi.fn(),
   demoteClubMember: vi.fn(),
   removeClubMember: vi.fn(),

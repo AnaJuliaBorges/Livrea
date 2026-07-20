@@ -1,5 +1,5 @@
-import { ContainerBorder } from "@/components/ContainerBorder";
-import { UserAvatar } from "@/components/UserAvatar";
+import { ContainerBorder } from "@/components/shared/ContainerBorder";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import { ArrowLeft, Star } from "lucide-react";
 import { useClubReadingReaders } from "../../hooks/useClubReadingReaders";
 

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { upsertNextMeeting } from "../services/upsertNextMeeting";
+import { upsertNextMeeting } from "../services/meetings";
 
 export function useUpsertNextMeeting(clubId: string) {
   const queryClient = useQueryClient();

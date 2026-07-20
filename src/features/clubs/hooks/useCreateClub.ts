@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createClub } from "../services/createClub";
+import { createClub } from "../services/clubs";
 
 export function useCreateClub() {
   const queryClient = useQueryClient();

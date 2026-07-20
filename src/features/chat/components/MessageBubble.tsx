@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { UserAvatar } from "@/components/UserAvatar";
+import { UserAvatar } from "@/components/shared/UserAvatar";
 import type { ClubMessage } from "../services/clubChat";
 
 function formatTime(iso: string) {
