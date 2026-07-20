@@ -124,7 +124,7 @@ export default function CreateClub() {
           </div>
         </div>
 
-        <div className="fixed bottom-18 left-0 right-0 z-40 py-5 px-4 backdrop-blur">
+        <div className="fixed bottom-18 left-0 right-0 z-40 py-5 px-4 backdrop-blur md:mx-auto md:max-w-sm">
           <Button
             onClick={handleFinish}
             className="w-full bg-white text-foreground"
@@ -138,7 +138,7 @@ export default function CreateClub() {
 
   return (
     <div className="flex flex-col mb-16">
-      <header className="flex items-center h-16 gap-4">
+      <header className="flex items-center h-16 gap-4 md:mx-auto md:w-full md:max-w-2xl">
         <div>
           <Button
             className="w-content"
@@ -165,7 +165,7 @@ export default function CreateClub() {
             showValidation={showValidation && !isStepValid()}
           />
 
-          <div className="fixed bottom-18 left-0 right-0 z-40 py-3 px-4 backdrop-blur">
+          <div className="fixed bottom-18 left-0 right-0 z-40 py-3 px-4 backdrop-blur md:static md:mt-8 md:p-0">
             {showValidation && !isStepValid() && (
               <p className="mb-2 text-center text-sm text-red-500">
                 {validationMessage}

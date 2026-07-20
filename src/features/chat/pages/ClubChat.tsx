@@ -103,25 +103,25 @@ export default function ClubChat() {
   return (
     <div className="flex flex-col">
       <div
-        className={`relative left-1/2 -mt-6 w-screen -translate-x-1/2 ${headerGradient(club.headerColor)}`}
+        className={`relative left-1/2 -mt-6 w-screen -translate-x-1/2 md:bg-none ${headerGradient(club.headerColor)}`}
       >
-        <div className="flex items-center gap-3 px-4 py-4">
-          <BackButton className="text-gray-200 hover:bg-white/20" />
+        <div className="flex items-center gap-3 px-4 py-4 md:mx-auto md:max-w-2xl md:border-b md:px-0">
+          <BackButton className="text-gray-200 hover:bg-white/20 md:hidden" />
           <img
             src={club.coverUrl ?? placeholder}
             alt={club.name}
             className="h-10 w-10 rounded-md border object-cover"
           />
-          <div className="text-white">
+          <div className="text-white md:text-foreground">
             <p className="font-medium">{club.name}</p>
-            <p className="text-xs text-gray-300">
+            <p className="text-xs text-gray-300 md:text-gray-500">
               {club.totalParticipants} participantes
             </p>
           </div>
         </div>
       </div>
 
-      <div className="mb-32 flex flex-col gap-3 py-4">
+      <div className="mb-32 flex flex-col gap-3 py-4 md:mx-auto md:w-full md:max-w-2xl">
         {messageCount === 0 && (
           <p className="mt-10 text-center text-sm text-muted-foreground">
             Nenhuma mensagem ainda. Comece a conversa!
@@ -144,7 +144,7 @@ export default function ClubChat() {
 
       <form
         onSubmit={handleSend}
-        className="fixed bottom-18 left-0 right-0 z-40 px-4 py-3 backdrop-blur"
+        className="fixed bottom-18 left-0 right-0 z-40 px-4 py-3 backdrop-blur md:bottom-6"
       >
         <div className="mx-auto flex w-full max-w-2xl items-center gap-2">
           <button

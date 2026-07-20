@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { SearchInput } from "@/components/SearchInput";
 import ItemClub from "../components/ItemClub";
 import { Separator } from "@/components/ui/separator";
@@ -46,12 +46,12 @@ export default function MyClubs() {
       <>
         <p className="font-medium">Meus clubes</p>
 
-        <div>
+        <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
           {filteredClubs.map((club: ClubListItem) => (
-            <Fragment key={club.id}>
+            <div key={club.id}>
               <ItemClub club={club} admin={club.isAdmin} />
               <Separator className="my-4" />
-            </Fragment>
+            </div>
           ))}
         </div>
       </>
@@ -60,17 +60,25 @@ export default function MyClubs() {
 
   return (
     <div className="flex flex-col gap-6 mb-24">
-      <div>
-        <SearchInput
-          value={search}
-          onChange={setSearch}
-          placeholder="Buscar clubes"
-        />
+      <div className="md:flex md:items-center md:gap-4">
+        <div className="md:flex-1">
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="Buscar clubes"
+          />
+        </div>
+        <Button
+          className="hidden h-12 md:inline-flex"
+          onClick={() => navigate("/meus-clubes/criar")}
+        >
+          Criar clube
+        </Button>
       </div>
 
       {content}
 
-      <div className="fixed bottom-24 left-0 right-0 z-20 w-full">
+      <div className="fixed bottom-24 left-0 right-0 z-20 w-full md:hidden">
         <div className="mx-auto max-w-3xl px-4">
           <Button
             className="h-12 w-full"

@@ -216,13 +216,13 @@ function EditProfileForm({
   }
 
   return (
-    <div className="flex flex-col gap-4 mb-10">
+    <div className="flex flex-col gap-4 mb-10 md:mx-auto md:w-full md:max-w-2xl">
       <button
         type="button"
         className="mb-5 flex items-center gap-4 border-b py-5 text-left"
         onClick={() => navigate(-1)}
       >
-        <ArrowLeft />
+        <ArrowLeft className="md:hidden" />
         <h2>Configurações</h2>
       </button>
 

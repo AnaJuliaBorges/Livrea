@@ -71,15 +71,15 @@ export function BookDetail() {
   return (
     <>
       <div
-        className={`relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 ${headerGradient()}`}
+        className={`relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 md:bg-none ${headerGradient()}`}
       >
-        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
+        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20 md:hidden" />
 
         <div className="absolute left-1/2 top-1/4 -translate-x-1/2 rounded-lg shadow-xl">
           <BookImage book={book} height="h-52" />
         </div>
       </div>
-      <div className="flex flex-col gap-6 mt-28">
+      <div className="flex flex-col gap-6 mt-28 md:mx-auto md:w-full md:max-w-3xl">
         <div className="flex justify-between">
           <div className="flex flex-col gap-1 max-w-2/3">
             <h1 className="text-lg font-medium">
@@ -154,7 +154,7 @@ export function BookDetail() {
         )}
       </div>
 
-      <div className="flex flex-col gap-2 border p-4 rounded-xl mt-7">
+      <div className="flex flex-col gap-2 border p-4 rounded-xl mt-7 md:mx-auto md:w-full md:max-w-3xl">
         <p className="text-xs font-medium">Sinopse</p>
         {book.synopsis && (
           <SafeHtml
@@ -176,7 +176,7 @@ export function BookDetail() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-4 mb-16 mt-7">
+      <div className="flex flex-col gap-4 mb-16 mt-7 md:mx-auto md:w-full md:max-w-3xl">
         <p className="text-xs font-medium">Avaliações</p>
 
         {reviews?.length ? (

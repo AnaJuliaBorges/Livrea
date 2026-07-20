@@ -124,9 +124,14 @@ function ClubSettingsForm({ club }: { club: Club }) {
   };
 
   return (
-    <div className="flex flex-col gap-6 pb-24">
+    <div className="flex flex-col gap-6 pb-24 md:mx-auto md:w-full md:max-w-2xl">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={() => navigate(-1)}
+        >
           <ArrowLeft className="size-5" />
         </Button>
         <h1 className="text-lg font-medium">Configurações do clube</h1>
@@ -192,7 +197,7 @@ function ClubSettingsForm({ club }: { club: Club }) {
               Carregando gêneros...
             </p>
           ) : (
-            <FieldGroup className="grid grid-cols-2 gap-3">
+            <FieldGroup className="grid grid-cols-2 gap-3 md:grid-cols-3">
               {genres?.map((genre) => {
                 const checked = selectedGenres.includes(genre.id);
                 const checkboxId = `settings-genre-${genre.id}`;

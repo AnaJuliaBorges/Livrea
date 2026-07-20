@@ -67,9 +67,9 @@ export default function Notifications() {
   }, [notifications, markAllRead]);
 
   return (
-    <div className="flex flex-col gap-4 mb-10">
+    <div className="flex flex-col gap-4 mb-10 md:mx-auto md:w-full md:max-w-2xl">
       <div className="flex items-center gap-2">
-        <BackButton />
+        <BackButton className="md:hidden" />
         <h1 className="text-lg font-medium">Notificações</h1>
       </div>
 

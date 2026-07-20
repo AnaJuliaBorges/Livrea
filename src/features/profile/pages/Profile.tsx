@@ -99,9 +99,9 @@ export default function Profile() {
   return (
     <div className="mb-10">
       <div
-        className={`relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 ${headerGradient(headerColor)}`}
+        className={`relative left-1/2 -mt-6 h-30 w-screen -translate-x-1/2 md:bg-none ${headerGradient(headerColor)}`}
       >
-        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
+        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20 md:hidden" />
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
           <Avatar className="w-32 h-32 shadow-xl border-2 border-gray-400">
@@ -117,7 +117,7 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="mt-16 flex flex-col gap-4">
+      <div className="mt-16 flex flex-col gap-4 md:mx-auto md:w-full md:max-w-3xl">
         <div className="flex justify-between items-center">
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-medium">{profile.name}</h2>
@@ -200,12 +200,14 @@ export default function Profile() {
                     : "Este usuário ainda não participa de nenhum clube."}
                 </p>
               )}
-              {profile.clubs.map((club) => (
-                <div key={club.id}>
-                  <ItemClub club={club} admin={club.isAdmin} />
-                  <Separator className="my-4" />
-                </div>
-              ))}
+              <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
+                {profile.clubs.map((club) => (
+                  <div key={club.id}>
+                    <ItemClub club={club} admin={club.isAdmin} />
+                    <Separator className="my-4" />
+                  </div>
+                ))}
+              </div>
             </div>
           </TabsContent>
           <TabsContent value="books">

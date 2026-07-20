@@ -102,16 +102,16 @@ export default function ClubDetails() {
   return (
     <>
       <div
-        className={`relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 ${headerGradient(club.headerColor)}`}
+        className={`relative left-1/2 -mt-6 h-40 w-screen -translate-x-1/2 md:bg-none ${headerGradient(club.headerColor)}`}
       >
-        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20" />
+        <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20 md:hidden" />
 
         {club.isAdmin && (
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate(`/clubes/${club.id}/configuracoes`)}
-            className="absolute right-4 top-4 z-10 rounded-full text-gray-300 hover:bg-white/20"
+            className="absolute right-4 top-4 z-10 rounded-full text-gray-300 hover:bg-white/20 md:text-gray-500 md:hover:bg-gray-100"
           >
             <Settings className="size-6" />
           </Button>
@@ -144,7 +144,7 @@ export default function ClubDetails() {
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-2 items-center mt-24 mb-6">
+      <div className="flex flex-col gap-2 items-center mt-24 mb-6 md:mx-auto md:w-full md:max-w-3xl">
         <h2 className="font-medium text-lg">{club.name}</h2>
         {club.cityName && club.stateAbbreviation && (
           <LocalizationPin
@@ -161,7 +161,7 @@ export default function ClubDetails() {
 
       {!club.isMember && (
         <Button
-          className="w-full mb-6"
+          className="w-full mb-6 md:mx-auto md:flex md:max-w-3xl"
           disabled={club.hasPendingRequest || requestToJoin.isPending}
           onClick={handleRequestToJoin}
         >
@@ -175,7 +175,7 @@ export default function ClubDetails() {
         </Button>
       )}
 
-      <Tabs defaultValue="overview" className="w-full mb-8">
+      <Tabs defaultValue="overview" className="w-full mb-8 md:mx-auto md:max-w-3xl">
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Participantes</TabsTrigger>

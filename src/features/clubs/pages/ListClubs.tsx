@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { MapPin } from "lucide-react";
 import ItemClub from "../components/ItemClub";
 import { RecommendedClubCard } from "../components/RecommendedClubCard";
@@ -97,12 +97,14 @@ export default function ListClubs() {
             <div key={group} className="mb-6">
               <p className="font-medium mb-4">{sectionLabels[group]}</p>
 
-              {clubsInGroup.map((club: ClubListItem) => (
-                <Fragment key={club.id}>
-                  <ItemClub club={club} />
-                  <Separator className="my-4" />
-                </Fragment>
-              ))}
+              <div className="lg:grid lg:grid-cols-2 lg:gap-x-12">
+                {clubsInGroup.map((club: ClubListItem) => (
+                  <div key={club.id}>
+                    <ItemClub club={club} />
+                    <Separator className="my-4" />
+                  </div>
+                ))}
+              </div>
             </div>
           );
         })}

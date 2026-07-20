@@ -44,12 +44,12 @@ export default function RegisterRead() {
     (book.total_pages > 0 && tracking.currentPage >= book.total_pages);
 
   return (
-    <div>
+    <div className="md:mx-auto md:w-full md:max-w-3xl">
       <div
         className="py-5 flex gap-4 border-b mb-5"
         onClick={() => navigate(-1)}
       >
-        <ArrowLeft />
+        <ArrowLeft className="md:hidden" />
         <h2>Registro de leitura</h2>
       </div>
       <div className="flex gap-4 items-center mb-8">
