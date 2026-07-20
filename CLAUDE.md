@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Livrea is a social reading / book-club web app (Portuguese-language product, "clubes de leitura"). Users sign up, pick genres and books they've read, join or create reading clubs, track reads, review books, chat in club chats and follow each other. Frontend-only SPA (installable PWA with web push, via vite-plugin-pwa) backed by Supabase (Postgres + Auth + Storage + Edge Functions) and two external book-metadata APIs.
 
+> Deeper docs (Portuguese): [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (features + files each touches) and [docs/SUPABASE.md](docs/SUPABASE.md) (tables, Edge Functions, and the full RPC reference: what each does + where it's used). Keep them in sync when adding a feature or RPC.
+
 ## Commands
 
 ```bash

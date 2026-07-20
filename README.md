@@ -1,73 +1,53 @@
-# React + TypeScript + Vite
+# Livrea
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+App de **clubes de leitura** (PWA, pt-BR). O usuário se cadastra, escolhe gêneros
+e livros que já leu, entra ou cria clubes de leitura, acompanha suas leituras,
+avalia livros, conversa no chat do clube e segue outros leitores.
 
-Currently, two official plugins are available:
+SPA frontend-only (React 19 + TypeScript + Vite) sobre Supabase (Postgres + Auth
++ Storage + Edge Functions) e duas APIs de metadados de livros (Google Books e
+ISBNDB).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Documentação
 
-## React Compiler
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — como o projeto funciona:
+  stack, estrutura de pastas, rotas, gestão de estado e cada funcionalidade com
+  os arquivos que toca.
+- **[docs/SUPABASE.md](./docs/SUPABASE.md)** — o backend: tabelas, Edge
+  Functions, Storage e a referência de RPCs (o que cada função faz e onde é usada).
+- **[CLAUDE.md](./CLAUDE.md)** — guia rápido de convenções para trabalhar no repo.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+## Começando
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev          # dev server em http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Crie um `.env` (não commitado) com:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=...
+VITE_GOOGLE_BOOKS_API_KEY=...
+```
+
+> A chave da ISBNDB **não** é variável de frontend — vive como secret da Edge
+> Function `isbndb` (ver [docs/SUPABASE.md](./docs/SUPABASE.md)).
+
+## Scripts
+
+```bash
+npm run build        # tsc -b + vite build
+npm run typecheck    # tsc -b
+npm run lint         # eslint (zero warnings)
+npm run test         # vitest (watch)
+npm run test:coverage
+npm run test:e2e     # playwright
+```
+
+## Stack
+
+React 19 · TypeScript · Vite 7 (SWC) · Tailwind CSS v4 · shadcn/ui · React Router
+v7 · TanStack Query v5 · Zustand · React Hook Form + Zod · Supabase JS v2 ·
+vite-plugin-pwa.
