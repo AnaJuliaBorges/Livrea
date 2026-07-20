@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 describe("useCompleteClubReading", () => {
-  it("chama completeClubReading com o id do clube", async () => {
+  it("chama completeClubReading com o id do clube e a nota", async () => {
     completeClubReadingMock.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useCompleteClubReading("club-1"), {
@@ -22,12 +22,15 @@ describe("useCompleteClubReading", () => {
     });
 
     act(() => {
-      result.current.mutate();
+      result.current.mutate("Impressões do clube");
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(completeClubReadingMock).toHaveBeenCalledWith("club-1");
+    expect(completeClubReadingMock).toHaveBeenCalledWith(
+      "club-1",
+      "Impressões do clube",
+    );
   });
 
   it("expõe o erro quando a conclusão falha", async () => {
@@ -40,7 +43,7 @@ describe("useCompleteClubReading", () => {
     });
 
     act(() => {
-      result.current.mutate();
+      result.current.mutate(undefined);
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

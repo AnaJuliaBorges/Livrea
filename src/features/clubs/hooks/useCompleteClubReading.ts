@@ -5,7 +5,7 @@ export function useCompleteClubReading(clubId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => completeClubReading(clubId),
+    mutationFn: (note?: string) => completeClubReading(clubId, note),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["club", clubId] });
     },

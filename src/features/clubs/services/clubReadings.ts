@@ -20,10 +20,16 @@ export async function setClubReading(
 // ------------------------------------------------------- completeClubReading
 
 // Fecha a leitura atual (status -> finished) e o encontro agendado pra ela
-// (se houver), sem exigir que um próximo livro já esteja escolhido.
-export async function completeClubReading(clubId: string): Promise<void> {
+// (se houver), sem exigir que um próximo livro já esteja escolhido. `note` é a
+// impressão geral do admin sobre a leitura, gravada na mesma linha e exibida na
+// "Nota do clube" do histórico; vazio/ausente não grava nota.
+export async function completeClubReading(
+  clubId: string,
+  note?: string,
+): Promise<void> {
   const { error } = await supabase.rpc("complete_club_reading", {
     p_club_id: clubId,
+    p_note: note?.trim() || null,
   });
 
   if (error) throw error;

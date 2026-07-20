@@ -2,7 +2,7 @@ import { ContainerBorder } from "@/components/shared/ContainerBorder";
 import type { Club } from "../dtos";
 import { LocalizationPin } from "@/components/shared/LocalizationPin";
 import { EditIcon, UsersRound } from "lucide-react";
-import { Button } from "@/components/ui";
+import { Button, Textarea } from "@/components/ui";
 import { BookImage } from "@/features/books";
 import {
   Carousel,
@@ -56,6 +56,7 @@ export default function OverviewSection({ club }: Props) {
   const [showAttendanceModal, setShowAttendanceModal] = useState(false);
   const [showCompleteReadingModal, setShowCompleteReadingModal] =
     useState(false);
+  const [completionNote, setCompletionNote] = useState("");
   const [editingField, setEditingField] = useState<EditingField>(null);
   const confirmAttendance = useConfirmMeetingAttendance(club.id);
   const completeReading = useCompleteClubReading(club.id);
@@ -77,9 +78,10 @@ export default function OverviewSection({ club }: Props) {
   };
 
   const handleCompleteReading = () => {
-    completeReading.mutate(undefined, {
+    completeReading.mutate(completionNote, {
       onSuccess: () => {
         setShowCompleteReadingModal(false);
+        setCompletionNote("");
         toast.success("Encontro concluído! O livro foi pro histórico.");
       },
       onError: (error) => {
@@ -274,10 +276,26 @@ export default function OverviewSection({ club }: Props) {
               escolher a próxima leitura depois.
             </p>
 
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium">
+                Impressões gerais do clube (opcional)
+              </p>
+              <Textarea
+                value={completionNote}
+                onChange={(event) => setCompletionNote(event.target.value)}
+                placeholder="Como foi essa leitura pro clube? A nota aparece na aba Leitura, no box 'Nota do clube'."
+                className="min-h-24 text-sm"
+                disabled={completeReading.isPending}
+              />
+            </div>
+
             <div className="flex gap-3 justify-end">
               <Button
                 variant="link"
-                onClick={() => setShowCompleteReadingModal(false)}
+                onClick={() => {
+                  setShowCompleteReadingModal(false);
+                  setCompletionNote("");
+                }}
                 disabled={completeReading.isPending}
               >
                 Cancelar

@@ -152,7 +152,7 @@ Todas `SECURITY DEFINER`. "Usado em" indica a página/componente final.
 | RPC (params) | O que faz | Hook · Usado em |
 |---|---|---|
 | `set_club_reading(p_club_id, p_book_id)` | Finaliza a leitura anterior (`finished` + end_date) e insere a nova. **Admin-only.** | `useSetClubReading` · SetClubReadingModal |
-| `complete_club_reading(p_club_id)` | Fecha a leitura atual e o encontro agendado, sem exigir próximo livro. | `useCompleteClubReading` · ReadingSection |
+| `complete_club_reading(p_club_id, p_note)` | Fecha a leitura atual e o encontro agendado, sem exigir próximo livro. `p_note` (opcional) grava as impressões gerais do admin em `club_readings.note` da mesma leitura → aparece na "Nota do clube" do histórico. | `useCompleteClubReading` · OverviewSection |
 | `delete_club_reading(p_club_id)` | Remove a leitura atual **sem** arquivar no histórico. | `useDeleteClubReading` · ReadingSection |
 | `set_club_reading_note(p_reading_id, p_note)` | Nota do admin sobre a leitura; `''` limpa. **Admin-only.** | `useSetClubReadingNote` · PastReadingItem |
 | `get_club_reading_readers(p_club_id, p_book_id)` | Progresso de cada membro (% da edição que ele lê). **De-para de edições equivalentes** por título+autores. Membro-only. | `useClubReadingReaders` · ReadersSection |

@@ -52,13 +52,36 @@ describe("completeClubReading", () => {
     rpcMock.mockReset();
   });
 
-  it("chama a RPC complete_club_reading com o id do clube", async () => {
+  it("chama a RPC complete_club_reading com o clube e sem nota por padrão", async () => {
     rpcMock.mockResolvedValue(rpcResult());
 
     await completeClubReading("club-1");
 
     expect(rpcMock).toHaveBeenCalledWith("complete_club_reading", {
       p_club_id: "club-1",
+      p_note: null,
+    });
+  });
+
+  it("envia a nota (impressões do clube) quando informada, com trim", async () => {
+    rpcMock.mockResolvedValue(rpcResult());
+
+    await completeClubReading("club-1", "  Melhor leitura do ano.  ");
+
+    expect(rpcMock).toHaveBeenCalledWith("complete_club_reading", {
+      p_club_id: "club-1",
+      p_note: "Melhor leitura do ano.",
+    });
+  });
+
+  it("nota só com espaços vira null", async () => {
+    rpcMock.mockResolvedValue(rpcResult());
+
+    await completeClubReading("club-1", "   ");
+
+    expect(rpcMock).toHaveBeenCalledWith("complete_club_reading", {
+      p_club_id: "club-1",
+      p_note: null,
     });
   });
 
