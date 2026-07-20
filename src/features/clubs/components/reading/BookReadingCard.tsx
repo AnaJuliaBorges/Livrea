@@ -1,6 +1,6 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { BookImage } from "@/features/books/components/BookImage";
-import { useBook } from "@/features/books/hooks/useBook";
+import { BookImage } from "@/features/books";
+import { useBook } from "@/features/books";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

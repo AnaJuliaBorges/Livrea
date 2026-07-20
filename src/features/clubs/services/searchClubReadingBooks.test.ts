@@ -1,6 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { searchGoogleBooks } from "@/features/books/api/googleBooks";
-import { searchIsbndbByQuery } from "@/features/books/api/isbndb";
+import { searchGoogleBooks, searchIsbndbByQuery } from "@/features/books";
 import { searchClubReadingBooks } from "./searchClubReadingBooks";
 import { setClubReading } from "./setClubReading";
 
@@ -10,11 +9,11 @@ vi.mock("@/lib/supabase", () => ({
   },
 }));
 
-vi.mock("@/features/books/api/googleBooks", () => ({
+// o service importa do barrel da feature books: mocka só as buscas
+// externas e mantém o resto real (os mappers precisam funcionar de verdade)
+vi.mock("@/features/books", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/features/books")>()),
   searchGoogleBooks: vi.fn(),
-}));
-
-vi.mock("@/features/books/api/isbndb", () => ({
   searchIsbndbByQuery: vi.fn(),
 }));
 

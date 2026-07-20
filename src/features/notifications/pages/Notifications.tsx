@@ -13,20 +13,7 @@ import {
   useMarkAllNotificationsRead,
   useNotifications,
 } from "../hooks/useNotifications";
-
-// "há 5 min", "há 3 h", "ontem", "há 4 dias"...
-function formatRelativeTime(iso: string): string {
-  const rtf = new Intl.RelativeTimeFormat("pt-BR", { numeric: "auto" });
-  const diffMs = new Date(iso).getTime() - Date.now();
-  const diffMinutes = Math.round(diffMs / 60_000);
-
-  if (Math.abs(diffMinutes) < 60) return rtf.format(diffMinutes, "minute");
-
-  const diffHours = Math.round(diffMinutes / 60);
-  if (Math.abs(diffHours) < 24) return rtf.format(diffHours, "hour");
-
-  return rtf.format(Math.round(diffHours / 24), "day");
-}
+import { formatRelativeTime } from "@/lib/dates";
 
 export default function Notifications() {
   const navigate = useNavigate();

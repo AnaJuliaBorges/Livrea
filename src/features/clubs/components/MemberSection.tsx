@@ -1,5 +1,5 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui";
 import { useClubMembers } from "../hooks/useClubMembers";
 import { useJoinRequests } from "../hooks/useJoinRequests";
@@ -22,15 +22,6 @@ import type { Club, ClubMember } from "../dtos";
 
 interface Props {
   club: Club;
-}
-
-function initialsOf(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
 }
 
 function JoinRequestsSection({ club }: { club: Club }) {
@@ -83,16 +74,12 @@ function JoinRequestsSection({ club }: { club: Club }) {
               className="flex gap-2 items-center cursor-pointer"
               onClick={() => navigate(`/perfil/${request.userId}`)}
             >
-              <Avatar className="h-10 w-10">
-                <AvatarImage
-                  src={request.avatarUrl ?? undefined}
-                  alt={request.name}
-                  className="object-cover"
-                />
-                <AvatarFallback className="text-xs">
-                  {initialsOf(request.name)}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar
+                name={request.name}
+                src={request.avatarUrl}
+                className="h-10 w-10"
+                fallbackClassName="text-xs"
+              />
               <p className="text-sm font-medium">{request.name}</p>
             </div>
             <div className="flex gap-3 items-center">
@@ -213,16 +200,12 @@ export default function MembersSection({ club }: Props) {
             >
               <ContainerBorder className="flex-row justify-between items-center">
                 <div className="flex gap-2 items-center">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage
-                      src={member.avatarUrl ?? undefined}
-                      alt={member.name}
-                      className="object-cover"
-                    />
-                    <AvatarFallback className="text-xs">
-                      {initialsOf(member.name)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    name={member.name}
+                    src={member.avatarUrl}
+                    className="h-10 w-10"
+                    fallbackClassName="text-xs"
+                  />
                   <div>
                     <p className="text-sm font-medium">{member.name}</p>
                     {member.isOwner ? (

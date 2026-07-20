@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { ReviewCard } from "../components/ReviewCard";
 import { ProgressRead } from "@/components/ProgressRead";
 import { TrackRead } from "../components/TrackRead";
-import { extractYear, formatDateString } from "../utils/formatDate";
+import { extractYear, formatDateString } from "@/lib/dates";
 import { getBookRatingDisplay } from "../utils/bookRating";
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { SafeHtml } from "@/components/SafeHtml";

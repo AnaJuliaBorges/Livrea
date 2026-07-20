@@ -1,11 +1,11 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { Separator } from "@/components/ui";
 import { ProgressRead } from "@/components/ProgressRead";
-import type { BookTemp } from "@/features/books/types/book";
+import type { BookTemp } from "@/features/books";
 import {
   formatRatingValue,
   getBookRatingDisplay,
-} from "@/features/books/utils/bookRating";
+} from "@/features/books";
 import { useClubBookRating } from "../../hooks/useClubBookRating";
 import { useClubReadingReaders } from "../../hooks/useClubReadingReaders";
 import { BookmarkMinus, NotepadText, PencilLine, Star } from "lucide-react";

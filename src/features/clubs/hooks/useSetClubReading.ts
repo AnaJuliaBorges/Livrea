@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { upsertBook } from "@/features/books/services/upsertBook";
+import { upsertBook } from "@/features/books";
 import { setClubReading } from "../services/setClubReading";
 import type { ClubReadingSearchResult } from "../services/searchClubReadingBooks";
 

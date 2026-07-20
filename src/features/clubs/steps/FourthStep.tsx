@@ -5,7 +5,7 @@ import {
   FieldSet,
 } from "@/components/ui";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGenres } from "@/features/books/hooks/useGenres";
+import { useGenres } from "@/features/books";
 import { useCreateClubStore } from "../store/useCreateClubStore";
 
 export function FourthStep({

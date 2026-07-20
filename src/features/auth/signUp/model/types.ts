@@ -1,4 +1,4 @@
-import type { Book } from "@/features/books/types/book";
+import type { Book } from "@/features/books";
 
 export type SignUpWizardData = {
   step: number;

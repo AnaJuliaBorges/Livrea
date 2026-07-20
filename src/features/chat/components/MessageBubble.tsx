@@ -1,15 +1,6 @@
 import { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import type { ClubMessage } from "../services/clubChat";
-
-function initials(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("pt-BR", {
@@ -30,16 +21,12 @@ export function MessageBubble({ message }: { message: ClubMessage }) {
     <div
       className={`flex items-start gap-2 ${message.isMine ? "flex-row-reverse" : ""}`}
     >
-      <Avatar className="size-8 shrink-0">
-        <AvatarImage
-          src={message.author.avatarUrl ?? undefined}
-          alt={message.author.name}
-          className="object-cover"
-        />
-        <AvatarFallback className="bg-gray-300 text-xs">
-          {initials(message.author.name)}
-        </AvatarFallback>
-      </Avatar>
+      <UserAvatar
+        name={message.author.name}
+        src={message.author.avatarUrl}
+        className="size-8 shrink-0"
+        fallbackClassName="bg-gray-300 text-xs"
+      />
 
       <div className="flex max-w-[80%] flex-col gap-1 rounded-lg border bg-white p-3">
         {!message.isMine && (

@@ -1,5 +1,5 @@
 import type { Club } from "../../dtos";
-import { useBook } from "@/features/books/hooks/useBook";
+import { useBook } from "@/features/books";
 import { BookPlus, EditIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui";

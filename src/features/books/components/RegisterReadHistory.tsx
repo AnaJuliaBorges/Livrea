@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { formatDateString } from "../utils/formatDate";
+import { formatDateString } from "@/lib/dates";
 import { ProgressRead } from "@/components/ProgressRead";
 import { ContainerBorder } from "@/components/ContainerBorder";
 import { ConfirmDialog } from "@/components/ConfirmDialog";

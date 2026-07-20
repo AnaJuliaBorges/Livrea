@@ -6,7 +6,7 @@ import { SearchInput } from "@/components/SearchInput";
 import { BookListCard } from "../components/BookListCard";
 import { useUpsertBook } from "../hooks/useUpsertBook";
 import type { Book } from "../types/book";
-import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
+import { useProfileGenreIds } from "@/features/profile";
 import { useGenres } from "../hooks/useGenres";
 import { useDebounce } from "../hooks/useDebounce";
 import { useSearchBooks } from "../hooks/useSearchBooks";

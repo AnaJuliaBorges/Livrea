@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { toast } from "sonner";
 import ListBooks from "./ListBooks";
 import { useUpsertBook } from "../hooks/useUpsertBook";
-import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
+import { useProfileGenreIds } from "@/features/profile";
 import { useGenres } from "../hooks/useGenres";
 import { useBooksByGenres } from "../hooks/useBooksByGenres";
 import { useSearchBooks } from "../hooks/useSearchBooks";
@@ -17,7 +17,8 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("../hooks/useUpsertBook");
-vi.mock("@/features/profile/hooks/useProfileGenreIds");
+// a página importa do barrel da feature — o mock precisa mirar o barrel
+vi.mock("@/features/profile");
 vi.mock("../hooks/useGenres");
 vi.mock("../hooks/useBooksByGenres");
 vi.mock("../hooks/useSearchBooks");

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,28 +9,19 @@ import {
   Field,
   FieldDescription,
   Input,
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
   Textarea,
 } from "@/components/ui";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Camera, LogOut } from "lucide-react";
+import { ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
-import { useStates, useCities } from "@/hooks/useLocations";
+import { AvatarPicker } from "@/components/AvatarPicker";
+import { LocationFields } from "@/components/LocationFields";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";
 import { uploadAvatar } from "../services/uploadAvatar";
 import type { UserProfile } from "../dtos";
 import { HEADER_COLORS, DEFAULT_HEADER_COLOR } from "@/lib/headerColors";
-
-const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
 const editProfileSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -99,47 +90,14 @@ function EditProfileForm({
   const queryClient = useQueryClient();
   const { mutateAsync: saveProfile } = useUpdateProfile();
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarError, setAvatarError] = useState<string | null>(null);
   // fora do RHF: não é campo validável, só uma escolha da paleta
   const [headerColor, setHeaderColor] = useState(initialHeaderColor);
-
-  const avatarPreview = useMemo(
-    () => (avatarFile ? URL.createObjectURL(avatarFile) : undefined),
-    [avatarFile],
-  );
-
-  useEffect(() => {
-    return () => {
-      if (avatarPreview) URL.revokeObjectURL(avatarPreview);
-    };
-  }, [avatarPreview]);
-
-  function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!isAllowedImage(file)) {
-      setAvatarError(ALLOWED_IMAGE_MESSAGE);
-      return;
-    }
-
-    if (file.size > MAX_AVATAR_SIZE) {
-      setAvatarError("A imagem deve ter no máximo 5MB");
-      return;
-    }
-
-    setAvatarError(null);
-    setAvatarFile(file);
-  }
 
   const {
     control,
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors, isSubmitting, isValid },
   } = useForm<z.input<typeof editProfileSchema>, unknown, EditProfileFormData>({
     resolver: zodResolver(editProfileSchema),
@@ -153,18 +111,6 @@ function EditProfileForm({
       bio: profile.bio ?? "",
     },
   });
-
-  const stateId = watch("state_id") as number | undefined;
-
-  const { data: states } = useStates();
-  const { data: cities } = useCities(stateId || undefined);
-
-  const initials = profile.name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
 
   async function onSubmit(data: EditProfileFormData) {
     try {
@@ -227,41 +173,15 @@ function EditProfileForm({
         <h2>Configurações</h2>
       </button>
 
-      <div className="flex flex-col items-center gap-2">
-        <Avatar className="h-32 w-32">
-          <AvatarImage
-            src={avatarPreview ?? profile.avatarUrl ?? undefined}
-            alt={profile.name}
-            className="object-cover"
-          />
-          <AvatarFallback className="bg-gray-300 text-3xl">
-            {initials || <Camera className="h-8 w-8 text-gray-500" />}
-          </AvatarFallback>
-        </Avatar>
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={handleAvatarChange}
-        />
-
-        <Button
-          type="button"
-          variant="link"
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <Camera />
-          Alterar foto de perfil
-        </Button>
-
-        {avatarError && (
-          <FieldDescription className="text-red-500">
-            {avatarError}
-          </FieldDescription>
-        )}
-      </div>
+      <AvatarPicker
+        name={profile.name}
+        currentUrl={profile.avatarUrl}
+        value={avatarFile}
+        onChange={setAvatarFile}
+        label="Alterar foto de perfil"
+        className="h-32 w-32"
+        fallbackClassName="bg-gray-300 text-3xl"
+      />
 
       <form
         id="edit-profile-form"
@@ -299,77 +219,7 @@ function EditProfileForm({
           )}
         </Field>
 
-        <div className="grid gap-4 grid-cols-2">
-          <Controller
-            control={control}
-            name="state_id"
-            render={({ field }) => (
-              <Field>
-                <Select
-                  value={field.value ? String(field.value) : ""}
-                  onValueChange={(value) => {
-                    field.onChange(Number(value));
-                    setValue("city_id", 0);
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    {/* lookup manual: o Radix não resolve o rótulo de um
-                        valor controlado antes do dropdown abrir */}
-                    <SelectValue placeholder="Estado">
-                      {field.value
-                        ? states?.find(
-                            (state) => String(state.id) === String(field.value),
-                          )?.name
-                        : undefined}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {states?.map((state) => (
-                        <SelectItem key={state.id} value={String(state.id)}>
-                          {state.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="city_id"
-            render={({ field }) => (
-              <Field>
-                <Select
-                  value={field.value ? String(field.value) : ""}
-                  onValueChange={(value) => field.onChange(Number(value))}
-                  disabled={!stateId}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Cidade">
-                      {field.value
-                        ? cities?.find(
-                            (city) => String(city.id) === String(field.value),
-                          )?.name
-                        : undefined}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {cities?.map((city) => (
-                        <SelectItem key={city.id} value={String(city.id)}>
-                          {city.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-        </div>
+        <LocationFields control={control} className="grid gap-4 grid-cols-2" />
 
         <Field>
           <Textarea

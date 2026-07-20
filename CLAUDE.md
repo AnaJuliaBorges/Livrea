@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project overview
 
-Livrea is a social reading / book-club web app (Portuguese-language product, "clubes de leitura"). Users sign up, pick genres and books they've read, join or create reading clubs, track reads, and review books. Frontend-only SPA backed by Supabase (Postgres + Auth) and two external book-metadata APIs.
+Livrea is a social reading / book-club web app (Portuguese-language product, "clubes de leitura"). Users sign up, pick genres and books they've read, join or create reading clubs, track reads, review books, chat in club chats and follow each other. Frontend-only SPA (installable PWA with web push, via vite-plugin-pwa) backed by Supabase (Postgres + Auth + Storage + Edge Functions) and two external book-metadata APIs.
 
 ## Commands
 
@@ -38,7 +38,7 @@ Required env vars (`.env`, not committed): `VITE_SUPABASE_URL`, `VITE_SUPABASE_P
 
 ### Routing and app shell
 
-All routes are declared in one place, `src/main.tsx`, via `createBrowserRouter` (not colocated with features). `App.tsx` is the root layout (`Layout` wrapper + `<Outlet />` + `Toaster`). Protected routes attach `loader: protectedLoader` (`src/routes/ProtectedRoute.tsx`), which checks `supabase.auth.getSession()` and redirects to `/login` if absent — this is the only route-guarding mechanism (no wrapper component). Route paths are Portuguese (`/clubes`, `/meus-clubes`, `/livros`, `/perfil`).
+All routes are declared in one place, `src/main.tsx`, via `createBrowserRouter` (not colocated with features), nested under two pathless layout routes from `src/components/LayoutWrapper.tsx`: `AuthLayout` (visitor shell, no MenuBar) and `AppLayout` (logged-in shell with MenuBar) — adding a route means picking the right layout parent, never editing a pathname list. `App.tsx` is the root element (scroll reset + `<Outlet />` + `Toaster`). All pages except Home/Login are code-split via the data router's `lazy` route property. Protected routes attach `loader: protectedLoader` (`src/routes/guards.ts`), which checks `supabase.auth.getSession()` and redirects to `/login` if absent — this is the only route-guarding mechanism (no wrapper component). Route paths are Portuguese (`/clubes`, `/meus-clubes`, `/livros`, `/perfil`).
 
 `QueryClientProvider` wraps the router in `main.tsx` with global defaults: `staleTime: 5min`, `gcTime: 10min`, `retry: 2`, `refetchOnWindowFocus: false`.
 
@@ -46,31 +46,30 @@ All routes are declared in one place, `src/main.tsx`, via `createBrowserRouter` 
 
 Code lives under `src/features/<feature>/`, each feature composing a subset of: `pages/`, `components/`, `hooks/`, `services/`, `api/`, `types/` or `dtos.ts`, `model/` (zod schemas + types), `store/` (Zustand), `steps/` (wizard steps). Not every feature has every subfolder — treat this as convention, not a required scaffold.
 
-- `features/auth` — login/signup pages, `useAuth`/`useLogin` hooks, and a nested `signUp/` sub-module (its own `context/`, `hooks/`, `model/`, `steps/`, `storage/`) implementing the multi-step signup wizard.
-- `features/books` — book search/detail/registration; two external data sources (Google Books API and ISBNDB) normalized into a shared `Book` type via `services/mapGoogleBook.ts` / `mapIsbndb.ts`.
-- `features/clubs` — club listing, detail, and a multi-step "create club" wizard driven by Zustand (`store/useCreateClubStore.ts`) rather than the Context+localStorage pattern used by signup.
-- `features/profile` — profile view/edit, genre preferences.
-- `features/chat` — placeholder, currently empty.
+- `features/auth` — login/signup/password-reset pages and a nested `signUp/` sub-module (its own `hooks/`, `model/`, `steps/`, `store/`) implementing the multi-step signup wizard, including a Google OAuth variant (`GoogleFirstStep`).
+- `features/books` — book search/detail/reading registration (progress logs, highlights, review); two external data sources (Google Books API and ISBNDB) normalized into a shared `Book` type via `services/mapGoogleBook.ts` / `mapIsbndb.ts`.
+- `features/clubs` — club listing/detail/settings, join requests, members, club readings (readers/highlights/reviews sections), meetings, and a multi-step "create club" wizard (`store/useCreateClubStore.ts`).
+- `features/profile` — profile view/edit, genre preferences, follows, customizable header color.
+- `features/chat` — member-only club chat with progress-aware spoiler blur; polls via TanStack Query `refetchInterval` (no realtime, on purpose).
+- `features/notifications` — in-app notification center (`/notificacoes`) + web-push opt-in; unread badge derives from the same `["notifications"]` query.
 
-Cross-feature imports happen directly via `@/features/<x>/...` (e.g. signup wizard types import `Book` from `@/features/books/types/book`) — there's no shared/public API boundary between features.
+**Feature boundaries (enforced by ESLint):** from inside `src/features/`, another feature may only be imported through its public API — `@/features/<name>`, backed by that feature's `index.ts`. Deep imports (`@/features/books/hooks/...`) fail `npm run lint` (`no-restricted-imports` in `eslint.config.js`). To expose something new cross-feature, re-export it from the feature's `index.ts`. Pages are deliberately NOT in any index — only `src/main.tsx` imports them (directly, for per-route code splitting). Unit tests must mock the barrel too: `vi.mock("@/features/<name>")` (auto-mock) or the `importOriginal` spread pattern when only some exports should be mocked (see `searchClubReadingBooks.test.ts`).
+
+Naming conventions going forward: prefer `model/` for zod schemas + domain types in new features (`types/` and `dtos.ts` exist in older features — don't churn them, but don't add a fourth variant); a helper used by 2+ features belongs in `src/lib/`, not in a feature's `utils/`.
 
 Shared, non-feature code lives in `src/components/` (page-agnostic UI like `MenuBar`, `layoutWrapper`, `SearchInput`), `src/components/ui/` (shadcn primitives — regenerate/add via `npx shadcn add <component>`, config in `components.json`), `src/hooks/`, and `src/lib/` (`supabase.ts` client, `utils.ts` with the shadcn `cn()` helper).
 
 ### State management — three patterns in use, by concern
 
 - **Server/remote state:** TanStack Query. Query hooks are colocated under each feature's `hooks/` (e.g. `useListClubs`, `useSearchBooks`, `useSaveProfileGenres`), calling either a `supabase.from(...)`/`supabase.rpc(...)` call or a `services/`/`api/` function directly inside `queryFn`/`mutationFn`.
-- **Multi-step wizard state:** two different implementations exist for the same kind of problem — signup uses React Context + a custom hook (`useSignUpWizard`) persisted to `localStorage` (`storage/signUpStorage.ts`); club creation uses a Zustand store (`useCreateClubStore`) with no persistence. Match whichever pattern the wizard you're editing already uses; don't mix them.
+- **Multi-step wizard state:** Zustand stores — signup uses `useSignUpWizardStore` (persisted to `localStorage` via the `persist` middleware; `partialize` deliberately strips `account.password` so the plaintext password never hits storage — keep it that way), club creation uses `useCreateClubStore` (no persistence).
 - **Local/UI state:** plain `useState` inside hooks/components.
 
 ### Data layer
 
-Supabase is the backend: Postgres tables/RPCs plus Auth. Domain types and DB-facing fields are largely **Portuguese and snake_case** (`Club.nome`, `descricao`, `privacidade`, `estado_sigla`, RPC params like `p_privacidade`), while book-related types sourced from external APIs are **English and mixed case** (`Book.info.title`, `BookTemp.title_pt`). Don't normalize one into the other without checking which system (Supabase schema vs. external API) actually owns the field.
+Supabase is the backend: Postgres tables/RPCs plus Auth and Storage (public buckets `avatars`, `club-covers`). The DB schema is **English snake_case** (`clubs.name`, `visibility`, `city_id`; RPC params prefixed `p_*`). Most reads/writes go through **SECURITY DEFINER RPCs** called with `supabase.rpc("name", { p_param })` — one service file per RPC under each feature's `services/`, with authorization checks (membership/admin) inside the SQL function, not in the client. SQL scripts live temporarily in `supabase/sql/` (they're run manually in the SQL Editor and deleted after applying — the folder holds only pending scripts, it's not history). Server-side code lives in `supabase/functions/` (Deno Edge Functions): `send-push` (web-push notifications, validates everything against the DB via service role) and `isbndb` (authenticated proxy that holds the paid ISBNDB key as a secret).
 
-Book metadata comes from two external, unauthenticated-by-key REST APIs called directly with `fetch` (no client wrapper): Google Books (`features/books/api/googleBooks.ts`) and ISBNDB (`features/books/api/isbndb.ts`). Raw API responses are mapped into the internal `Book`/`BookTemp` shape via `services/mapGoogleBook.ts` and `services/mapIsbndb.ts` before use.
-
-### Mock data
-
-`src/mocks/` (`books.tsx`, `clubes.tsx`, `clubsSummary.tsx`, `profile.tsx`) holds static fixture data and is actively imported by real pages (club/book listing and detail pages, profile page) — this is not test-only fixture data, it's load-bearing for parts of the UI that aren't yet wired to live Supabase/API data. When working on a page that imports from `mocks/`, check whether the intent is to keep using the mock or to wire it to a real query.
+Book metadata comes from two external sources normalized into the internal `Book`/`BookTemp` shape via `services/mapGoogleBook.ts` / `mapIsbndb.ts`: Google Books (`features/books/api/googleBooks.ts`, direct `fetch`, browser API key) and ISBNDB (`features/books/api/isbndb.ts`, via `supabase.functions.invoke("isbndb")` — never call api2.isbndb.com directly from the frontend). Book-related types are English/mixed case (`Book.info.title`, `BookTemp.title_pt`).
 
 ### Styling
 
@@ -78,6 +77,6 @@ Tailwind v4 with no `tailwind.config.js` — theme tokens (colors, font, radii) 
 
 ### Testing
 
-- Unit/component tests: Vitest + Testing Library, jsdom environment, global test APIs enabled (no need to import `describe`/`it`). Setup file `src/test/setup.ts` runs `cleanup()` after each test. Tests are colocated as `*.test.tsx` next to the source file (currently only `src/components/ui/button.test.tsx` — most features have no unit tests yet).
-- E2E tests: Playwright, specs in `tests/*.spec.tsx` (own `tests/tsconfig.json`), run against `npm run dev` on port 5173. Two projects: Desktop Chrome and Mobile Safari (iPhone 13). Video capture is always on.
+- Unit/component tests: Vitest + Testing Library, jsdom environment, global test APIs enabled (no need to import `describe`/`it`). Setup file `src/test/setup.ts` runs `cleanup()` after each test. Tests are colocated as `*.test.ts(x)` next to the source file — coverage is broad (100+ test files; services and hooks are expected to ship with tests).
+- E2E tests: Playwright, specs in `tests/*.spec.tsx` (own `tests/tsconfig.json`), run against `npm run dev` on port 5173, with all network mocked via `page.route` (Supabase REST/RPC/auth and the book APIs). Two projects: Desktop Chrome and Mobile Safari (iPhone 13). Video capture is always on.
 - Vitest's `exclude` config explicitly skips `tests/**` and `*.spec.ts`, so unit and e2e suites never collide.

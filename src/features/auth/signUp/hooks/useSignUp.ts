@@ -6,11 +6,11 @@ import {
   type SignupFormInput,
 } from "../model/schema";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
-import { useSaveProfileGenres } from "@/features/profile/hooks/useSaveProfileGenres";
-import { uploadAvatar } from "@/features/profile/services/uploadAvatar";
-import { useSaveUserBooks } from "@/features/books/hooks/useSaveUserBooks";
+import { useSaveProfileGenres } from "@/features/profile";
+import { uploadAvatar } from "@/features/profile";
+import { useSaveUserBooks } from "@/features/books";
 import { useStates, useCities } from "@/hooks/useLocations";
-import type { Book } from "@/features/books/types/book";
+import type { Book } from "@/features/books";
 
 export function useSignup() {
   const [loading, setLoading] = useState(false);

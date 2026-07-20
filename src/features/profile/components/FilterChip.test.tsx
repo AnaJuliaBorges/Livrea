@@ -1,12 +1,12 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, it, expect, vi } from "vitest";
-import { Tag } from "./Tag";
+import { FilterChip } from "./FilterChip";
 
-describe("Tag", () => {
+describe("FilterChip", () => {
   it("renderiza o rótulo e o ícone", () => {
     render(
-      <Tag
+      <FilterChip
         label="Lido"
         color="bg-success-light"
         icon={<span data-testid="tag-icon" />}
@@ -21,7 +21,7 @@ describe("Tag", () => {
 
   it("aplica a cor apenas quando está ativa", () => {
     const { rerender } = render(
-      <Tag
+      <FilterChip
         label="Lido"
         color="bg-success-light"
         icon={null}
@@ -33,7 +33,7 @@ describe("Tag", () => {
     expect(screen.getByText("Lido")).toHaveClass("bg-success-light");
 
     rerender(
-      <Tag
+      <FilterChip
         label="Lido"
         color="bg-success-light"
         icon={null}
@@ -50,7 +50,7 @@ describe("Tag", () => {
     const onClick = vi.fn();
 
     render(
-      <Tag
+      <FilterChip
         label="Lendo"
         color="bg-warning-light"
         icon={null}

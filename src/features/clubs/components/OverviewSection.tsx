@@ -3,7 +3,7 @@ import type { Club } from "../dtos";
 import { LocalizationPin } from "@/components/LocalizationPin";
 import { EditIcon, UsersRound } from "lucide-react";
 import { Button } from "@/components/ui";
-import { BookImage } from "@/features/books/components/BookImage";
+import { BookImage } from "@/features/books";
 import {
   Carousel,
   CarouselContent,

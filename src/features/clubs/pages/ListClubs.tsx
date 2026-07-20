@@ -4,9 +4,9 @@ import ItemClub from "../components/ItemClub";
 import { RecommendedClubCard } from "../components/RecommendedClubCard";
 import { ClubListFilters } from "../components/ClubListFilters";
 import { useListClubs } from "../hooks/useListClubs";
-import { useGenres } from "@/features/books/hooks/useGenres";
-import { useMyProfile } from "@/features/profile/hooks/useMyProfile";
-import { useProfileGenreIds } from "@/features/profile/hooks/useProfileGenreIds";
+import { useGenres } from "@/features/books";
+import { useMyProfile } from "@/features/profile";
+import { useProfileGenreIds } from "@/features/profile";
 import { SearchInput } from "@/components/SearchInput";
 import {
   matchesFilters,

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui";
 import { ArrowLeft } from "lucide-react";
 import { useClubBookHighlights } from "../../hooks/useClubBookHighlights";
@@ -8,15 +8,6 @@ import {
   groupHighlights,
   type HighlightGroup,
 } from "../../utils/groupHighlights";
-
-function initialsOf(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 // Modalzinho com quem marcou a citação — cada participante com a página
 // da própria edição.
@@ -41,16 +32,12 @@ function HighlightParticipantsModal({
               className="flex items-center justify-between"
             >
               <div className="flex gap-2 items-center">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={participant.avatarUrl ?? undefined}
-                    alt={participant.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-xs">
-                    {initialsOf(participant.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  name={participant.name}
+                  src={participant.avatarUrl}
+                  className="h-8 w-8"
+                  fallbackClassName="text-xs"
+                />
                 <p className="text-xs font-medium">{participant.name}</p>
               </div>
               <p className="text-[10px] text-gray-500">

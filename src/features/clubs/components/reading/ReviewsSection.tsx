@@ -1,16 +1,7 @@
 import { ContainerBorder } from "@/components/ContainerBorder";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/UserAvatar";
 import { ArrowLeft, Star } from "lucide-react";
 import { useClubBookReviews } from "../../hooks/useClubBookReviews";
-
-function initialsOf(name: string) {
-  return name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 export function ReviewsSection({
   clubId,
@@ -48,16 +39,12 @@ export function ReviewsSection({
           <ContainerBorder key={review.userId}>
             <div className="flex items-center justify-between">
               <div className="flex gap-3 items-center">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={review.avatarUrl ?? undefined}
-                    alt={review.name}
-                    className="object-cover"
-                  />
-                  <AvatarFallback className="text-xs">
-                    {initialsOf(review.name)}
-                  </AvatarFallback>
-                </Avatar>
+                <UserAvatar
+                  name={review.name}
+                  src={review.avatarUrl}
+                  className="h-8 w-8"
+                  fallbackClassName="text-xs"
+                />
                 <p className="text-xs font-medium">{review.name}</p>
               </div>
 

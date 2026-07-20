@@ -2,8 +2,8 @@ import { LocalizationPin } from "@/components/LocalizationPin";
 import { BackButton } from "@/components/BackButton";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import ItemClub from "@/features/clubs/components/ItemClub";
+import { UserAvatar } from "@/components/UserAvatar";
+import { ItemClub } from "@/features/clubs";
 import {
   Bell,
   Bookmark,
@@ -15,11 +15,11 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { BookListCard } from "@/features/books/components/BookListCard";
-import { Tag } from "../components/Tag";
+import { BookListCard } from "@/features/books";
+import { FilterChip } from "../components/FilterChip";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUserProfile } from "../hooks/useUserProfile";
-import { useUnreadNotificationsCount } from "@/features/notifications/hooks/useNotifications";
+import { useUnreadNotificationsCount } from "@/features/notifications";
 import {
   useFollowInfo,
   useFollowUser,
@@ -65,13 +65,6 @@ export default function Profile() {
   const qntyReadBooks = profile.library.read.length;
   const qntyClubs = profile.clubs.length;
 
-  const initials = profile.name
-    .trim()
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-
   function bookActive() {
     if (!profile) return [];
 
@@ -104,16 +97,12 @@ export default function Profile() {
         <BackButton className="absolute left-4 top-4 z-10 text-gray-300 hover:bg-white/20 md:hidden" />
 
         <div className="absolute left-1/2 top-1/3 -translate-x-1/2 ">
-          <Avatar className="w-32 h-32 shadow-xl border-2 border-gray-400">
-            <AvatarImage
-              src={profile.avatarUrl ?? undefined}
-              alt={profile.name}
-              className="object-cover"
-            />
-            <AvatarFallback className="bg-gray-300 text-3xl">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar
+            name={profile.name}
+            src={profile.avatarUrl}
+            className="w-32 h-32 shadow-xl border-2 border-gray-400"
+            fallbackClassName="bg-gray-300 text-3xl"
+          />
         </div>
       </div>
 
@@ -212,21 +201,21 @@ export default function Profile() {
           </TabsContent>
           <TabsContent value="books">
             <div className="flex gap-2 mt-6">
-              <Tag
+              <FilterChip
                 label="Lido"
                 active={tagActive === "read"}
                 icon={<Bookmark className="size-4" />}
                 color="bg-success-light"
                 onClick={() => setTagActive("read")}
               />
-              <Tag
+              <FilterChip
                 label="Lendo"
                 active={tagActive === "reading"}
                 icon={<BookmarkMinus className="size-4" />}
                 color="bg-warning-light"
                 onClick={() => setTagActive("reading")}
               />
-              <Tag
+              <FilterChip
                 label="Quero ler"
                 active={tagActive === "want-to-read"}
                 icon={<BookmarkPlus className="size-4" />}

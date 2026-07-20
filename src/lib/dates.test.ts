@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatDate, formatDateString, extractYear } from "./formatDate";
+import { formatDate, formatDateString, extractYear } from "@/lib/dates";
 
 describe("formatDate", () => {
   it("formata uma data no padrão pt-BR", () => {

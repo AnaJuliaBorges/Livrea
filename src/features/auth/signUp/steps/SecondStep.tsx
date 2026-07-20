@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
@@ -10,7 +10,7 @@ import {
   FieldDescription,
 } from "@/components/ui";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useGenres } from "@/features/books/hooks/useGenres";
+import { useGenres } from "@/features/books";
 import { useSignUp } from "../hooks";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 
@@ -26,7 +26,6 @@ export default function SecondStep() {
   const {
     control,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: zodResolver(secondStepSchema),
@@ -35,7 +34,7 @@ export default function SecondStep() {
     },
   });
 
-  const selectedGenres = watch("genres");
+  const selectedGenres = useWatch({ control, name: "genres" });
 
   useEffect(() => {
     setStepButton({ disabled: !isValid || isSubmitting });

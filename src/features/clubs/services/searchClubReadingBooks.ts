@@ -1,9 +1,9 @@
 import { supabase } from "@/lib/supabase";
-import { searchGoogleBooks } from "@/features/books/api/googleBooks";
-import { searchIsbndbByQuery } from "@/features/books/api/isbndb";
-import { mapGoogleBook } from "@/features/books/services/mapGoogleBook";
-import { mapIsbndb } from "@/features/books/services/mapIsbndb";
-import type { Book } from "@/features/books/types/book";
+import { searchGoogleBooks } from "@/features/books";
+import { searchIsbndbByQuery } from "@/features/books";
+import { mapGoogleBook } from "@/features/books";
+import { mapIsbndb } from "@/features/books";
+import type { Book } from "@/features/books";
 
 // Resultado unificado da busca do modal "definir leitura do clube".
 // Livros do banco já têm id; externos precisam de upsert_book antes de usar.

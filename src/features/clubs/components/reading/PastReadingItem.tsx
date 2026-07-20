@@ -2,7 +2,7 @@ import { useState } from "react";
 import { PencilLine } from "lucide-react";
 import { toast } from "sonner";
 import { Button, Textarea } from "@/components/ui";
-import { useBook } from "@/features/books/hooks/useBook";
+import { useBook } from "@/features/books";
 import { useSetClubReadingNote } from "../../hooks/useSetClubReadingNote";
 import { BookRatingBox } from "./BookRatingBox";
 import { BookReadingCard } from "./BookReadingCard";

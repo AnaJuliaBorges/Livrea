@@ -1,4 +1,4 @@
-import { BookResults } from "@/features/books/components/BookResults";
+import { BookResults } from "@/features/books";
 import { useFourthStepLogic } from "./useFourthStepLogic";
 import { SearchInput } from "@/components/SearchInput";
 

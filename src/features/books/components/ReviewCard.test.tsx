@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, it, expect } from "vitest";
 import { ReviewCard } from "./ReviewCard";
 import type { BookReview } from "../types/book";
-import { formatDate } from "../utils/formatDate";
+import { formatDate } from "@/lib/dates";
 
 function makeReview(overrides: Partial<BookReview> = {}): BookReview {
   return {

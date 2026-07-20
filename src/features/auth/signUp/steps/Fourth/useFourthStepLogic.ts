@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-import { useDebounce } from "@/features/books/hooks/useDebounce";
-import { useSearchBooks } from "@/features/books/hooks/useSearchBooks";
-import { useGenres } from "@/features/books/hooks/useGenres";
-import { getSelectedGenreNames } from "@/features/books/utils/genreUtils";
+import { useDebounce } from "@/features/books";
+import { useSearchBooks } from "@/features/books";
+import { useGenres } from "@/features/books";
+import { getSelectedGenreNames } from "@/features/books";
 
-import type { Book } from "@/features/books/types/book";
+import type { Book } from "@/features/books";
 import { useSignUpWizardStore } from "../../store/useSignUpWizardStore";
 import { useSignUp } from "../../hooks";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +42,8 @@ export function useFourthStepLogic() {
     },
   });
 
-  const searchValue = form.watch("search") || "";
+  const searchValue =
+    useWatch({ control: form.control, name: "search" }) || "";
 
   const debouncedSearch = useDebounce(searchValue, 500);
 

@@ -2,7 +2,7 @@ import placeholder from "../../../assets/placeholder.png";
 import { Tag } from "@/components/Tag";
 import { LocalizationPin } from "@/components/LocalizationPin";
 import { MeetingTypeTag } from "./MeetingTypeTag";
-import type { ClubSummary } from "@/features/profile/dtos";
+import type { ClubSummary } from "@/features/profile";
 import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 

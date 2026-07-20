@@ -20,7 +20,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useStates, useCities } from "@/hooks/useLocations";
-import { useGenres } from "@/features/books/hooks/useGenres";
+import { useGenres } from "@/features/books";
 import { useClub } from "../hooks/useClub";
 import { useUpdateClub } from "../hooks/useUpdateClub";
 import { useDeleteClub } from "../hooks/useDeleteClub";

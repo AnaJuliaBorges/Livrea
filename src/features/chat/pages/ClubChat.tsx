@@ -6,21 +6,11 @@ import { Button, Input } from "@/components/ui";
 import { BackButton } from "@/components/BackButton";
 import placeholder from "../../../assets/placeholder.png";
 import { headerGradient } from "@/lib/headerColors";
-import { useClub } from "@/features/clubs/hooks/useClub";
+import { useClub } from "@/features/clubs";
 import { useClubMessages, useSendClubMessage } from "../hooks/useClubChat";
 import { MessageBubble } from "../components/MessageBubble";
+import { dayLabel } from "@/lib/dates";
 import type { ClubMessage } from "../services/clubChat";
-
-function dayLabel(iso: string) {
-  const date = new Date(iso);
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-
-  if (date.toDateString() === today.toDateString()) return "Hoje";
-  if (date.toDateString() === yesterday.toDateString()) return "Ontem";
-  return date.toLocaleDateString("pt-BR");
-}
 
 // mensagens agrupadas por dia, na ordem em que chegaram
 function groupByDay(messages: ClubMessage[]) {
