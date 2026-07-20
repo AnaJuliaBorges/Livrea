@@ -31,9 +31,9 @@ import { headerGradient } from "@/lib/headerColors";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
-  const [followList, setFollowList] = useState<"followers" | "following" | null>(
-    null,
-  );
+  const [followList, setFollowList] = useState<
+    "followers" | "following" | null
+  >(null);
   const navigate = useNavigate();
   const { id } = useParams();
   const isOwnProfile = !id;
@@ -174,9 +174,8 @@ export default function Profile() {
 
         {profile.bio && <p>"{profile.bio}"</p>}
 
-        <div className="grid grid-cols-4 gap-2 my-2">
+        <div className="grid grid-cols-3 gap-2 my-2">
           {qntyComponent(qntyReadBooks, "livros lidos")}
-          {qntyComponent(qntyClubs, "clubes")}
           {qntyComponent(
             followInfo?.followersCount ?? 0,
             "seguidores",
@@ -196,7 +195,7 @@ export default function Profile() {
         <Tabs defaultValue="clubs" className="w-full">
           <TabsList className="w-full">
             <TabsTrigger value="clubs">
-              {isOwnProfile ? "Meus clubes" : "Clubes"}
+              {isOwnProfile ? "Meus clubes" : "Clubes"} ({qntyClubs})
             </TabsTrigger>
             <TabsTrigger value="books">
               {isOwnProfile ? "Meus livros" : "Livros"}

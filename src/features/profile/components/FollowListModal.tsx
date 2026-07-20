@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui";
 import { UserAvatar } from "@/components/shared/UserAvatar";
 import { useFollowers, useFollowing, useUnfollow } from "../hooks/useFollow";
+import { UserRoundMinus } from "lucide-react";
 
 type Variant = "followers" | "following";
 
@@ -77,13 +78,13 @@ export function FollowListModal({
 
               {canUnfollow && (
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
-                  className="shrink-0 text-xs"
+                  className="shrink-0 text-xs text-secondary"
                   disabled={unfollow.isPending}
                   onClick={() => unfollow.mutate(user.id)}
                 >
-                  Deixar de seguir
+                  <UserRoundMinus />
                 </Button>
               )}
             </div>
