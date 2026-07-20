@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { followUser, getFollowInfo, unfollowUser } from "../services/follows";
+import {
+  followUser,
+  getFollowers,
+  getFollowing,
+  getFollowInfo,
+  unfollowUser,
+} from "../services/follows";
 import { notifyNewFollower } from "../services/sendFollowPushNotification";
 
 export function useFollowInfo(userId: string | undefined) {
@@ -7,6 +13,41 @@ export function useFollowInfo(userId: string | undefined) {
     queryKey: ["follow-info", userId],
     queryFn: () => getFollowInfo(userId!),
     enabled: Boolean(userId),
+  });
+}
+
+// só busca quando `enabled` (ex.: modal de seguidores aberto)
+export function useFollowers(userId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["followers", userId],
+    queryFn: () => getFollowers(userId!),
+    enabled: Boolean(userId) && enabled,
+  });
+}
+
+export function useFollowing(userId: string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["following", userId],
+    queryFn: () => getFollowing(userId!),
+    enabled: Boolean(userId) && enabled,
+  });
+}
+
+// Deixa de seguir alguém a partir da lista "Seguindo" do próprio perfil
+// (`profileUserId`): atualiza a lista, as contagens do dono e o follow-info
+// do alvo. Diferente de useUnfollowUser (botão de um perfil específico).
+export function useUnfollow(profileUserId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (targetId: string) => unfollowUser(targetId),
+    onSuccess: (_result, targetId) => {
+      queryClient.invalidateQueries({ queryKey: ["following", profileUserId] });
+      queryClient.invalidateQueries({
+        queryKey: ["follow-info", profileUserId],
+      });
+      queryClient.invalidateQueries({ queryKey: ["follow-info", targetId] });
+    },
   });
 }
 

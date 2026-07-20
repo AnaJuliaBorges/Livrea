@@ -204,6 +204,8 @@ Todas `SECURITY DEFINER`. "Usado em" indica a página/componente final.
 | `get_my_profile()` | Perfil do usuário logado: clubes (join `club_members`) + biblioteca (join `user_library`). | `getMyProfile` · `useMyProfile` · Profile, EditProfile, ListClubs |
 | `get_user_profile(p_user_id)` | Perfil público de outro usuário. | `getUserProfile` · `useUserProfile` · Profile |
 | `get_profile_header_color(p_user_id)` | Cor do cabeçalho do perfil (get_my_profile não retorna o campo). | `getProfileHeaderColor` · `useProfileHeaderColor` · Profile, EditProfile |
+| `get_followers(p_user_id)` | Lista de seguidores do perfil (id, name, avatar_url) juntando `follows` + `profiles`. | `getFollowers` · `useFollowers` · FollowListModal (clique em "seguidores") |
+| `get_following(p_user_id)` | Lista de quem o perfil segue (espelho de get_followers). | `getFollowing` · `useFollowing` · FollowListModal (clique em "seguindo"; no próprio perfil permite deixar de seguir) |
 
 ---
 

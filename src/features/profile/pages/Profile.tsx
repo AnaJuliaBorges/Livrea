@@ -17,6 +17,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { BookListCard } from "@/features/books";
 import { FilterChip } from "../components/FilterChip";
+import { FollowListModal } from "../components/FollowListModal";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUserProfile } from "../hooks/useUserProfile";
 import { useUnreadNotificationsCount } from "@/features/notifications";
@@ -30,6 +31,9 @@ import { headerGradient } from "@/lib/headerColors";
 
 export default function Profile() {
   const [tagActive, setTagActive] = useState("read");
+  const [followList, setFollowList] = useState<"followers" | "following" | null>(
+    null,
+  );
   const navigate = useNavigate();
   const { id } = useParams();
   const isOwnProfile = !id;
@@ -80,12 +84,17 @@ export default function Profile() {
     }
   }
 
-  function qntyComponent(qnty: number, label: string) {
+  function qntyComponent(qnty: number, label: string, onClick?: () => void) {
     return (
-      <div className="flex flex-col justify-center items-center border rounded-xl p-4">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={!onClick}
+        className="flex flex-col justify-center items-center border rounded-xl p-4 enabled:cursor-pointer enabled:hover:bg-gray-50"
+      >
         <p className="text-lg font-bold">{qnty}</p>
         <p className="text-[10px] font-medium">{label}</p>
-      </div>
+      </button>
     );
   }
 
@@ -165,10 +174,23 @@ export default function Profile() {
 
         {profile.bio && <p>"{profile.bio}"</p>}
 
-        <div className="grid grid-cols-3 gap-2 my-2">
+        <div className="grid grid-cols-4 gap-2 my-2">
           {qntyComponent(qntyReadBooks, "livros lidos")}
           {qntyComponent(qntyClubs, "clubes")}
-          {qntyComponent(followInfo?.followersCount ?? 0, "seguidores")}
+          {qntyComponent(
+            followInfo?.followersCount ?? 0,
+            "seguidores",
+            (followInfo?.followersCount ?? 0) > 0
+              ? () => setFollowList("followers")
+              : undefined,
+          )}
+          {qntyComponent(
+            followInfo?.followingCount ?? 0,
+            "seguindo",
+            (followInfo?.followingCount ?? 0) > 0
+              ? () => setFollowList("following")
+              : undefined,
+          )}
         </div>
 
         <Tabs defaultValue="clubs" className="w-full">
@@ -248,6 +270,15 @@ export default function Profile() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {followList && profile && (
+        <FollowListModal
+          userId={profile.id}
+          variant={followList}
+          canUnfollow={isOwnProfile && followList === "following"}
+          onClose={() => setFollowList(null)}
+        />
+      )}
     </div>
   );
 }

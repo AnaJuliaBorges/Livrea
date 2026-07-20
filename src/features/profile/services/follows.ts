@@ -2,7 +2,51 @@ import { supabase } from "@/lib/supabase";
 
 export interface FollowInfo {
   followersCount: number;
+  followingCount: number;
   isFollowing: boolean;
+}
+
+export interface FollowUser {
+  id: string;
+  name: string;
+  avatarUrl: string | null;
+}
+
+type RawFollowUser = {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+};
+
+function mapFollowUsers(data: unknown): FollowUser[] {
+  return ((data ?? []) as RawFollowUser[]).map((user) => ({
+    id: user.id,
+    name: user.name,
+    avatarUrl: user.avatar_url,
+  }));
+}
+
+// Seguidores do perfil (nome + avatar). Via RPC SECURITY DEFINER porque a
+// tabela profiles não é lida direto pelo client.
+export async function getFollowers(userId: string): Promise<FollowUser[]> {
+  const { data, error } = await supabase.rpc("get_followers", {
+    p_user_id: userId,
+  });
+
+  if (error) throw error;
+
+  return mapFollowUsers(data);
+}
+
+// Quem o perfil está seguindo.
+export async function getFollowing(userId: string): Promise<FollowUser[]> {
+  const { data, error } = await supabase.rpc("get_following", {
+    p_user_id: userId,
+  });
+
+  if (error) throw error;
+
+  return mapFollowUsers(data);
 }
 
 async function getCurrentUserId(): Promise<string> {
@@ -15,30 +59,37 @@ async function getCurrentUserId(): Promise<string> {
   return user.id;
 }
 
-// Contagem de seguidores do perfil + se o usuário logado já segue.
+// Contagens de seguidores/seguindo do perfil + se o usuário logado já segue.
 // RLS permite SELECT em follows para qualquer autenticado.
 export async function getFollowInfo(userId: string): Promise<FollowInfo> {
   const currentUserId = await getCurrentUserId();
 
-  const [countResult, followingResult] = await Promise.all([
-    supabase
-      .from("follows")
-      .select("*", { count: "exact", head: true })
-      .eq("followed_id", userId),
-    supabase
-      .from("follows")
-      .select("follower_id")
-      .eq("followed_id", userId)
-      .eq("follower_id", currentUserId)
-      .maybeSingle(),
-  ]);
+  const [followersResult, followingCountResult, isFollowingResult] =
+    await Promise.all([
+      supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("followed_id", userId),
+      supabase
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("follower_id", userId),
+      supabase
+        .from("follows")
+        .select("follower_id")
+        .eq("followed_id", userId)
+        .eq("follower_id", currentUserId)
+        .maybeSingle(),
+    ]);
 
-  if (countResult.error) throw countResult.error;
-  if (followingResult.error) throw followingResult.error;
+  if (followersResult.error) throw followersResult.error;
+  if (followingCountResult.error) throw followingCountResult.error;
+  if (isFollowingResult.error) throw isFollowingResult.error;
 
   return {
-    followersCount: countResult.count ?? 0,
-    isFollowing: Boolean(followingResult.data),
+    followersCount: followersResult.count ?? 0,
+    followingCount: followingCountResult.count ?? 0,
+    isFollowing: Boolean(isFollowingResult.data),
   };
 }
 

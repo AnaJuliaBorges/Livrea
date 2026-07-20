@@ -1,9 +1,16 @@
 import { supabase } from "@/lib/supabase";
-import { followUser, getFollowInfo, unfollowUser } from "./follows";
+import {
+  followUser,
+  getFollowers,
+  getFollowing,
+  getFollowInfo,
+  unfollowUser,
+} from "./follows";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     from: vi.fn(),
+    rpc: vi.fn(),
     auth: {
       getUser: vi.fn(),
     },
@@ -11,7 +18,12 @@ vi.mock("@/lib/supabase", () => ({
 }));
 
 const fromMock = vi.mocked(supabase.from);
+const rpcMock = vi.mocked(supabase.rpc);
 const getUserMock = vi.mocked(supabase.auth.getUser);
+
+function rpcResult(data: unknown, error: unknown = null) {
+  return { data, error } as unknown as Awaited<ReturnType<typeof supabase.rpc>>;
+}
 
 type BuilderResult = {
   data?: unknown;
@@ -62,25 +74,36 @@ beforeEach(() => {
 });
 
 describe("getFollowInfo", () => {
-  it("retorna a contagem de seguidores e isFollowing false sem follow", async () => {
-    queueBuilder({ count: 7, error: null });
-    queueBuilder({ data: null, error: null });
+  it("retorna as contagens e isFollowing false sem follow", async () => {
+    queueBuilder({ count: 7, error: null }); // seguidores
+    queueBuilder({ count: 3, error: null }); // seguindo
+    queueBuilder({ data: null, error: null }); // isFollowing
 
     const info = await getFollowInfo("user-2");
 
-    expect(info).toEqual({ followersCount: 7, isFollowing: false });
+    expect(info).toEqual({
+      followersCount: 7,
+      followingCount: 3,
+      isFollowing: false,
+    });
   });
 
   it("retorna isFollowing true quando o usuário logado já segue", async () => {
     queueBuilder({ count: 1, error: null });
+    queueBuilder({ count: 0, error: null });
     queueBuilder({ data: { follower_id: "me-1" }, error: null });
 
     const info = await getFollowInfo("user-2");
 
-    expect(info).toEqual({ followersCount: 1, isFollowing: true });
+    expect(info).toEqual({
+      followersCount: 1,
+      followingCount: 0,
+      isFollowing: true,
+    });
   });
 
   it("filtra o follow pelo usuário logado e pelo perfil visto", async () => {
+    queueBuilder({ count: 0, error: null });
     queueBuilder({ count: 0, error: null });
     const followBuilder = queueBuilder({ data: null, error: null });
 
@@ -92,6 +115,7 @@ describe("getFollowInfo", () => {
 
   it("lança o erro retornado pela query de contagem", async () => {
     queueBuilder({ count: null, error: new Error("count falhou") });
+    queueBuilder({ count: null, error: null });
     queueBuilder({ data: null, error: null });
 
     await expect(getFollowInfo("user-2")).rejects.toThrow("count falhou");
@@ -106,6 +130,70 @@ describe("getFollowInfo", () => {
     await expect(getFollowInfo("user-2")).rejects.toThrow(
       "Usuário não autenticado",
     );
+  });
+});
+
+describe("getFollowers", () => {
+  it("chama a RPC get_followers e mapeia o retorno", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult([
+        { id: "user-2", name: "Bia Leitora", avatar_url: "https://cdn/2.png" },
+        { id: "user-3", name: "Caio", avatar_url: null },
+      ]),
+    );
+
+    const followers = await getFollowers("user-1");
+
+    expect(rpcMock).toHaveBeenCalledWith("get_followers", {
+      p_user_id: "user-1",
+    });
+    expect(followers).toEqual([
+      { id: "user-2", name: "Bia Leitora", avatarUrl: "https://cdn/2.png" },
+      { id: "user-3", name: "Caio", avatarUrl: null },
+    ]);
+  });
+
+  it("retorna lista vazia quando não há seguidores", async () => {
+    rpcMock.mockResolvedValue(rpcResult(null));
+
+    expect(await getFollowers("user-1")).toEqual([]);
+  });
+
+  it("propaga o erro da RPC", async () => {
+    rpcMock.mockResolvedValue(rpcResult(null, new Error("boom")));
+
+    await expect(getFollowers("user-1")).rejects.toThrow("boom");
+  });
+});
+
+describe("getFollowing", () => {
+  it("chama a RPC get_following e mapeia o retorno", async () => {
+    rpcMock.mockResolvedValue(
+      rpcResult([
+        { id: "user-2", name: "Bia Leitora", avatar_url: "https://cdn/2.png" },
+      ]),
+    );
+
+    const following = await getFollowing("user-1");
+
+    expect(rpcMock).toHaveBeenCalledWith("get_following", {
+      p_user_id: "user-1",
+    });
+    expect(following).toEqual([
+      { id: "user-2", name: "Bia Leitora", avatarUrl: "https://cdn/2.png" },
+    ]);
+  });
+
+  it("retorna lista vazia quando não segue ninguém", async () => {
+    rpcMock.mockResolvedValue(rpcResult(null));
+
+    expect(await getFollowing("user-1")).toEqual([]);
+  });
+
+  it("propaga o erro da RPC", async () => {
+    rpcMock.mockResolvedValue(rpcResult(null, new Error("boom")));
+
+    await expect(getFollowing("user-1")).rejects.toThrow("boom");
   });
 });
 
