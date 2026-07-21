@@ -25,11 +25,14 @@ function isNetworkError(error: unknown): boolean {
 export function initSentry(): void {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
 
-  if (!dsn) return;
+  // Fora de produção nem inicializa. Antes o guard era só `enabled: PROD`, que
+  // impedia o envio mas ainda carregava o SDK: em dev o Vite serve Sentry +
+  // Replay sem bundle, o que engorda o grafo de módulos de todo page load —
+  // no e2e isso empurrava o WebKit por cima do timeout de forma intermitente.
+  if (!dsn || !import.meta.env.PROD) return;
 
   Sentry.init({
     dsn,
-    enabled: import.meta.env.PROD,
     environment: import.meta.env.MODE,
     enableLogs: true,
     // sem tracing de propósito: performance já é coberta pelo

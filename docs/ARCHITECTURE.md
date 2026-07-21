@@ -264,8 +264,13 @@ No desktop os gradientes são removidos (`md:bg-none`).
   `reportError` é um passo separado.
 
 Decisões do setup do Sentry, todas em `lib/sentry.ts`:
-- Sem `VITE_SENTRY_DSN` nada é inicializado (dev local, CI, testes), e
-  `enabled: import.meta.env.PROD` é a segunda trava — hot reload não queima quota.
+- `initSentry()` só faz algo com `VITE_SENTRY_DSN` **e** em produção
+  (`import.meta.env.PROD`) — em dev/CI/testes ele retorna antes do `Sentry.init`.
+  Não é só pra não queimar quota: com o DSN presente no `.env`, o Vite dev servia
+  o SDK e o Replay sem bundle e engordava o grafo de módulos de todo page load.
+  O efeito era medível no e2e — a suíte caiu de 9,4 min para 5,8 min e as falhas
+  intermitentes de timeout no WebKit sumiram. Consequência aceita: não dá pra
+  testar o Sentry rodando `npm run dev`; é preciso um build de produção.
 - `Sentry.setUser({ id })` no `onAuthStateChange` do Supabase: só o id, nunca
   e-mail ou nome. Sem isso todo evento chega anônimo e não dá pra dizer quantas
   pessoas um erro afetou.
