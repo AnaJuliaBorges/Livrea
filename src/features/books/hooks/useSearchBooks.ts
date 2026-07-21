@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { reportError } from "@/lib/reportError";
 import { searchIsbndbByGenre, searchIsbndbByQuery } from "../api/isbndb";
 import { mapIsbndb } from "../services/mapIsbndb";
 
@@ -12,17 +13,38 @@ export function useSearchBooks(genres: string[], query?: string) {
       allBooks.push(...books.map(mapIsbndb));
     } else if (genres.length > 0) {
       // Fazer requests paralelas para cada gênero
-      const genreRequests = genres.map((genre) =>
-        searchIsbndbByGenre(genre, 20, pageParam)
-          .then((books) => books.map(mapIsbndb))
-          .catch((error) => {
-            console.error(`Erro ao buscar gênero "${genre}":`, error);
-            return [];
-          }),
+      const results = await Promise.allSettled(
+        genres.map((genre) =>
+          searchIsbndbByGenre(genre, 20, pageParam).then((books) =>
+            books.map(mapIsbndb),
+          ),
+        ),
       );
 
-      const results = await Promise.all(genreRequests);
-      results.forEach((books) => allBooks.push(...books));
+      const rejected = results.flatMap((result, index) =>
+        result.status === "rejected"
+          ? [{ genre: genres[index], reason: result.reason }]
+          : [],
+      );
+
+      // TODOS os gêneros falharem é a ISBNDB fora do ar (assinatura vencida,
+      // cota, 401) — propaga pra tela poder dizer "não foi possível buscar"
+      // em vez de "nenhum livro encontrado", que manda investigar o lugar
+      // errado. Antes isso virava lista vazia e sumia.
+      if (rejected.length === genres.length) throw rejected[0].reason;
+
+      // Falha parcial só encolhe a lista, então não quebra a tela — mas
+      // também não pode sumir: vai pro funil como qualquer outro erro.
+      rejected.forEach(({ genre, reason }) =>
+        reportError(reason, {
+          source: "query",
+          detail: `isbndb subject "${genre}"`,
+        }),
+      );
+
+      results.forEach((result) => {
+        if (result.status === "fulfilled") allBooks.push(...result.value);
+      });
     }
 
     // Deduplica por ISBN dentro da página
@@ -49,6 +71,7 @@ export function useSearchBooks(genres: string[], query?: string) {
   const {
     data,
     isLoading,
+    isError,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -78,6 +101,7 @@ export function useSearchBooks(genres: string[], query?: string) {
   return {
     data: globalDeduplicatedBooks,
     isLoading,
+    isError,
     hasNextPage: hasNextPage ?? false,
     fetchNextPage,
     isFetchingNextPage: isFetchingNextPage ?? false,

@@ -51,6 +51,7 @@ export default function ListBooks() {
   const {
     data: externalBooks,
     isLoading: isLoadingExternal,
+    isError: isExternalError,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -126,9 +127,13 @@ export default function ListBooks() {
           <p className="text-sm text-muted-foreground">Procurando livros...</p>
         </div>
       ) : isEmpty ? (
+        // "vazio" e "quebrou" chegam aqui do mesmo jeito (lista sem itens),
+        // mas mandam investigar lugares opostos — a mensagem tem que separar
         <div className="flex items-center justify-center h-64">
           <p className="text-sm text-muted-foreground">
-            Nenhum livro encontrado
+            {isExternalError
+              ? "Não foi possível buscar os livros agora. Tente de novo em instantes."
+              : "Nenhum livro encontrado"}
           </p>
         </div>
       ) : (

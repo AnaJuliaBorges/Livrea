@@ -250,7 +250,8 @@ No desktop os gradientes são removidos (`md:bg-none`).
   os call sites falam `{ source, detail }` e não conhecem o SDK, então trocar de
   serviço de erro é mexer só nesse arquivo. `source` vira tag (filtra
   query/mutation/route no Sentry), `detail` vira extra. Chega nele por dois
-  caminhos:
+  caminhos (mais chamadas diretas, quando a falha é tolerada e não chega ao
+  cache — ver `useSearchBooks` abaixo):
   - `QueryCache`/`MutationCache` de
     [`lib/queryClient.ts`](../src/lib/queryClient.ts), que pegam **toda** falha de
     query/mutation, inclusive as que a tela ignora. Só reportam, não notificam —
@@ -262,6 +263,22 @@ No desktop os gradientes são removidos (`md:bg-none`).
     após deploy) e 404 são esperados e **não** são reportados.
 - Os `console.error` espalhados nas telas continuam onde estão; migrá-los para
   `reportError` é um passo separado.
+
+**Falha nunca deve virar estado vazio.** Uma tela que mostra "nenhum resultado"
+quando na verdade a API caiu manda investigar o lugar errado — foi assim que uma
+assinatura vencida da ISBNDB custou um diagnóstico inteiro de código. O padrão
+adotado em [`useSearchBooks`](../src/features/books/hooks/useSearchBooks.ts):
+- falha **parcial** (um gênero entre vários) é tolerada — a lista só encolhe —
+  mas vai pro `reportError`, então não some;
+- falha **total** (todos os gêneros, via `Promise.allSettled`) é propagada, o que
+  faz a query realmente entrar em estado de erro e chegar ao `QueryCache`;
+- a tela ([`ListBooks`](../src/features/books/pages/ListBooks.tsx)) lê `isError` e
+  troca a mensagem: "não foi possível buscar" em vez de "nenhum livro encontrado".
+
+Buracos conhecidos do mesmo tipo, ainda abertos: `useProfileGenreIds` usa
+`supabase.auth.getUser()`, que **não lança** em falha — devolve `{ user: null }`,
+a query de gêneros nunca sai de `enabled: false` e a tela anuncia "você ainda não
+tem gêneros favoritos" mesmo com gêneros salvos.
 
 Decisões do setup do Sentry, todas em `lib/sentry.ts`:
 - `initSentry()` só faz algo com `VITE_SENTRY_DSN` **e** em produção

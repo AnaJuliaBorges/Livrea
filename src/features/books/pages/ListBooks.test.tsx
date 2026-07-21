@@ -59,6 +59,7 @@ function mockDefaults({
   dbBooksLoading = false,
   externalBooks = [] as Book[],
   externalLoading = false,
+  externalError = false,
   hasNextPage = false,
   isFetchingNextPage = false,
   isOpeningBook = false,
@@ -78,6 +79,7 @@ function mockDefaults({
   useSearchBooksMock.mockReturnValue({
     data: externalBooks,
     isLoading: externalLoading,
+    isError: externalError,
     hasNextPage,
     fetchNextPage: vi.fn(),
     isFetchingNextPage,
@@ -131,6 +133,24 @@ describe("ListBooks", () => {
     renderPage();
 
     expect(screen.getByText("Nenhum livro encontrado")).toBeInTheDocument();
+  });
+
+  // lista vazia por falha e lista vazia de verdade chegam iguais na tela, mas
+  // mandam investigar lugares opostos (foi o que custou o diagnóstico da
+  // assinatura da ISBNDB vencida)
+  it("diferencia falha da busca de ausência de resultados", () => {
+    mockDefaults({ externalError: true });
+
+    renderPage();
+
+    expect(
+      screen.getByText(
+        "Não foi possível buscar os livros agora. Tente de novo em instantes.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Nenhum livro encontrado"),
+    ).not.toBeInTheDocument();
   });
 
   it("lista os livros recomendados do banco", () => {
