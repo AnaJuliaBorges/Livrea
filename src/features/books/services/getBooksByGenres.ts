@@ -16,9 +16,6 @@ type RawRow = {
   image_medium: string | null;
 };
 
-const SELECT_COLUMNS =
-  "id, isbn, title_original, title_pt, image_thumbnail, image_medium";
-
 function mapRow(row: RawRow): GenreBook {
   return {
     id: row.id,
@@ -33,27 +30,16 @@ export async function getBooksByGenres(
 ): Promise<GenreBook[]> {
   if (genreIds.length === 0) return [];
 
-  // book_genres cobre gênero primário e secundários; se a junção não
-  // tiver linhas para esses livros, cai no primary_genre_id direto
-  const { data, error } = await supabase
-    .from("books")
-    .select(`${SELECT_COLUMNS}, book_genres!inner(genre_id)`)
-    .in("book_genres.genre_id", genreIds)
-    .order("global_average_rating", { ascending: false, nullsFirst: false })
-    .limit(40);
+  // A RLS de `books` bloqueia SELECT direto do client (mesmo motivo de
+  // get_book/search_books), então a recomendação vem de uma RPC
+  // SECURITY DEFINER que faz a cascata em SQL: junção book_genres (gênero
+  // primário + secundários) → primary_genre_id → todos os livros do banco
+  // quando nada casa com os gêneros do usuário.
+  const { data, error } = await supabase.rpc("get_books_by_genres", {
+    p_genre_ids: genreIds,
+  });
 
   if (error) throw new Error(error.message);
 
-  if (data && data.length > 0) return (data as RawRow[]).map(mapRow);
-
-  const fallback = await supabase
-    .from("books")
-    .select(SELECT_COLUMNS)
-    .in("primary_genre_id", genreIds)
-    .order("global_average_rating", { ascending: false, nullsFirst: false })
-    .limit(40);
-
-  if (fallback.error) throw new Error(fallback.error.message);
-
-  return ((fallback.data ?? []) as RawRow[]).map(mapRow);
+  return ((data ?? []) as RawRow[]).map(mapRow);
 }

@@ -54,6 +54,7 @@ function makeExternalBook(overrides: Partial<Book> = {}): Book {
 function mockDefaults({
   genreIds = [1],
   genreIdsLoading = false,
+  genreIdsError = false,
   genresLoading = false,
   dbBooks = [] as GenreBook[],
   dbBooksLoading = false,
@@ -67,6 +68,7 @@ function mockDefaults({
   useProfileGenreIdsMock.mockReturnValue({
     data: genreIds,
     isLoading: genreIdsLoading,
+    isError: genreIdsError,
   } as unknown as ReturnType<typeof useProfileGenreIds>);
   useGenresMock.mockReturnValue({
     data: [{ id: 1, name: "Fantasia", google_category: ["Fiction/Fantasy"] }],
@@ -151,6 +153,23 @@ describe("ListBooks", () => {
     expect(
       screen.queryByText("Nenhum livro encontrado"),
     ).not.toBeInTheDocument();
+  });
+
+  // falha de auth deixava genreIds cair no default [] e a tela acusava o
+  // usuário de não ter escolhido gêneros
+  it("não diz que faltam gêneros quando a consulta de gêneros falhou", () => {
+    mockDefaults({ genreIds: [], genreIdsError: true });
+
+    renderPage();
+
+    expect(
+      screen.queryByText(/Você ainda não tem gêneros favoritos/),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Não foi possível buscar os livros agora. Tente de novo em instantes.",
+      ),
+    ).toBeInTheDocument();
   });
 
   it("lista os livros recomendados do banco", () => {

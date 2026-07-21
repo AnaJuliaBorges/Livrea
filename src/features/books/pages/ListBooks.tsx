@@ -34,8 +34,11 @@ export default function ListBooks() {
     }
   }
 
-  const { data: genreIds = [], isLoading: isLoadingGenreIds } =
-    useProfileGenreIds();
+  const {
+    data: genreIds = [],
+    isLoading: isLoadingGenreIds,
+    isError: isGenreIdsError,
+  } = useProfileGenreIds();
   const { data: allGenres = [], isLoading: isLoadingGenres } = useGenres();
 
   const genreNames = useMemo(
@@ -95,8 +98,15 @@ export default function ListBooks() {
     isLoadingExternal ||
     (!isSearching && isLoadingDbBooks);
 
+  // lista de gêneros vazia só significa "não escolheu gêneros" quando a
+  // consulta de fato deu certo — com erro, `genreIds` cai no default []
   const hasNoGenres =
-    !isLoadingGenreIds && !isLoadingGenres && genreIds.length === 0;
+    !isLoadingGenreIds &&
+    !isLoadingGenres &&
+    !isGenreIdsError &&
+    genreIds.length === 0;
+
+  const hasFailed = isExternalError || isGenreIdsError;
 
   const showDbBooks = !isSearching && dbBooks.length > 0;
   const isEmpty =
@@ -131,7 +141,7 @@ export default function ListBooks() {
         // mas mandam investigar lugares opostos — a mensagem tem que separar
         <div className="flex items-center justify-center h-64">
           <p className="text-sm text-muted-foreground">
-            {isExternalError
+            {hasFailed
               ? "Não foi possível buscar os livros agora. Tente de novo em instantes."
               : "Nenhum livro encontrado"}
           </p>

@@ -175,9 +175,15 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(genres));
   });
 
-  await mockRoute(page, "**/rest/v1/books*", async (route) => {
-    await route.fulfill(jsonResponse(dbBooks));
-  });
+  // recomendação do banco vem da RPC get_books_by_genres (a RLS de books
+  // bloqueia SELECT direto do client)
+  await mockRoute(
+    page,
+    "**/rest/v1/rpc/get_books_by_genres*",
+    async (route) => {
+      await route.fulfill(jsonResponse(dbBooks));
+    },
+  );
 
   // a ISBNDB agora é chamada via Edge Function (proxy que esconde a chave);
   // a action no corpo diz qual endpoint upstream seria usado

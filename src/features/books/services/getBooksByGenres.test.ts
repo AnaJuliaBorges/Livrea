@@ -4,19 +4,18 @@ import { supabase } from "@/lib/supabase";
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
-    from: vi.fn(),
+    rpc: vi.fn(),
   },
 }));
 
-const fromMock = vi.mocked(supabase.from);
+const rpcMock = vi.mocked(supabase.rpc);
 
-function chain(result: { data: unknown; error: unknown }) {
-  const limit = vi.fn().mockResolvedValue(result);
-  const order = vi.fn(() => ({ limit }));
-  const inFn = vi.fn(() => ({ order }));
-  const select = vi.fn(() => ({ in: inFn }));
-  return { select, in: inFn, order, limit } as unknown as ReturnType<
-    typeof supabase.from
+// a cascata (junção book_genres → primary_genre_id → todos os livros) vive
+// na RPC get_books_by_genres, no SQL; aqui o service só repassa os ids e
+// mapeia as linhas cruas que a RPC devolve
+function rpcResult(data: unknown, error: unknown = null) {
+  return { data, error } as unknown as Awaited<
+    ReturnType<typeof supabase.rpc>
   >;
 }
 
@@ -38,11 +37,21 @@ describe("getBooksByGenres", () => {
     const result = await getBooksByGenres([]);
 
     expect(result).toEqual([]);
-    expect(fromMock).not.toHaveBeenCalled();
+    expect(rpcMock).not.toHaveBeenCalled();
   });
 
-  it("mapeia os livros retornados pela junção book_genres", async () => {
-    fromMock.mockReturnValueOnce(chain({ data: [row], error: null }));
+  it("chama a RPC get_books_by_genres passando os ids", async () => {
+    rpcMock.mockResolvedValueOnce(rpcResult([row]));
+
+    await getBooksByGenres([1, 2]);
+
+    expect(rpcMock).toHaveBeenCalledWith("get_books_by_genres", {
+      p_genre_ids: [1, 2],
+    });
+  });
+
+  it("mapeia os livros retornados pela RPC", async () => {
+    rpcMock.mockResolvedValueOnce(rpcResult([row]));
 
     const result = await getBooksByGenres([1, 2]);
 
@@ -54,13 +63,10 @@ describe("getBooksByGenres", () => {
         image: "thumb.jpg",
       },
     ]);
-    expect(fromMock).toHaveBeenCalledTimes(1);
   });
 
   it("usa title_original quando não há title_pt", async () => {
-    fromMock.mockReturnValueOnce(
-      chain({ data: [{ ...row, title_pt: null }], error: null }),
-    );
+    rpcMock.mockResolvedValueOnce(rpcResult([{ ...row, title_pt: null }]));
 
     const result = await getBooksByGenres([1]);
 
@@ -68,11 +74,8 @@ describe("getBooksByGenres", () => {
   });
 
   it("usa image_medium quando não há image_thumbnail", async () => {
-    fromMock.mockReturnValueOnce(
-      chain({
-        data: [{ ...row, image_thumbnail: null }],
-        error: null,
-      }),
+    rpcMock.mockResolvedValueOnce(
+      rpcResult([{ ...row, image_thumbnail: null }]),
     );
 
     const result = await getBooksByGenres([1]);
@@ -81,11 +84,8 @@ describe("getBooksByGenres", () => {
   });
 
   it("deixa image undefined quando não há nenhuma imagem", async () => {
-    fromMock.mockReturnValueOnce(
-      chain({
-        data: [{ ...row, image_thumbnail: null, image_medium: null }],
-        error: null,
-      }),
+    rpcMock.mockResolvedValueOnce(
+      rpcResult([{ ...row, image_thumbnail: null, image_medium: null }]),
     );
 
     const result = await getBooksByGenres([1]);
@@ -93,42 +93,19 @@ describe("getBooksByGenres", () => {
     expect(result[0].image).toBeUndefined();
   });
 
-  it("cai no fallback por primary_genre_id quando a junção não retorna nada", async () => {
-    fromMock
-      .mockReturnValueOnce(chain({ data: [], error: null }))
-      .mockReturnValueOnce(chain({ data: [row], error: null }));
-
-    const result = await getBooksByGenres([1]);
-
-    expect(fromMock).toHaveBeenCalledTimes(2);
-    expect(result).toHaveLength(1);
-  });
-
-  it("lança erro quando a consulta principal falha", async () => {
-    fromMock.mockReturnValueOnce(
-      chain({ data: null, error: { message: "erro na consulta" } }),
-    );
-
-    await expect(getBooksByGenres([1])).rejects.toThrow("erro na consulta");
-  });
-
-  it("lança erro quando o fallback falha", async () => {
-    fromMock
-      .mockReturnValueOnce(chain({ data: [], error: null }))
-      .mockReturnValueOnce(
-        chain({ data: null, error: { message: "erro no fallback" } }),
-      );
-
-    await expect(getBooksByGenres([1])).rejects.toThrow("erro no fallback");
-  });
-
-  it("retorna array vazio quando o fallback também não encontra nada", async () => {
-    fromMock
-      .mockReturnValueOnce(chain({ data: [], error: null }))
-      .mockReturnValueOnce(chain({ data: null, error: null }));
+  it("retorna array vazio quando a RPC não devolve nada", async () => {
+    rpcMock.mockResolvedValueOnce(rpcResult(null));
 
     const result = await getBooksByGenres([1]);
 
     expect(result).toEqual([]);
+  });
+
+  it("lança erro quando a RPC falha", async () => {
+    rpcMock.mockResolvedValueOnce(
+      rpcResult(null, { message: "erro na consulta" }),
+    );
+
+    await expect(getBooksByGenres([1])).rejects.toThrow("erro na consulta");
   });
 });
