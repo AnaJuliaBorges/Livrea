@@ -5,10 +5,7 @@ import { BackButton } from "@/components/shared/BackButton";
 import { ContainerBorder } from "@/components/shared/ContainerBorder";
 import { Button } from "@/components/ui";
 import { BellOff, BellRing } from "lucide-react";
-import {
-  ensurePushSubscription,
-  getPushPermissionState,
-} from "@/lib/push";
+import { ensurePushSubscription, getPushPermissionState } from "@/lib/push";
 import {
   useMarkAllNotificationsRead,
   useNotifications,
@@ -54,7 +51,7 @@ export default function Notifications() {
   }, [notifications, markAllRead]);
 
   return (
-    <div className="flex flex-col gap-4 mb-10 md:mx-auto md:w-full md:max-w-2xl">
+    <div className="flex flex-col gap-4 mb-16 md:mx-auto md:w-full md:max-w-2xl">
       <div className="flex items-center gap-2">
         <BackButton className="md:hidden" />
         <h1 className="text-lg font-medium">Notificações</h1>
