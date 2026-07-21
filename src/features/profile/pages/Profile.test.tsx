@@ -31,6 +31,7 @@ const unfollowMutate = vi.fn();
 
 function mockFollowState(state: {
   followersCount?: number;
+  followingCount?: number;
   isFollowing?: boolean;
   loaded?: boolean;
 }) {
@@ -40,6 +41,7 @@ function mockFollowState(state: {
         ? undefined
         : {
             followersCount: state.followersCount ?? 0,
+            followingCount: state.followingCount ?? 0,
             isFollowing: state.isFollowing ?? false,
           },
   } as ReturnType<typeof useFollowInfo>);
@@ -191,15 +193,30 @@ describe("Profile", () => {
     expect(screen.getAllByText(/Campinas/).length).toBeGreaterThanOrEqual(1);
   });
 
-  it("mostra as quantidades de livros lidos e clubes", () => {
+  // os três contadores do topo; o de clubes vive no rótulo da aba
+  it("mostra as quantidades de livros lidos, seguidores e seguindo", () => {
     mockQueryState({ data: profile });
+    mockFollowState({ followersCount: 3, followingCount: 5 });
 
     renderProfile();
 
     expect(screen.getByText("livros lidos").previousSibling).toHaveTextContent(
       "2",
     );
-    expect(screen.getByText("clubes").previousSibling).toHaveTextContent("1");
+    expect(screen.getByText("seguidores").previousSibling).toHaveTextContent(
+      "3",
+    );
+    expect(screen.getByText("seguindo").previousSibling).toHaveTextContent("5");
+  });
+
+  it("mostra a quantidade de clubes no rótulo da aba", () => {
+    mockQueryState({ data: profile });
+
+    renderProfile();
+
+    expect(
+      screen.getByRole("tab", { name: "Meus clubes (1)" }),
+    ).toBeInTheDocument();
   });
 
   it("lista os clubes do usuário na aba padrão", () => {
@@ -351,7 +368,7 @@ describe("Profile", () => {
 
     renderOtherProfile("user-1");
 
-    expect(screen.getByRole("tab", { name: "Clubes" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Clubes (1)" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Livros" })).toBeInTheDocument();
   });
 });
