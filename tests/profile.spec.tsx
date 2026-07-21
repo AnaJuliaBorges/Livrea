@@ -203,13 +203,18 @@ test.describe("Perfil", () => {
     await expect(page.getByText("Ana E2E Teste")).toBeVisible();
     await expect(page.getByText('"Bio de teste e2e"')).toBeVisible();
 
-    // contadores: 2 livros lidos, 1 clube
+    // contadores do topo: 2 livros lidos e os follows (mock devolve 0)
     await expect(
       page.getByText("livros lidos", { exact: true }).locator(".."),
     ).toContainText("2");
     await expect(
-      page.getByText("clubes", { exact: true }).locator(".."),
-    ).toContainText("1");
+      page.getByText("seguidores", { exact: true }).locator(".."),
+    ).toContainText("0");
+
+    // a contagem de clubes vive no rótulo da aba
+    await expect(
+      page.getByRole("tab", { name: "Meus clubes (1)" }),
+    ).toBeVisible();
 
     // aba padrão lista os clubes
     await expect(page.getByText("Clube E2E da Fantasia")).toBeVisible();
