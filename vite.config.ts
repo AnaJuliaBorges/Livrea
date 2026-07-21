@@ -3,8 +3,37 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import { defineConfig } from "vitest/config";
 import { VitePWA } from "vite-plugin-pwa";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+
+// Upload de source maps pro Sentry: sem eles a stack de produção chega
+// minificada e é praticamente inútil. Só liga quando SENTRY_AUTH_TOKEN existe
+// (build da Vercel) — é uma env var de BUILD, nunca VITE_*, senão o token iria
+// parar no bundle. Sem token o build local segue idêntico ao de hoje e, o que
+// importa, os .map nem são gerados: se fossem, seriam servidos publicamente.
+const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+
+// A integração Sentry↔Vercel cadastra o DSN como SENTRY_DSN, mas o Vite só
+// injeta no bundle o que começa com VITE_ — sem mapear, o DSN não chega no
+// cliente e initSentry() silenciosamente não inicializa nada em produção.
+//
+// O mapeamento é var a var DE PROPÓSITO: `envPrefix: ["VITE_", "SENTRY_"]`
+// resolveria em uma linha, mas exporia junto o SENTRY_AUTH_TOKEN, que é o
+// único segredo real do conjunto. O DSN é público por design (vai pro bundle
+// de qualquer forma); o token não.
+//
+// Local (VITE_SENTRY_DSN no .env) segue tendo precedência: aí o define nem
+// entra e o valor vem do .env como em qualquer outra var do projeto.
+const sentryDsnDefine =
+  process.env.SENTRY_DSN && !process.env.VITE_SENTRY_DSN
+    ? {
+        "import.meta.env.VITE_SENTRY_DSN": JSON.stringify(
+          process.env.SENTRY_DSN,
+        ),
+      }
+    : {};
 
 export default defineConfig({
+  define: sentryDsnDefine,
   plugins: [
     tailwindcss(),
     react(),
@@ -38,11 +67,34 @@ export default defineConfig({
         // js/css/html); chamadas ao Supabase e às APIs de livros não são
         // interceptadas — sem runtime caching de API de propósito
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        // o SW é gerado depois da limpeza de .map do plugin do Sentry, então
+        // o sourcemap dele escaparia pro dist público; nada aqui é código
+        // nosso (é boilerplate do Workbox), não vale servir
+        sourcemap: false,
         // anexa os handlers de web push (push/notificationclick) ao SW gerado
         importScripts: ["push-sw.js"],
       },
     }),
+    // precisa vir por último: age no bundle já gerado pelos outros plugins
+    sentryVitePlugin({
+      disable: !sentryAuthToken,
+      org: process.env.SENTRY_ORG,
+      project: process.env.SENTRY_PROJECT,
+      authToken: sentryAuthToken,
+      // depois de subir pro Sentry, os .map saem do dist — o stack trace
+      // legível fica lá, não exposto no site
+      sourcemaps: { filesToDeleteAfterUpload: ["./dist/**/*.map"] },
+      // por padrão o plugin derruba o build se o upload falha (token expirado,
+      // Sentry fora do ar) — ou seja, observabilidade bloqueando release.
+      // Aqui vira aviso. O custo: a falha é silenciosa, então se as stacks
+      // voltarem minificadas, o log do build da Vercel é onde olhar.
+      errorHandler: (err) =>
+        console.warn("[sentry] upload de source map falhou:", err.message),
+    }),
   ],
+  build: {
+    sourcemap: Boolean(sentryAuthToken),
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

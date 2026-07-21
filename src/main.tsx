@@ -1,25 +1,23 @@
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "@/features/auth/pages/LoginPage";
 import { protectedLoader, publicOnlyLoader } from "./routes/guards";
 import { AppLayout, AuthLayout } from "./components/layout/LayoutWrapper";
+import { RouteError } from "./components/layout/RouteError";
+import { createAppQueryClient } from "./lib/queryClient";
+import { initSentry } from "./lib/sentry";
 import App from "./App";
 
 import "./index.css";
 import Home from "./features/auth/pages/Home";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      gcTime: 10 * 60 * 1000, // 10 minutos
-      retry: 2,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+// antes de tudo, pra capturar erro que aconteça já na montagem
+initSentry();
+
+// config + funil global de erro de query/mutation em lib/queryClient.ts
+const queryClient = createAppQueryClient();
 
 // Home e Login ficam no bundle inicial (primeiro paint do visitante); o
 // resto vira chunk por página via `lazy` do data router — o loader
@@ -34,6 +32,9 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+    // na raiz: cobre erro de render/loader de qualquer rota filha e também
+    // as rotas que não existem (404), que não casam com nenhum path abaixo
+    errorElement: <RouteError />,
     children: [
       {
         // visitante: shell sem MenuBar

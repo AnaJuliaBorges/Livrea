@@ -37,12 +37,14 @@ src/
 ├── index.css             # tokens do tema (@theme) e escala tipográfica desktop
 ├── routes/guards.ts      # protectedLoader / publicOnlyLoader
 ├── components/
-│   ├── layout/           # shell do app: MenuBar, LayoutWrapper (AuthLayout/AppLayout)
+│   ├── layout/           # shell do app: MenuBar, LayoutWrapper (AuthLayout/AppLayout),
+│   │                     #   RouteError (errorElement da raiz)
 │   ├── shared/           # widgets genéricos: UserAvatar, AvatarPicker, LocationFields,
 │   │                     #   SearchInput, ConfirmDialog, BackButton, Tag, SafeHtml...
 │   └── ui/               # primitivas shadcn (button, input, select, tabs, carousel...)
 ├── hooks/                # hooks não-feature (useLocations: estados/cidades)
-├── lib/                  # supabase.ts, dates.ts, imageUpload.ts, headerColors.ts, push.ts, utils.ts
+├── lib/                  # supabase.ts, queryClient.ts, sentry.ts, reportError.ts,
+│                         #   dates.ts, imageUpload.ts, headerColors.ts, push.ts, utils.ts
 └── features/
     ├── auth/             # login, cadastro (wizard), recuperação de senha
     ├── books/            # busca/detalhe/registro de leitura de livros
@@ -238,6 +240,66 @@ Inscrição em `lib/push.ts` (tabela `push_subscriptions`). Envio pela Edge Func
 Paleta em [`lib/headerColors.ts`](../src/lib/headerColors.ts) (6 chaves →
 gradientes Tailwind). Usada em Profile, BookDetail, ClubDetails, ClubChat.
 No desktop os gradientes são removidos (`md:bg-none`).
+
+### Observabilidade
+- **Tráfego e performance**: `@vercel/analytics` + `@vercel/speed-insights`,
+  montados em `App.tsx` (pageviews e Web Vitals).
+- **Erros**: Sentry (`@sentry/react`). O setup do SDK vive em
+  [`lib/sentry.ts`](../src/lib/sentry.ts) (`initSentry()`, chamado no topo de
+  `main.tsx`) e [`lib/reportError.ts`](../src/lib/reportError.ts) é o adapter —
+  os call sites falam `{ source, detail }` e não conhecem o SDK, então trocar de
+  serviço de erro é mexer só nesse arquivo. `source` vira tag (filtra
+  query/mutation/route no Sentry), `detail` vira extra. Chega nele por dois
+  caminhos:
+  - `QueryCache`/`MutationCache` de
+    [`lib/queryClient.ts`](../src/lib/queryClient.ts), que pegam **toda** falha de
+    query/mutation, inclusive as que a tela ignora. Só reportam, não notificam —
+    as mutations já dão `toast.error` no próprio call site e um toast global
+    duplicaria a mensagem.
+  - [`components/layout/RouteError.tsx`](../src/components/layout/RouteError.tsx),
+    `errorElement` da rota raiz: erro de render, falha de loader e 404 (rota que
+    não casa com nenhum path). Chunk de versão antiga (import dinâmico falhando
+    após deploy) e 404 são esperados e **não** são reportados.
+- Os `console.error` espalhados nas telas continuam onde estão; migrá-los para
+  `reportError` é um passo separado.
+
+Decisões do setup do Sentry, todas em `lib/sentry.ts`:
+- Sem `VITE_SENTRY_DSN` nada é inicializado (dev local, CI, testes), e
+  `enabled: import.meta.env.PROD` é a segunda trava — hot reload não queima quota.
+- `Sentry.setUser({ id })` no `onAuthStateChange` do Supabase: só o id, nunca
+  e-mail ou nome. Sem isso todo evento chega anônimo e não dá pra dizer quantas
+  pessoas um erro afetou.
+- Sem tracing de performance: isso já vem do `@vercel/speed-insights`, e ligar os
+  dois duplicaria o dado gastando quota.
+- Session Replay ligado (10% das sessões, 100% das com erro), com os defaults de
+  privacidade (`maskAllText`, `blockAllMedia`) — grava o fluxo, não o conteúdo do
+  chat nem os dados de perfil.
+- Falha de rede é descartada no `beforeSend`: usuário sem sinal não é bug da
+  aplicação e dominaria o volume. O filtro mora no `init`, não em `reportError`,
+  pra valer também pros erros que o SDK captura sozinho.
+- **Source maps**: [`vite.config.ts`](../vite.config.ts) roda o
+  `@sentry/vite-plugin` e emite `.map` **apenas** quando `SENTRY_AUTH_TOKEN`
+  existe (env var de *build*, nunca `VITE_*` — iria pro bundle). Depois do upload
+  os `.map` são apagados do `dist`, pra não ficarem servidos publicamente — o do
+  service worker é desligado à parte (`workbox.sourcemap: false`), porque o SW é
+  gerado depois dessa limpeza. Sem o token o build local é idêntico ao de antes.
+- **Falha de upload não quebra o deploy.** Por padrão o `@sentry/vite-plugin`
+  aborta o build quando o upload falha (verificado: token inválido → `exit 255`),
+  o que na Vercel significa *deploy barrado por causa de source map* — token
+  expirado ou Sentry fora do ar impediriam de publicar. O `errorHandler` no
+  `vite.config.ts` rebaixa isso a um `console.warn`: ferramenta de
+  observabilidade não deve bloquear release.
+  O trade-off é real e foi escolhido de propósito: **a falha passa a ser
+  silenciosa**. Se as stacks voltarem minificadas no Sentry, o lugar de
+  investigar é o log do build na Vercel (procurar por `[sentry]`). Para inverter
+  a decisão — falhar alto e nunca deixar passar despercebido — basta remover o
+  `errorHandler`; o padrão do plugin volta a valer.
+- **DSN na Vercel**: a integração Sentry↔Vercel cadastra o DSN como `SENTRY_DSN`,
+  que o Vite não injeta no bundle (só expõe `VITE_*`). O `vite.config.ts` mapeia
+  essa var — e **só** ela — para `VITE_SENTRY_DSN` via `define`. Não usar
+  `envPrefix: ["VITE_", "SENTRY_"]` para resolver isso: exporia junto o
+  `SENTRY_AUTH_TOKEN` no bundle público. Localmente o `VITE_SENTRY_DSN` do `.env`
+  tem precedência e o `define` nem entra.
 
 ---
 
