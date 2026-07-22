@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,17 +8,22 @@ import {
   Button,
   Field,
   FieldDescription,
+  FieldLabel,
   Input,
   Textarea,
 } from "@/components/ui";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { useGenres } from "@/features/books";
 import { AvatarPicker } from "@/components/shared/AvatarPicker";
 import { LocationFields } from "@/components/shared/LocationFields";
 import { useMyProfile } from "../hooks/useMyProfile";
 import { useUpdateProfile } from "../hooks/useUpdateProfile";
 import { useProfileHeaderColor } from "../hooks/useProfileHeaderColor";
+import { useProfileGenreIds } from "../hooks/useProfileGenreIds";
+import { useSaveProfileGenres } from "../hooks/useSaveProfileGenres";
 import { uploadAvatar } from "../services/uploadAvatar";
 import type { UserProfile } from "../dtos";
 import { HEADER_COLORS, DEFAULT_HEADER_COLOR } from "@/lib/headerColors";
@@ -34,6 +39,7 @@ const editProfileSchema = z.object({
   state_id: z.coerce.number().min(1, "Selecione um estado"),
   city_id: z.coerce.number().min(1, "Selecione uma cidade"),
   bio: z.string().max(200, "Máximo 200 caracteres").optional(),
+  genres: z.array(z.number()).min(3, "Selecione ao menos 3 gêneros"),
 });
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
@@ -52,7 +58,17 @@ export function EditProfile() {
   const { data: headerColor, isLoading: isLoadingColor } =
     useProfileHeaderColor(profile?.id);
 
-  if (isLoading || isLoadingAuth || isLoadingColor) {
+  const { data: genreIds, isLoading: isLoadingGenreIds } = useProfileGenreIds();
+
+  const { data: genres, isLoading: isLoadingGenres } = useGenres();
+
+  if (
+    isLoading ||
+    isLoadingAuth ||
+    isLoadingColor ||
+    isLoadingGenreIds ||
+    isLoadingGenres
+  ) {
     return (
       <p className="mt-20 text-center text-muted-foreground">
         Carregando perfil...
@@ -73,6 +89,8 @@ export function EditProfile() {
       profile={profile}
       email={authUser?.email ?? ""}
       initialHeaderColor={headerColor ?? DEFAULT_HEADER_COLOR}
+      initialGenreIds={genreIds ?? []}
+      genres={genres ?? []}
     />
   );
 }
@@ -81,14 +99,19 @@ function EditProfileForm({
   profile,
   email,
   initialHeaderColor,
+  initialGenreIds,
+  genres,
 }: {
   profile: UserProfile;
   email: string;
   initialHeaderColor: string;
+  initialGenreIds: number[];
+  genres: { id: number; name: string }[];
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { mutateAsync: saveProfile } = useUpdateProfile();
+  const { mutateAsync: saveGenres } = useSaveProfileGenres();
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   // fora do RHF: não é campo validável, só uma escolha da paleta
@@ -109,6 +132,7 @@ function EditProfileForm({
       state_id: profile.stateId ?? 0,
       city_id: profile.cityId ?? 0,
       bio: profile.bio ?? "",
+      genres: initialGenreIds,
     },
   });
 
@@ -122,6 +146,8 @@ function EditProfileForm({
         cityId: data.city_id,
         headerColor,
       });
+
+      await saveGenres({ userId: profile.id, genreIds: data.genres });
 
       if (avatarFile) {
         await uploadAvatar(profile.id, avatarFile);
@@ -145,6 +171,9 @@ function EditProfileForm({
       await queryClient.invalidateQueries({ queryKey: ["my-profile"] });
       await queryClient.invalidateQueries({
         queryKey: ["profile-header-color", profile.id],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ["profile-genre-ids", profile.id],
       });
 
       toast.success("Perfil atualizado!");
@@ -233,6 +262,45 @@ function EditProfileForm({
             </FieldDescription>
           )}
         </Field>
+
+        <Controller
+          control={control}
+          name="genres"
+          render={({ field }) => (
+            <Field>
+              <FieldDescription
+                className={errors.genres ? "text-red-500" : undefined}
+              >
+                {errors.genres?.message ?? "Gêneros favoritos"}
+              </FieldDescription>
+              <div className="grid grid-cols-2 gap-4">
+                {genres.map((genre) => (
+                  <Field key={genre.id} orientation="horizontal">
+                    <Checkbox
+                      id={`edit-genre-${genre.id}-checkbox`}
+                      checked={field.value.includes(genre.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          field.onChange([...field.value, genre.id]);
+                        } else {
+                          field.onChange(
+                            field.value.filter((id) => id !== genre.id),
+                          );
+                        }
+                      }}
+                    />
+                    <FieldLabel
+                      htmlFor={`edit-genre-${genre.id}-checkbox`}
+                      className="font-normal cursor-pointer"
+                    >
+                      {genre.name}
+                    </FieldLabel>
+                  </Field>
+                ))}
+              </div>
+            </Field>
+          )}
+        />
 
         <Field>
           <FieldDescription>Cor do cabeçalho do perfil</FieldDescription>
