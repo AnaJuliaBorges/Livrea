@@ -142,6 +142,13 @@ async function setupChatMocks(page: Page, opts: SetupOptions = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
+  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
+  // Fixamos "já visto" para o tour não abrir por cima destes fluxos (senão
+  // dependeria da requisição falhar na rede fake, o que é frágil).
+  await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
+    await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
+  });
+
   await mockRoute(page, "**/rest/v1/rpc/get_my_profile*", async (route) => {
     await route.fulfill(
       jsonResponse({

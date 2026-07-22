@@ -8,7 +8,8 @@ import {
 
 /**
  * Controla a exibição do tour de boas-vindas: abre uma única vez por
- * **usuário** (flag no user_metadata, ver services/welcomeTour) e fica
+ * **usuário** (flag em profiles.welcome_tour_seen, ver services/welcomeTour)
+ * e fica
  * disponível pra reabrir com `?tour=1` na URL (o link que mandamos pra quem
  * está testando).
  *

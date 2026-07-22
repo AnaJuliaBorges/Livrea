@@ -140,9 +140,39 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
+  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
+  // Fixamos "já visto" pra o tour não abrir por cima do menu — o overlay
+  // (z-[60], inset-0) intercepta cliques como o de "Perfil". Testes que
+  // precisam do PATCH em profiles sobrescrevem esta rota, mantendo o GET assim.
+  await page.route("**/rest/v1/profiles*", async (route) => {
+    if (route.request().method() === "OPTIONS") return preflight(route);
+    await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
+  });
+
   await page.route("**/rest/v1/rpc/get_my_profile*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(jsonResponse(profile));
+  });
+
+  // Gêneros do usuário + catálogo. A edição de perfil exige genres.min(3)
+  // (editProfileSchema), então sem estes o form nasce inválido e o botão
+  // "Salvar alterações" fica travado.
+  await page.route("**/rest/v1/profile_genres*", async (route) => {
+    if (route.request().method() === "OPTIONS") return preflight(route);
+    await route.fulfill(
+      jsonResponse([{ genre_id: 1 }, { genre_id: 2 }, { genre_id: 3 }]),
+    );
+  });
+
+  await page.route("**/rest/v1/genres*", async (route) => {
+    if (route.request().method() === "OPTIONS") return preflight(route);
+    await route.fulfill(
+      jsonResponse([
+        { id: 1, name: "Fantasia", google_category: null },
+        { id: 2, name: "Ficção Científica", google_category: null },
+        { id: 3, name: "Romance", google_category: null },
+      ]),
+    );
   });
 
   // endpoints novos usados pela página de perfil — sem mock, as queries
@@ -281,14 +311,19 @@ test.describe("Perfil", () => {
     // captura o corpo do update em profiles pra conferir a cor enviada
     let patchBody: Record<string, unknown> | null = null;
     await page.route("**/rest/v1/profiles*", async (route) => {
-      if (route.request().method() === "OPTIONS") {
+      const method = route.request().method();
+      if (method === "OPTIONS") {
         await route.fulfill({ status: 204, headers: corsHeaders });
         return;
       }
-      if (route.request().method() === "PATCH") {
+      if (method === "PATCH") {
         patchBody = route.request().postDataJSON() as Record<string, unknown>;
+        await route.fulfill(jsonResponse([]));
+        return;
       }
-      await route.fulfill(jsonResponse([]));
+      // GET = leitura do welcome_tour_seen: "já visto" pra o tour não abrir e
+      // interceptar o clique em "Perfil" no goToProfile
+      await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
     });
 
     await login(page);

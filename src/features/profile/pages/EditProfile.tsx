@@ -325,6 +325,15 @@ function EditProfileForm({
       </form>
 
       <div className="flex flex-col gap-2">
+        {/*
+          Habilita por `isValid` (o zodResolver calcula na montagem, então com
+          dados pré-preenchidos válidos o botão já nasce ativo). `headerColor`
+          mora fora do RHF (useState), logo NÃO conta pra isValid/isDirty:
+          mudar só a cor e salvar funciona hoje porque isValid já é true — mas
+          se um dia trocar por `mode` on-submit ou gate em `isDirty`, o fluxo de
+          "salvar só a cor" trava (o form fica pristine). Nesse caso, mover a
+          cor pro RHF ou marcar o form dirty ao trocar a paleta.
+        */}
         <Button
           type="submit"
           form="edit-profile-form"

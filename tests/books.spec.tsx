@@ -167,6 +167,13 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
+  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
+  // Fixamos "já visto" para o tour não abrir por cima destes fluxos (senão
+  // dependeria da requisição falhar na rede fake, o que é frágil).
+  await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
+    await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
+  });
+
   await mockRoute(page, "**/rest/v1/profile_genres*", async (route) => {
     await route.fulfill(jsonResponse(profileGenreIds));
   });
@@ -174,16 +181,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
   await mockRoute(page, "**/rest/v1/genres*", async (route) => {
     await route.fulfill(jsonResponse(genres));
   });
-
-  // recomendação do banco vem da RPC get_books_by_genres (a RLS de books
-  // bloqueia SELECT direto do client)
-  await mockRoute(
-    page,
-    "**/rest/v1/rpc/get_books_by_genres*",
-    async (route) => {
-      await route.fulfill(jsonResponse(dbBooks));
-    },
-  );
 
   // a ISBNDB agora é chamada via Edge Function (proxy que esconde a chave);
   // a action no corpo diz qual endpoint upstream seria usado
@@ -220,6 +217,20 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
   await mockRoute(page, "**/rest/v1/rpc/get_book_reviews*", async (route) => {
     await route.fulfill(jsonResponse(reviews));
   });
+
+  // recomendação do banco vem da RPC get_books_by_genres (a RLS de books
+  // bloqueia SELECT direto do client). PRECISA ser registrada DEPOIS de
+  // get_book*: o glob "get_book*" também casa com "get_books_by_genres" e, no
+  // Playwright, a rota registrada por último é avaliada primeiro — sem isso o
+  // handler de get_book intercepta a chamada e devolve um objeto único, que
+  // estoura o .map() em getBooksByGenres e some com os recomendados do banco.
+  await mockRoute(
+    page,
+    "**/rest/v1/rpc/get_books_by_genres*",
+    async (route) => {
+      await route.fulfill(jsonResponse(dbBooks));
+    },
+  );
 
   await mockRoute(page, "**/rest/v1/user_library*", async (route) => {
     const request = route.request();
