@@ -6,11 +6,37 @@ import { VitePWA } from "vite-plugin-pwa";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
 // Upload de source maps pro Sentry: sem eles a stack de produção chega
-// minificada e é praticamente inútil. Só liga quando SENTRY_AUTH_TOKEN existe
-// (build da Vercel) — é uma env var de BUILD, nunca VITE_*, senão o token iria
-// parar no bundle. Sem token o build local segue idêntico ao de hoje e, o que
-// importa, os .map nem são gerados: se fossem, seriam servidos publicamente.
-const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
+// minificada e é praticamente inútil. O plugin injeta os Debug IDs no bundle
+// E nos .map e os casa no Sentry — mas só quando as TRÊS vars do build existem
+// (integração Sentry↔Vercel). São vars de BUILD, nunca VITE_*, senão o token
+// iria parar no bundle. Sem elas o build local segue idêntico ao de hoje e, o
+// que importa, os .map nem são gerados: se fossem, seriam servidos
+// publicamente.
+//
+// Gate nas três (não só no token): com token mas sem org/project o upload
+// falha e a stack vem minificada do mesmo jeito — melhor não gerar .map nesse
+// meio-termo. E logamos o estado no build da Vercel pra "por que veio
+// minificado?" nunca mais ser um mistério silencioso (o antigo gate só no
+// token não dizia nada quando desligado).
+const sentryBuildVars = {
+  SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+  SENTRY_ORG: process.env.SENTRY_ORG,
+  SENTRY_PROJECT: process.env.SENTRY_PROJECT,
+};
+const missingSentryVars = Object.entries(sentryBuildVars)
+  .filter(([, value]) => !value)
+  .map(([name]) => name);
+const sentryUploadEnabled = missingSentryVars.length === 0;
+
+if (process.env.VERCEL) {
+  console.log(
+    sentryUploadEnabled
+      ? "[sentry] upload de source map HABILITADO (stack de produção legível)"
+      : `[sentry] upload de source map DESABILITADO — faltam: ${missingSentryVars.join(
+          ", ",
+        )} — a stack de produção virá MINIFICADA`,
+  );
+}
 
 // A integração Sentry↔Vercel cadastra o DSN como SENTRY_DSN, mas o Vite só
 // injeta no bundle o que começa com VITE_ — sem mapear, o DSN não chega no
@@ -81,10 +107,10 @@ export default defineConfig({
     }),
     // precisa vir por último: age no bundle já gerado pelos outros plugins
     sentryVitePlugin({
-      disable: !sentryAuthToken,
-      org: process.env.SENTRY_ORG,
-      project: process.env.SENTRY_PROJECT,
-      authToken: sentryAuthToken,
+      disable: !sentryUploadEnabled,
+      org: sentryBuildVars.SENTRY_ORG,
+      project: sentryBuildVars.SENTRY_PROJECT,
+      authToken: sentryBuildVars.SENTRY_AUTH_TOKEN,
       // depois de subir pro Sentry, os .map saem do dist — o stack trace
       // legível fica lá, não exposto no site
       sourcemaps: { filesToDeleteAfterUpload: ["./dist/**/*.map"] },
@@ -97,7 +123,7 @@ export default defineConfig({
     }),
   ],
   build: {
-    sourcemap: Boolean(sentryAuthToken),
+    sourcemap: sentryUploadEnabled,
   },
   resolve: {
     alias: {
