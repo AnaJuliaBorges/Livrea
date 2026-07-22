@@ -51,7 +51,8 @@ src/
     ├── clubs/            # clubes: lista, detalhe, config, leituras, encontros
     ├── chat/             # chat do clube
     ├── profile/          # perfil, seguir, preferências
-    └── notifications/    # central de notificações + opt-in de push
+    ├── notifications/    # central de notificações + opt-in de push
+    └── onboarding/       # tour de boas-vindas do primeiro acesso
 ```
 
 Cada feature compõe um subconjunto de `pages/`, `components/`, `hooks/`,
@@ -218,6 +219,38 @@ RPCs citadas estão detalhadas em [SUPABASE.md](./SUPABASE.md).
   navega pra `notification.url`.
 - O badge de não-lidas no perfil deriva da mesma query `["notifications"]`.
 
+### 5.7 Onboarding — `features/onboarding`
+
+- **Tour de boas-vindas** — `components/WelcomeTour.tsx`, montado no `AppLayout`
+  (`components/layout/LayoutWrapper.tsx`), então vale pra qualquer rota logada.
+  Overlay próprio, no mesmo padrão do `ConfirmDialog` (o projeto não usa Radix
+  Dialog).
+- `hooks/useWelcomeTour.ts` + `services/welcomeTour.ts` — abre uma vez por
+  **usuário**, não por navegador. A marca vive na coluna
+  `profiles.welcome_tour_seen` (lida/escrita direto na própria linha, mesma RLS
+  de self-select/self-update de `useAuth`/`updateProfile`, sem RPC), então segue
+  a pessoa em qualquer aparelho e cada conta nova vê uma vez mesmo compartilhando
+  o navegador. O `AppLayout` remonta a cada entrada no shell logado, então o
+  efeito relê o estado a cada login. Reabre com `?tour=1` na URL — o link mandado
+  pra quem está testando — e o próprio `dismiss` limpa esse param, senão um
+  refresh reabriria o tour pra sempre. Gravar a flag é fire-and-forget: falhar
+  (offline) no máximo faz o tour reaparecer num próximo acesso, nunca quebra a
+  tela.
+- `model/steps.ts` — conteúdo dos slides, fonte única do texto. Pra remostrar
+  pra todo mundo depois de mudar o conteúdo:
+  `update public.profiles set welcome_tour_seen = false;`
+- Coluna adicionada por `supabase/sql/profile_welcome_tour_seen.sql` (rodar no
+  SQL Editor e apagar, como os demais scripts de `supabase/sql/`).
+- **Landing de convite (`/convite`)** — página **estática** em
+  [`public/convite/index.html`](../public/convite/index.html) (prints em
+  `public/convite/telas/`), servida no próprio domínio para quem ainda não é
+  usuário. **Não** é rota do SPA nem React: é HTML self-contained (CSS/JS
+  inline). Por isso `vite.config.ts` tem `navigateFallbackDenylist: [/^\/convite/]`
+  no Workbox — sem isso o service worker devolveria o `index.html` do app e a
+  landing não apareceria pra quem já tem o SW instalado. Os prints são
+  referenciados por caminho absoluto (`/convite/telas/...`) pra sobreviver ao
+  acesso sem barra final (`/convite` → 301 → `/convite/`).
+
 ---
 
 ## 6. Temas transversais
@@ -275,10 +308,20 @@ adotado em [`useSearchBooks`](../src/features/books/hooks/useSearchBooks.ts):
 - a tela ([`ListBooks`](../src/features/books/pages/ListBooks.tsx)) lê `isError` e
   troca a mensagem: "não foi possível buscar" em vez de "nenhum livro encontrado".
 
-Buracos conhecidos do mesmo tipo, ainda abertos: `useProfileGenreIds` usa
-`supabase.auth.getUser()`, que **não lança** em falha — devolve `{ user: null }`,
-a query de gêneros nunca sai de `enabled: false` e a tela anuncia "você ainda não
-tem gêneros favoritos" mesmo com gêneros salvos.
+O mesmo tratamento foi aplicado em
+[`useProfileGenreIds`](../src/features/profile/hooks/useProfileGenreIds.ts), que
+tinha a variante mais traiçoeira do problema: `supabase.auth.getUser()` **não
+lança** em falha, devolve `{ user: null, error }`. Ignorar esse `error` fazia a
+query "ter sucesso" com `null`, a query de gêneros ficava presa em
+`enabled: false` (que no v5 reporta `isLoading: false`) e a tela acusava o
+usuário de não ter escolhido gêneros. Hoje o `queryFn` propaga o `error`, e o
+hook agrega `isError`/`error` das duas queries — para quem consome, falhar em
+qualquer uma significa "não sei os gêneros", nunca "não tem gêneros".
+
+**Regra ao ler API de terceiros:** conferir se a função sinaliza falha lançando
+ou devolvendo. O supabase-js devolve `{ data, error }` em quase tudo — um
+`queryFn` que só lê `data` transforma erro em dado vazio e apaga a falha do
+funil inteiro.
 
 Decisões do setup do Sentry, todas em `lib/sentry.ts`:
 - `initSentry()` só faz algo com `VITE_SENTRY_DSN` **e** em produção

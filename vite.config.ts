@@ -67,6 +67,10 @@ export default defineConfig({
         // js/css/html); chamadas ao Supabase e às APIs de livros não são
         // interceptadas — sem runtime caching de API de propósito
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        // /convite é uma página estática (public/convite/), não uma rota do
+        // SPA — sem isso o navigateFallback do SW devolveria o index.html do
+        // app e a landing de convite nunca apareceria pra quem já tem o SW.
+        navigateFallbackDenylist: [/^\/convite/],
         // o SW é gerado depois da limpeza de .map do plugin do Sentry, então
         // o sourcemap dele escaparia pro dist público; nada aqui é código
         // nosso (é boilerplate do Workbox), não vale servir

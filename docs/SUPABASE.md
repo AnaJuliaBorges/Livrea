@@ -54,7 +54,7 @@ frontend, veja [ARCHITECTURE.md](./ARCHITECTURE.md).
 ### Domínio de usuário e social
 | Tabela | Colunas principais | Papel |
 |---|---|---|
-| `profiles` | id, name, bio, avatar_url, state_id, city_id, header_color | Perfil (trigger cria no signup) |
+| `profiles` | id, name, bio, avatar_url, state_id, city_id, header_color, welcome_tour_seen | Perfil (trigger cria no signup) |
 | `profile_genres` | user_id, genre_id | Gêneros favoritos |
 | `follows` | follower_id, followed_id (PK composta) | Grafo de seguidores (SELECT público) |
 | `notifications` | id, user_id, title, body, url, read, created_at | Central in-app (INSERT só service role) |
@@ -196,6 +196,7 @@ Todas `SECURITY DEFINER`. "Usado em" indica a página/componente final.
 | `save_user_books(...)` | Salva livros da biblioteca do usuário por status (usado no fim do cadastro). | `saveUserBooks` · `useSaveUserBooks` · Signup |
 | `upsert_book(...)` | Cria registro mínimo por ISBN ao abrir um livro externo da busca. | `upsertBook` · `useUpsertBook` · ListBooks |
 | `search_books(p_query, p_limit)` | Busca por título no banco (SECURITY DEFINER pois RLS bloqueia SELECT). | `searchClubReadingBooks` · SetClubReadingModal |
+| `get_books_by_genres(p_genre_ids)` | Recomendação da tela /livros (SECURITY DEFINER pois RLS bloqueia SELECT). Cascata: junção `book_genres` (gênero primário + secundários) → `primary_genre_id` → todos os livros do banco quando nada casa. Ordena por `global_average_rating`, limite 40. | `getBooksByGenres` · `useBooksByGenres` · ListBooks |
 
 ### 5.8 Perfil  ·  `services/` de `features/profile`
 

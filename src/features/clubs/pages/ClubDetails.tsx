@@ -175,7 +175,10 @@ export default function ClubDetails() {
         </Button>
       )}
 
-      <Tabs defaultValue="overview" className="w-full mb-8 md:mx-auto md:max-w-3xl">
+      <Tabs
+        defaultValue="overview"
+        className="w-full mb-8 md:mx-auto md:max-w-3xl"
+      >
         <TabsList className="w-full mb-4">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="members">Participantes</TabsTrigger>
@@ -190,7 +193,7 @@ export default function ClubDetails() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-destructive"
+              className="text-destructive mb-6"
               onClick={() => setShowLeaveDialog(true)}
             >
               Sair do clube

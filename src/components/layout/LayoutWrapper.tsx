@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { WelcomeTour } from "@/features/onboarding";
 import MenuBar from "./MenuBar";
 
 // Layouts de rota (pathless) declarados em src/main.tsx — a decisão de qual
@@ -25,6 +26,9 @@ export function AppLayout() {
       </main>
 
       <MenuBar />
+
+      {/* primeiro acesso do shell logado (e reabertura via ?tour=1) */}
+      <WelcomeTour />
     </div>
   );
 }
