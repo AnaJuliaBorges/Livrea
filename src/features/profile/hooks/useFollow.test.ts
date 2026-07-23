@@ -15,6 +15,7 @@ import {
   unfollowUser,
 } from "../services/follows";
 import { notifyNewFollower } from "../services/sendFollowPushNotification";
+import { toast } from "sonner";
 import { createWrapper } from "./testQueryClient";
 
 vi.mock("../services/follows", () => ({
@@ -26,6 +27,9 @@ vi.mock("../services/follows", () => ({
 }));
 vi.mock("../services/sendFollowPushNotification", () => ({
   notifyNewFollower: vi.fn(),
+}));
+vi.mock("sonner", () => ({
+  toast: { success: vi.fn() },
 }));
 
 const followUserMock = vi.mocked(followUser);
@@ -160,6 +164,7 @@ describe("useFollowUser", () => {
     await waitFor(() =>
       expect(notifyNewFollowerMock).toHaveBeenCalledWith("user-7"),
     );
+    expect(vi.mocked(toast.success)).toHaveBeenCalled();
   });
 
   // fire-and-forget: se a notificação falha, o follow continua bem-sucedido

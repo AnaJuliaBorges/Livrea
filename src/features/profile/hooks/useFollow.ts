@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   followUser,
   getFollowers,
@@ -63,6 +64,7 @@ export function useFollowUser(userId: string | undefined) {
         console.error("Erro ao notificar novo seguidor:", error),
       );
       queryClient.invalidateQueries({ queryKey: ["follow-info", userId] });
+      toast.success("Agora você está seguindo este perfil!");
     },
   });
 }
