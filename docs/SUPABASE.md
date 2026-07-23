@@ -33,7 +33,7 @@ frontend, veja [ARCHITECTURE.md](./ARCHITECTURE.md).
 | Tabela | Colunas principais | Papel |
 |---|---|---|
 | `clubs` | id, name, description, rules, **visibility** (bool: true=público), city_id, frequency (enum), custom_frequency, type (enum), participant_limit, meeting_description, admin_id, cover_url, header_color, created_at | O clube |
-| `club_members` | club_id, user_id, role (admin/member) | Participação (sem data de entrada) |
+| `club_members` | club_id, user_id, role (admin/member), **joined_at** (default now()) | Participação. `joined_at` (nullable, default só para novos ingressos) alimenta o evento "entrou no clube" do feed |
 | `club_genres` | club_id, genre_id | Gêneros do clube |
 | `club_join_requests` | id, club_id, user_id, status (pending/approved/rejected) | Pedidos para entrar |
 | `club_readings` | id, club_id, book_id, status (enum reading_status), start_date, end_date, note | Leitura atual (`reading`) e histórico (`finished`) |
@@ -47,7 +47,7 @@ frontend, veja [ARCHITECTURE.md](./ARCHITECTURE.md).
 | `books` | id, isbn (UNIQUE NOT NULL), title_original, title_pt, subtitle, authors, synopsis, publisher, total_pages, image_*, ratings, primary_genre, subjects | Catálogo (uma linha por edição/ISBN) |
 | `book_genres` | book_id, genre_id | Gêneros do livro |
 | `genres` | id, name, google_category | Gêneros (seed) |
-| `user_library` | user_id, book_id, status (reading/read/want_to_read) | Biblioteca pessoal |
+| `user_library` | user_id, book_id, status (reading/read/want_to_read), rating, review, current_page, **started_at**, **finished_at**, **reviewed_at** | Biblioteca pessoal. Os 3 timestamps (nullable, sem backfill) alimentam o feed: `started_at` gravado no client (`ensureLibraryRow`); `finished_at`/`reviewed_at` por trigger `BEFORE UPDATE` (`set_user_library_milestones`) |
 | `reading_logs` | id, user_id, book_id, current_page/pages_read, feeling, note, created_at | Registros de progresso |
 | `book_highlights` | id, user_id, book_id, page, quote | Destaques/citações |
 
@@ -207,6 +207,18 @@ Todas `SECURITY DEFINER`. "Usado em" indica a página/componente final.
 | `get_profile_header_color(p_user_id)` | Cor do cabeçalho do perfil (get_my_profile não retorna o campo). | `getProfileHeaderColor` · `useProfileHeaderColor` · Profile, EditProfile |
 | `get_followers(p_user_id)` | Lista de seguidores do perfil (id, name, avatar_url) juntando `follows` + `profiles`. | `getFollowers` · `useFollowers` · FollowListModal (clique em "seguidores") |
 | `get_following(p_user_id)` | Lista de quem o perfil segue (espelho de get_followers). | `getFollowing` · `useFollowing` · FollowListModal (clique em "seguindo"; no próprio perfil permite deixar de seguir) |
+
+### 5.9 Feed  ·  `services/` de `features/feed`
+
+| RPC (params) | O que faz | Service · Hook · Usado em |
+|---|---|---|
+| `get_feed(p_limit=20, p_offset=0)` | Atualizações de quem o usuário logado segue, ordenadas por tempo. `UNION ALL` de 4 eventos filtrados pelo grafo de `follows`: **started_book** / **finished_book** / **reviewed_book** (via `user_library.started_at`/`finished_at`/`reviewed_at`) e **joined_club** (via `club_members.joined_at`, **só clubes públicos** — `visibility=true`; regra de clube privado). Só emite eventos com timestamp `NOT NULL` (histórico pré-feature não aparece). Retorna `json` de eventos com forma comum `{id,type,created_at,actor,book?,club?,rating?,review?}`. | `getFeed` · `useFeed` (`useInfiniteQuery`, páginas de 20) · Feed |
+
+> Trigger auxiliar `set_user_library_milestones` (BEFORE UPDATE em `user_library`):
+> marca `finished_at` na transição para `status='read'` e `reviewed_at` quando
+> `rating`/`review` deixam de ser nulos. Só em UPDATE — inserts do cadastro
+> (`save_user_books`) não viram evento. `started_at` é gravado no client, em
+> `ensureLibraryRow` (`readingTracking.ts`), no primeiro insert da leitura.
 
 ---
 

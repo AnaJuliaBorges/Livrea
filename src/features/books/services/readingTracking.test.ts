@@ -176,7 +176,12 @@ describe("saveReadingProgress", () => {
     await saveReadingProgress("book-1", 150, "gostei");
 
     expect(libraryTable.upsert).toHaveBeenCalledWith(
-      { user_id: "user-1", book_id: "book-1", status: "reading" },
+      {
+        user_id: "user-1",
+        book_id: "book-1",
+        status: "reading",
+        started_at: expect.any(String),
+      },
       { onConflict: "user_id,book_id", ignoreDuplicates: true },
     );
     expect(libraryTable.update).toHaveBeenCalledWith({ current_page: 150 });

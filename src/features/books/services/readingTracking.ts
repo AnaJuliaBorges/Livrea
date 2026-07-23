@@ -65,10 +65,17 @@ export async function getReadingTracking(
 }
 
 // logs e destaques têm FK para a user_library — garante a linha sem
-// mexer num status já escolhido pelo usuário
+// mexer num status já escolhido pelo usuário. `started_at` marca o início
+// genuíno da leitura (alimenta o evento "começou a ler" do feed); com
+// ignoreDuplicates só é gravado no primeiro insert, nunca sobrescrito.
 async function ensureLibraryRow(userId: string, bookId: string) {
   const { error } = await supabase.from("user_library").upsert(
-    { user_id: userId, book_id: bookId, status: "reading" },
+    {
+      user_id: userId,
+      book_id: bookId,
+      status: "reading",
+      started_at: new Date().toISOString(),
+    },
     { onConflict: "user_id,book_id", ignoreDuplicates: true },
   );
 

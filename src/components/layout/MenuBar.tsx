@@ -1,4 +1,4 @@
-import { BookText, House, MessageCircleMore, User } from "lucide-react";
+import { BookText, House, MessageCircleMore, Newspaper, User } from "lucide-react";
 import { Button } from "../ui";
 import { useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,12 @@ export default function MenuBar() {
       icon: House,
       label: "Home",
       link: "/clubes",
+    },
+    {
+      id: "feed",
+      icon: Newspaper,
+      label: "Feed",
+      link: "/feed",
     },
     {
       id: "clubes",

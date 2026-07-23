@@ -93,6 +93,7 @@ Home/Login usam `lazy` (code splitting por rota).
 | `/livros`, `/livros/:id`, `/livros/:id/registro` | ListBooks, BookDetail, RegisterRead | App |
 | `/perfil`, `/perfil/:id`, `/perfil/editar` | Profile, EditProfile | App |
 | `/notificacoes` | Notifications | App |
+| `/feed` | Feed | App |
 
 `QueryClient` global: `staleTime` 5min, `gcTime` 10min, `retry` 2,
 `refetchOnWindowFocus` false.
@@ -218,6 +219,19 @@ RPCs citadas estão detalhadas em [SUPABASE.md](./SUPABASE.md).
   (`useMarkAllNotificationsRead`), opt-in de web push (`lib/push.ts`), clique
   navega pra `notification.url`.
 - O badge de não-lidas no perfil deriva da mesma query `["notifications"]`.
+
+### 5.6.1 Feed — `features/feed`
+
+- [`pages/Feed.tsx`](../src/features/feed/pages/Feed.tsx): tela `/feed` com as
+  atualizações de quem o usuário segue. `useFeed` (`useInfiniteQuery`, páginas de
+  20) sobre a RPC `get_feed`; empty state quando não segue ninguém / sem eventos.
+- [`components/FeedItem.tsx`](../src/features/feed/components/FeedItem.tsx):
+  renderiza cada variante da união discriminada `FeedEvent` (começou/terminou de
+  ler, avaliou, entrou no clube) com links pro perfil, livro e clube.
+- Leitura em tempo de query (sem tabela `activities`): a RPC faz `UNION ALL` das
+  tabelas existentes filtrado por `follows` e aplica a regra de clube privado no
+  servidor. Só milestones (não cada log de progresso). Ver `get_feed` em
+  [SUPABASE.md](./SUPABASE.md) §5.9.
 
 ### 5.7 Onboarding — `features/onboarding`
 

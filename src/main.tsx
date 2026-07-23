@@ -69,6 +69,11 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           {
+            path: "feed",
+            lazy: lazyPage(() => import("./features/feed/pages/Feed")),
+            loader: protectedLoader,
+          },
+          {
             path: "clubes",
             lazy: lazyPage(() => import("./features/clubs/pages/ListClubs")),
             loader: protectedLoader,
