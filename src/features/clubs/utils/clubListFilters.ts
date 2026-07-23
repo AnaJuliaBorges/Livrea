@@ -1,6 +1,6 @@
 import { normalizeText } from "@/lib/text";
 import { FILTER_ALL } from "../constants";
-import type { ClubListItem } from "../dtos";
+import type { ClubListItem, ClubMatchGroup } from "../dtos";
 
 // Filtros da listagem de clubes. Tudo client-side de propósito: a lista
 // completa já está carregada e a resposta é instantânea. Se um dia a
@@ -36,9 +36,13 @@ export function matchesFilters(
   );
 }
 
-// Indicados: clubes que o usuário não participa e que têm pelo menos um
-// gênero em comum com as preferências do perfil, ordenados do maior para
-// o menor número de gêneros em comum.
+// Indicados: clubes que o usuário não participa, que têm pelo menos um
+// gênero em comum com as preferências do perfil e que ele consegue
+// frequentar — só da sua cidade (match_group "city") ou online. Presenciais
+// de outra cidade/estado ("state"/"other") não entram. Ordenados do maior
+// para o menor número de gêneros em comum.
+const RECOMMENDABLE_GROUPS: ClubMatchGroup[] = ["city", "online"];
+
 export function rankRecommendedClubs(
   clubs: ClubListItem[],
   preferredGenreIds: number[],
@@ -48,6 +52,11 @@ export function rankRecommendedClubs(
       .length;
 
   return clubs
-    .filter((club) => !club.isMember && countMatchingGenres(club) > 0)
+    .filter(
+      (club) =>
+        !club.isMember &&
+        RECOMMENDABLE_GROUPS.includes(club.matchGroup) &&
+        countMatchingGenres(club) > 0,
+    )
     .sort((a, b) => countMatchingGenres(b) - countMatchingGenres(a));
 }

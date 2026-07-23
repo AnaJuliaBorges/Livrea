@@ -27,7 +27,7 @@ const sectionLabels: Record<ClubMatchGroup, string> = {
   city: "Na sua cidade",
   state: "No seu estado",
   online: "Clubes online",
-  other: "Outros clubes",
+  other: "Outros estados",
 };
 
 const sectionOrder: ClubMatchGroup[] = ["city", "state", "online", "other"];

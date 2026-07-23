@@ -96,9 +96,9 @@ describe("matchesFilters", () => {
 describe("rankRecommendedClubs", () => {
   it("exclui clubes em que já sou membro e sem gênero em comum", () => {
     const clubs = [
-      clubItem({ id: "meu", isMember: true, genreIds: [1] }),
-      clubItem({ id: "sem-match", genreIds: [9] }),
-      clubItem({ id: "com-match", genreIds: [1] }),
+      clubItem({ id: "meu", matchGroup: "city", isMember: true, genreIds: [1] }),
+      clubItem({ id: "sem-match", matchGroup: "city", genreIds: [9] }),
+      clubItem({ id: "com-match", matchGroup: "city", genreIds: [1] }),
     ];
 
     const ranked = rankRecommendedClubs(clubs, [1, 2]);
@@ -106,10 +106,23 @@ describe("rankRecommendedClubs", () => {
     expect(ranked.map((club) => club.id)).toEqual(["com-match"]);
   });
 
+  it("só indica clubes da cidade ou online, nunca de outro estado", () => {
+    const clubs = [
+      clubItem({ id: "cidade", matchGroup: "city", genreIds: [1] }),
+      clubItem({ id: "online", matchGroup: "online", genreIds: [1] }),
+      clubItem({ id: "estado", matchGroup: "state", genreIds: [1] }),
+      clubItem({ id: "outro", matchGroup: "other", genreIds: [1] }),
+    ];
+
+    const ranked = rankRecommendedClubs(clubs, [1]);
+
+    expect(ranked.map((club) => club.id)).toEqual(["cidade", "online"]);
+  });
+
   it("ordena do maior para o menor número de gêneros em comum", () => {
     const clubs = [
-      clubItem({ id: "um", genreIds: [1] }),
-      clubItem({ id: "dois", genreIds: [1, 2] }),
+      clubItem({ id: "um", matchGroup: "city", genreIds: [1] }),
+      clubItem({ id: "dois", matchGroup: "city", genreIds: [1, 2] }),
     ];
 
     const ranked = rankRecommendedClubs(clubs, [1, 2]);
@@ -118,6 +131,8 @@ describe("rankRecommendedClubs", () => {
   });
 
   it("sem preferências, nada é indicado", () => {
-    expect(rankRecommendedClubs([clubItem()], [])).toEqual([]);
+    expect(rankRecommendedClubs([clubItem({ matchGroup: "city" })], [])).toEqual(
+      [],
+    );
   });
 });
