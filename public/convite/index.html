@@ -1,765 +1,1060 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<meta name="theme-color" content="#8c11dc">
-<title>Livrea — convite para o teste fechado</title>
-<meta name="description" content="Convite para o teste fechado da Livrea: clubes de leitura, acompanhamento das suas leituras e conversa sobre livros sem levar spoiler. Veja o que o app faz e como começar.">
-<link rel="canonical" href="https://livrea.vercel.app/convite">
-<!-- preview do link ao compartilhar (WhatsApp/redes) -->
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://livrea.vercel.app/convite">
-<meta property="og:title" content="Livrea — convite para o teste fechado">
-<meta property="og:description" content="Clubes de leitura, acompanhamento das leituras e conversa sobre livros sem spoiler. Entre no teste.">
-<meta property="og:image" content="https://livrea.vercel.app/pwa-512x512.png">
-<meta name="twitter:card" content="summary">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#8c11dc" />
+    <title>Livrea — convite para teste</title>
+    <meta
+      name="description"
+      content="Convite para o teste fechado da Livrea: clubes de leitura, acompanhamento das suas leituras e conversa sobre livros sem levar spoiler. Veja o que o app faz e como começar."
+    />
+    <link rel="canonical" href="https://livrea.vercel.app/convite" />
+    <!-- preview do link ao compartilhar (WhatsApp/redes) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://livrea.vercel.app/convite" />
+    <meta property="og:title" content="Livrea — convite para o teste fechado" />
+    <meta
+      property="og:description"
+      content="Clubes de leitura, acompanhamento das leituras e conversa sobre livros sem spoiler. Entre no teste."
+    />
+    <meta
+      property="og:image"
+      content="https://livrea.vercel.app/pwa-512x512.png"
+    />
+    <meta name="twitter:card" content="summary" />
 
-<style>
-  :root {
-    --paper: #faf8fc;
-    --paper-raised: #ffffff;
-    --ink: #17111f;
-    --ink-soft: #625a6d;
-    --rule: #e4dced;
-    --roxo: #8c11dc;
-    --uva: #470d9d;
-    --verde: #009966;
-    --on-roxo: #ffffff;
-    --bezel: #241b2e;
+    <style>
+      :root {
+        --paper: #faf8fc;
+        --paper-raised: #ffffff;
+        --ink: #17111f;
+        --ink-soft: #625a6d;
+        --rule: #e4dced;
+        --roxo: #8c11dc;
+        --uva: #470d9d;
+        --verde: #009966;
+        --on-roxo: #ffffff;
+        --bezel: #241b2e;
 
-    --display: "Work Sans", "Segoe UI Variable Display", "Segoe UI",
-      system-ui, -apple-system, "Helvetica Neue", sans-serif;
-    --body: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
-      Georgia, serif;
-    --mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+        --display:
+          "Work Sans", "Segoe UI Variable Display", "Segoe UI", system-ui,
+          -apple-system, "Helvetica Neue", sans-serif;
+        --body:
+          "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+          Georgia, serif;
+        --mono:
+          ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
 
-    --measure: 34rem;
-  }
+        --measure: 34rem;
+      }
 
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #120d18;
-      --paper-raised: #1c1524;
-      --ink: #f2ecf7;
-      --ink-soft: #a99fb5;
-      --rule: #2f2439;
-      --roxo: #b661f0;
-      --uva: #c9a2f5;
-      --verde: #3ecf9a;
-      --on-roxo: #17111f;
-      --bezel: #060409;
-    }
-  }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --paper: #120d18;
+          --paper-raised: #1c1524;
+          --ink: #f2ecf7;
+          --ink-soft: #a99fb5;
+          --rule: #2f2439;
+          --roxo: #b661f0;
+          --uva: #c9a2f5;
+          --verde: #3ecf9a;
+          --on-roxo: #17111f;
+          --bezel: #060409;
+        }
+      }
 
-  :root[data-theme="dark"] {
-    --paper: #120d18;
-    --paper-raised: #1c1524;
-    --ink: #f2ecf7;
-    --ink-soft: #a99fb5;
-    --rule: #2f2439;
-    --roxo: #b661f0;
-    --uva: #c9a2f5;
-    --verde: #3ecf9a;
-    --on-roxo: #17111f;
-    --bezel: #060409;
-  }
+      :root[data-theme="dark"] {
+        --paper: #120d18;
+        --paper-raised: #1c1524;
+        --ink: #f2ecf7;
+        --ink-soft: #a99fb5;
+        --rule: #2f2439;
+        --roxo: #b661f0;
+        --uva: #c9a2f5;
+        --verde: #3ecf9a;
+        --on-roxo: #17111f;
+        --bezel: #060409;
+      }
 
-  :root[data-theme="light"] {
-    --paper: #faf8fc;
-    --paper-raised: #ffffff;
-    --ink: #17111f;
-    --ink-soft: #625a6d;
-    --rule: #e4dced;
-    --roxo: #8c11dc;
-    --uva: #470d9d;
-    --verde: #009966;
-    --on-roxo: #ffffff;
-    --bezel: #241b2e;
-  }
+      :root[data-theme="light"] {
+        --paper: #faf8fc;
+        --paper-raised: #ffffff;
+        --ink: #17111f;
+        --ink-soft: #625a6d;
+        --rule: #e4dced;
+        --roxo: #8c11dc;
+        --uva: #470d9d;
+        --verde: #009966;
+        --on-roxo: #ffffff;
+        --bezel: #241b2e;
+      }
 
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: var(--body);
-    font-size: 1.0625rem;
-    line-height: 1.65;
-    -webkit-font-smoothing: antialiased;
-  }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: var(--body);
+        font-size: 1.0625rem;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
 
-  .page {
-    max-width: 52rem;
-    margin: 0 auto;
-    padding: 3rem 1.25rem 5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 3.5rem;
-  }
+      .page {
+        max-width: 52rem;
+        margin: 0 auto;
+        padding: 3rem 1.25rem 5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 3.5rem;
+      }
 
-  @media (min-width: 48rem) {
-    .page { padding: 5rem 2rem 7rem; gap: 4.5rem; }
-  }
+      @media (min-width: 48rem) {
+        .page {
+          padding: 5rem 2rem 7rem;
+          gap: 4.5rem;
+        }
+      }
 
-  /* ---- lombada: barra vertical que preenche conforme a rolagem ---- */
-  .spine {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100vh;
-    background: var(--rule);
-    z-index: 10;
-  }
-  .spine__fill {
-    width: 100%;
-    height: 0%;
-    background: linear-gradient(180deg, var(--uva), var(--roxo));
-  }
-  @media (min-width: 64rem) {
-    .spine { left: max(1.5rem, calc(50vw - 30rem)); }
-  }
+      /* ---- lombada: barra vertical que preenche conforme a rolagem ---- */
+      .spine {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100vh;
+        background: var(--rule);
+        z-index: 10;
+      }
+      .spine__fill {
+        width: 100%;
+        height: 0%;
+        background: linear-gradient(180deg, var(--uva), var(--roxo));
+      }
+      @media (min-width: 64rem) {
+        .spine {
+          left: max(1.5rem, calc(50vw - 30rem));
+        }
+      }
 
-  /* ---- tipografia ---- */
-  .eyebrow {
-    font-family: var(--mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--roxo);
-  }
+      /* ---- tipografia ---- */
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--roxo);
+      }
 
-  h1 {
-    font-family: var(--display);
-    font-weight: 700;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
-    font-size: clamp(2.75rem, 9vw, 4.75rem);
-    text-wrap: balance;
-    margin: 0.5rem 0 0;
-  }
+      h1 {
+        font-family: var(--display);
+        font-weight: 700;
+        letter-spacing: -0.035em;
+        line-height: 1.02;
+        font-size: clamp(2.75rem, 9vw, 4.75rem);
+        text-wrap: balance;
+        margin: 0.5rem 0 0;
+      }
 
-  h2 {
-    font-family: var(--display);
-    font-weight: 650;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
-    font-size: clamp(1.5rem, 4vw, 2rem);
-    text-wrap: balance;
-    margin: 0;
-  }
+      h2 {
+        font-family: var(--display);
+        font-weight: 650;
+        letter-spacing: -0.02em;
+        line-height: 1.12;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        text-wrap: balance;
+        margin: 0;
+      }
 
-  h3 {
-    font-family: var(--display);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    font-size: 1.0625rem;
-    margin: 0;
-  }
+      h3 {
+        font-family: var(--display);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-size: 1.0625rem;
+        margin: 0;
+      }
 
-  p { margin: 0; max-width: var(--measure); }
-  .lede { font-size: 1.25rem; line-height: 1.5; color: var(--ink-soft); }
+      p {
+        margin: 0;
+        max-width: var(--measure);
+      }
+      .lede {
+        font-size: 1.25rem;
+        line-height: 1.5;
+        color: var(--ink-soft);
+      }
 
-  section { display: flex; flex-direction: column; gap: 1.5rem; }
-  .section-head { display: flex; flex-direction: column; gap: 0.5rem; }
+      section {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      .section-head {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
-  a { color: var(--roxo); }
-  a:focus-visible,
-  .cta:focus-visible {
-    outline: 2px solid var(--roxo);
-    outline-offset: 3px;
-    border-radius: 4px;
-  }
+      a {
+        color: var(--roxo);
+      }
+      a:focus-visible,
+      .cta:focus-visible {
+        outline: 2px solid var(--roxo);
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
 
-  /* ---- hero ---- */
-  .hero { display: flex; flex-direction: column; gap: 1.75rem; }
-  .hero__meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.25rem;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-    border-top: 1px solid var(--rule);
-    padding-top: 1rem;
-  }
-  .hero__meta b { color: var(--ink); font-weight: 600; }
+      /* ---- hero ---- */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 1.75rem;
+      }
+      .hero__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.25rem;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        border-top: 1px solid var(--rule);
+        padding-top: 1rem;
+      }
+      .hero__meta b {
+        color: var(--ink);
+        font-weight: 600;
+      }
 
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    align-self: flex-start;
-    background: var(--roxo);
-    color: var(--on-roxo);
-    font-family: var(--display);
-    font-weight: 600;
-    font-size: 1rem;
-    text-decoration: none;
-    padding: 0.85rem 1.6rem;
-    border-radius: 999px;
-    transition: transform 0.15s ease, background 0.15s ease;
-  }
-  .cta:hover { background: var(--uva); transform: translateY(-1px); }
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        align-self: flex-start;
+        background: var(--roxo);
+        color: var(--on-roxo);
+        font-family: var(--display);
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        padding: 0.85rem 1.6rem;
+        border-radius: 999px;
+        transition:
+          transform 0.15s ease,
+          background 0.15s ease;
+      }
+      .cta:hover {
+        background: var(--uva);
+        transform: translateY(-1px);
+      }
 
-  /* ---- galeria de prints em moldura de celular ---- */
-  .gallery {
-    display: flex;
-    gap: 1.25rem;
-    overflow-x: auto;
-    padding: 0.5rem 0 1.5rem;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-  }
-  .shot {
-    flex: 0 0 auto;
-    width: 12.5rem;
-    scroll-snap-align: start;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .shot__frame {
-    background: var(--bezel);
-    border-radius: 1.75rem;
-    padding: 0.5rem;
-    box-shadow: 0 12px 32px rgba(23, 17, 31, 0.18);
-  }
-  .shot__frame img {
-    display: block;
-    width: 100%;
-    height: auto;
-    border-radius: 1.35rem;
-  }
-  .shot figcaption {
-    font-size: 0.9rem;
-    line-height: 1.4;
-    color: var(--ink-soft);
-  }
-  .shot figcaption b {
-    display: block;
-    font-family: var(--display);
-    font-weight: 600;
-    color: var(--ink);
-  }
-  .gallery-hint {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    color: var(--ink-soft);
-    letter-spacing: 0.04em;
-  }
+      /* ---- galeria de prints em moldura de celular ---- */
+      .gallery {
+        display: flex;
+        gap: 1.25rem;
+        overflow-x: auto;
+        padding: 0.5rem 0 1.5rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+      .shot {
+        flex: 0 0 auto;
+        width: 12.5rem;
+        scroll-snap-align: start;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+      }
+      .shot__frame {
+        background: var(--bezel);
+        border-radius: 1.75rem;
+        padding: 0.5rem;
+        box-shadow: 0 12px 32px rgba(23, 17, 31, 0.18);
+      }
+      .shot__frame img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 1.35rem;
+      }
+      .shot figcaption {
+        font-size: 0.9rem;
+        line-height: 1.4;
+        color: var(--ink-soft);
+      }
+      .shot figcaption b {
+        display: block;
+        font-family: var(--display);
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .gallery-hint {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        color: var(--ink-soft);
+        letter-spacing: 0.04em;
+      }
 
-  /* ---- destaque: instalar no celular ---- */
-  .install {
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
-    border-top: 4px solid var(--roxo);
-    border-radius: 16px;
-    padding: 1.75rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-  @media (min-width: 48rem) {
-    .install { padding: 2.25rem 2rem; }
-  }
-  /* o texto de abertura (dentro do painel) e o de fechamento (logo depois
+      /* ---- destaque: instalar no celular ---- */
+      .install {
+        background: var(--paper-raised);
+        border: 1px solid var(--rule);
+        border-top: 4px solid var(--roxo);
+        border-radius: 16px;
+        padding: 1.75rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      @media (min-width: 48rem) {
+        .install {
+          padding: 2.25rem 2rem;
+        }
+      }
+      /* o texto de abertura (dentro do painel) e o de fechamento (logo depois
      dele) acompanham a largura do container, não o --measure dos parágrafos
      de corpo — senão ficam mais estreitos que as bullets e o passo a passo */
-  .install > p,
-  .install + p {
-    max-width: none;
-  }
-  .install__why {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .install__why li {
-    display: grid;
-    grid-template-columns: 1.2rem 1fr;
-    gap: 0.6rem;
-    font-size: 1rem;
-  }
-  .install__why li::before {
-    content: "";
-    width: 0.55rem;
-    height: 0.55rem;
-    margin-top: 0.55rem;
-    border-radius: 999px;
-    background: var(--roxo);
-  }
-  .howto {
-    display: grid;
-    gap: 1.25rem;
-  }
-  @media (min-width: 40rem) {
-    .howto { grid-template-columns: 1fr 1fr; gap: 1.75rem; }
-  }
-  .howto__col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--rule);
-  }
-  .howto__os {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--roxo);
-  }
-  .howto ol {
-    margin: 0;
-    padding-left: 1.15rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    font-size: 0.98rem;
-  }
-  .howto li::marker { color: var(--ink-soft); font-family: var(--mono); font-size: 0.85rem; }
-  .howto__note { font-size: 0.9rem; color: var(--ink-soft); }
-
-  /* ---- blocos de funcionalidade ---- */
-  .features { display: flex; flex-direction: column; gap: 0; }
-  .feature {
-    display: grid;
-    gap: 0.4rem 1.5rem;
-    padding: 1.6rem 0;
-    border-top: 1px solid var(--rule);
-  }
-  .feature:last-child { border-bottom: 1px solid var(--rule); }
-  @media (min-width: 44rem) {
-    .feature { grid-template-columns: 12rem 1fr; }
-  }
-  .feature__where {
-    font-family: var(--mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-    padding-top: 0.2rem;
-  }
-  .feature__body { display: flex; flex-direction: column; gap: 0.5rem; }
-  .feature p { font-size: 1rem; color: var(--ink-soft); }
-  .feature ul {
-    margin: 0.2rem 0 0;
-    padding-left: 1.1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.35rem;
-    font-size: 0.98rem;
-  }
-  .feature li::marker { color: var(--roxo); }
-
-  /* ---- passos (sequência real) ---- */
-  .steps {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-    counter-reset: step;
-  }
-  .steps li {
-    display: grid;
-    grid-template-columns: 2rem 1fr;
-    gap: 1rem;
-    align-items: baseline;
-    counter-increment: step;
-  }
-  .steps li::before {
-    content: counter(step);
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    color: var(--roxo);
-    border: 1px solid var(--rule);
-    border-radius: 999px;
-    width: 2rem;
-    height: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    align-self: start;
-  }
-  .steps strong { font-family: var(--display); font-weight: 600; }
-  .steps span { display: block; color: var(--ink-soft); font-size: 0.98rem; }
-
-  /* ---- caixas ---- */
-  .panel {
-    background: var(--paper-raised);
-    border: 1px solid var(--rule);
-    border-radius: 14px;
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .panel--verde { border-left: 3px solid var(--verde); }
-  .panel--roxo { border-left: 3px solid var(--roxo); }
-
-  .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
-  .checklist li { display: grid; grid-template-columns: 1.4rem 1fr; gap: 0.6rem; font-size: 1rem; }
-  .checklist li::before {
-    content: "";
-    width: 0.85rem;
-    height: 0.85rem;
-    margin-top: 0.42rem;
-    border: 1.5px solid var(--verde);
-    border-radius: 3px;
-  }
-
-  .known { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; font-size: 0.98rem; color: var(--ink-soft); }
-  .known b { color: var(--ink); font-family: var(--display); font-weight: 600; }
-
-  .fill {
-    font-family: var(--mono);
-    font-size: 0.85rem;
-    background: color-mix(in srgb, var(--roxo) 12%, transparent);
-    color: var(--roxo);
-    padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-  }
-
-  footer {
-    border-top: 1px solid var(--rule);
-    padding-top: 1.5rem;
-    font-family: var(--mono);
-    font-size: 0.78rem;
-    color: var(--ink-soft);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem 1.5rem;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    * { transition: none !important; animation: none !important; }
-  }
-</style>
-</head>
-<body>
-<div class="spine" aria-hidden="true"><div class="spine__fill" id="spine-fill"></div></div>
-
-<div class="page">
-
-  <header class="hero">
-    <div>
-      <span class="eyebrow">Teste fechado · por convite</span>
-      <h1>Livrea</h1>
-    </div>
-    <p class="lede">
-      Um lugar para ler acompanhada de outras pessoas: clubes de leitura,
-      acompanhamento do que você está lendo e conversa sobre o livro sem
-      levar spoiler na cara.
-    </p>
-    <a class="cta" href="https://livrea.vercel.app/">Abrir o Livrea →</a>
-    <div class="hero__meta">
-      <span><b>Endereço:</b> <a class="fill" href="https://livrea.vercel.app/">livrea.vercel.app</a></span>
-      <span><b>Feito para o celular</b> — abra por lá</span>
-      <span><b>Custo:</b> nenhum</span>
-    </div>
-  </header>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">Por dentro</span>
-      <h2>É com essa cara</h2>
-    </div>
-    <p class="gallery-hint">Arraste para o lado →</p>
-    <div class="gallery">
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/01-home-clubes.jpg" alt="Tela do Livrea: Home" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Home</b>Clubes perto de você, online e indicados pelos seus gêneros.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/02-clube.jpg" alt="Tela do Livrea: Dentro do clube" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Dentro do clube</b>Descrição, participantes, próximo encontro e a leitura da vez.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/03-leitura.jpg" alt="Tela do Livrea: Leitura do clube" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Leitura do clube</b>O livro que o clube está lendo agora, com leitores e resenhas.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/04-chat.jpg" alt="Tela do Livrea: Chat com spoiler" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Chat com spoiler</b>A mensagem marcada chega borrada para quem ainda não chegou lá.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/05-livros.jpg" alt="Tela do Livrea: Livros" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Livros</b>Busca e recomendação; daqui você monta sua biblioteca.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/06-livro.jpg" alt="Tela do Livrea: Sua leitura" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Sua leitura</b>Status, progresso em porcentagem e o registro de leitura.</figcaption>
-      </figure>
-      <figure class="shot">
-        <div class="shot__frame">
-          <img src="/convite/telas/07-perfil.jpg" alt="Tela do Livrea: Perfil" loading="lazy" width="780" height="1328">
-        </div>
-        <figcaption><b>Perfil</b>Seus clubes, sua biblioteca, quem te segue.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">Comece por aqui</span>
-      <h2>Instale na tela de início — faz diferença</h2>
-    </div>
-
-    <div class="install">
-      <p>
-        O Livrea abre no navegador, mas foi feito para virar um app instalado no
-        celular. São dois toques e não passa por loja nenhuma.
-      </p>
-
-      <ul class="install__why">
-        <li><span><b>As notificações só chegam assim.</b> Pedido aceito, mensagem nova no clube, alguém te seguindo — instalado, chega no celular; pelo navegador, não.</span></li>
-        <li><span><b>Abre em tela cheia</b>, sem a barra de endereço comendo espaço.</span></li>
-        <li><span><b>Fica com ícone na tela de início</b>, igual a qualquer outro app.</span></li>
-      </ul>
-
-      <div class="howto">
-        <div class="howto__col">
-          <span class="howto__os">iPhone · Safari</span>
-          <ol>
-            <li>Abra o link no <strong>Safari</strong> (no iPhone só funciona nele)</li>
-            <li>Toque no botão <strong>Compartilhar</strong>, o quadradinho com a seta pra cima</li>
-            <li>Role e escolha <strong>Adicionar à Tela de Início</strong></li>
-            <li>Confirme em <strong>Adicionar</strong></li>
-          </ol>
-          <p class="howto__note">Depois abra sempre pelo ícone novo, não pelo Safari.</p>
-        </div>
-
-        <div class="howto__col">
-          <span class="howto__os">Android · Chrome</span>
-          <ol>
-            <li>Abra o link no <strong>Chrome</strong></li>
-            <li>Toque nos <strong>três pontinhos</strong> do canto</li>
-            <li>Escolha <strong>Instalar app</strong> (ou "Adicionar à tela inicial")</li>
-            <li>Confirme em <strong>Instalar</strong></li>
-          </ol>
-          <p class="howto__note">Às vezes o próprio Chrome oferece instalar numa barrinha embaixo.</p>
-        </div>
-      </div>
-    </div>
-
-    <p>
-      No computador funciona e você pode testar por lá também — mas as telas
-      foram desenhadas primeiro para o celular, e é no celular que a experiência
-      está redonda. Se for testar só num lugar, teste no celular.
-    </p>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">O que dá pra fazer</span>
-      <h2>Cinco coisas, e onde cada uma mora</h2>
-    </div>
-
-    <div class="features">
-
-      <article class="feature">
-        <div class="feature__where">Home</div>
-        <div class="feature__body">
-          <h3>Encontrar e criar clubes</h3>
-          <p>A tela inicial mostra clubes perto de você, clubes online e recomendações pelos gêneros que você escolheu no cadastro.</p>
-          <ul>
-            <li>Peça para entrar num clube — quem administra aceita ou recusa</li>
-            <li>Crie o seu, público ou privado, com capa e descrição</li>
-            <li>Marque encontros e confirme presença</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="feature">
-        <div class="feature__where">Clube → Leitura</div>
-        <div class="feature__body">
-          <h3>Ler o mesmo livro junto</h3>
-          <p>Cada clube tem uma leitura atual. Numa tela só você vê quem está lendo, em que ponto cada pessoa está, as resenhas e os trechos destacados.</p>
-          <ul>
-            <li>Quem administra define o livro da vez</li>
-            <li>O clube fecha uma nota coletiva para o livro</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="feature">
-        <div class="feature__where">Clube → Chat</div>
-        <div class="feature__body">
-          <h3>Conversar sem estragar o livro</h3>
-          <p>O chat é só dos participantes. Ao mandar uma mensagem você pode marcá-la como spoiler: ela chega borrada e só se revela para quem já passou daquele ponto da leitura.</p>
-          <ul>
-            <li>É o recurso mais incomum do app — vale testar com atenção</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="feature">
-        <div class="feature__where">Livros</div>
-        <div class="feature__body">
-          <h3>Sua biblioteca e seu progresso</h3>
-          <p>Busque qualquer título e coloque em <em>lido</em>, <em>lendo</em> ou <em>quero ler</em>.</p>
-          <ul>
-            <li>Registre o progresso com anotação e como você se sentiu</li>
-            <li>Guarde destaques — os trechos que valem voltar</li>
-            <li>Escreva a resenha e dê sua nota</li>
-          </ul>
-        </div>
-      </article>
-
-      <article class="feature">
-        <div class="feature__where">Perfil</div>
-        <div class="feature__body">
-          <h3>Gente, avisos e personalização</h3>
-          <p>Seu perfil reúne seus clubes e sua biblioteca. Dá para seguir outros leitores e escolher a cor do cabeçalho.</p>
-          <ul>
-            <li>As notificações avisam sobre pedidos, mensagens e novos seguidores</li>
-          </ul>
-        </div>
-      </article>
-
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">Como começar</span>
-      <h2>A ordem que funciona melhor</h2>
-    </div>
-
-    <ol class="steps">
-      <li>
-        <div>
-          <strong>Instale na tela de início</strong>
-          <span>Antes de tudo, pelo passo a passo acima. Assim você já testa o app do jeito certo desde o começo.</span>
-        </div>
-      </li>
-      <li>
-        <div>
-          <strong>Crie sua conta</strong>
-          <span>Com e-mail e senha ou direto pelo Google. O cadastro tem quatro passos e pede foto e cidade.</span>
-        </div>
-      </li>
-      <li>
-        <div>
-          <strong>Escolha gêneros e livros</strong>
-          <span>É o que alimenta as recomendações de clubes e livros. Vale caprichar aqui — o app fica bem mais interessante depois.</span>
-        </div>
-      </li>
-      <li>
-        <div>
-          <strong>Entre num clube (ou crie um)</strong>
-          <span>Sem clube você não vê chat nem leitura em grupo, que é a melhor parte.</span>
-        </div>
-      </li>
-    </ol>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">O que mais ajuda</span>
-      <h2>Se puder testar só algumas coisas, teste estas</h2>
-    </div>
-
-    <div class="panel panel--verde">
-      <ul class="checklist">
-        <li>Instalar na tela de início e usar por ali por alguns dias</li>
-        <li>Fazer o cadastro inteiro e ver se algum passo trava ou confunde</li>
-        <li>Criar um clube do zero e convidar alguém</li>
-        <li>Pedir para entrar num clube dos outros e ver o pedido chegar do outro lado</li>
-        <li>Mandar uma mensagem marcada como spoiler e conferir se ela some para quem está atrás na leitura</li>
-        <li>Registrar progresso de leitura mais de uma vez no mesmo livro</li>
-        <li>Buscar um livro difícil — brasileiro, antigo, indie — e ver se aparece</li>
-      </ul>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">Achou algo errado</span>
-      <h2>Como reportar</h2>
-    </div>
-
-    <div class="panel panel--roxo">
-      <p>Conta pra gente <a class="fill" href="https://forms.gle/m6MuxaHgVQ3frka79" target="_blank" rel="noopener">neste formulário</a>. O que ajuda num relato:</p>
-      <ul class="checklist">
-        <li>O que você estava fazendo</li>
-        <li>O que você esperava que acontecesse</li>
-        <li>O que aconteceu</li>
-        <li>Print da tela, e se foi no celular ou no computador</li>
-      </ul>
-      <p>"Achei confuso" também é um relato válido — confusão é bug de design.</p>
-    </div>
-  </section>
-
-  <section>
-    <div class="section-head">
-      <span class="eyebrow">Antes de estranhar</span>
-      <h2>Coisas que a gente já sabe</h2>
-    </div>
-
-    <ul class="known">
-      <li><b>Notificação no iPhone só com o app instalado.</b> É limitação do iOS, não do Livrea.</li>
-      <li><b>O chat atualiza a cada poucos segundos</b>, não instantaneamente. Foi decisão, não esquecimento.</li>
-      <li><b>Alguns livros podem vir sem capa ou sem sinopse</b> — depende do que as bases externas têm sobre aquele título.</li>
-      <li><b>No computador o visual é mais simples</b> — o desenho começou pelo celular e o desktop veio depois.</li>
-    </ul>
-  </section>
-
-  <footer>
-    <span>Livrea · teste fechado</span>
-    <span>Obrigada por topar</span>
-  </footer>
-
-</div>
-
-<script>
-  // lombada preenche conforme a rolagem — mesmo gesto do progresso de leitura
-  (function () {
-    var fill = document.getElementById("spine-fill");
-    if (!fill) return;
-    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    var ticking = false;
-
-    function update() {
-      var doc = document.documentElement;
-      var max = doc.scrollHeight - window.innerHeight;
-      var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
-      fill.style.height = pct.toFixed(2) + "%";
-      ticking = false;
-    }
-
-    if (reduced) {
-      fill.style.height = "100%";
-      return;
-    }
-
-    window.addEventListener("scroll", function () {
-      if (!ticking) {
-        ticking = true;
-        window.requestAnimationFrame(update);
+      .install > p,
+      .install + p {
+        max-width: none;
       }
-    }, { passive: true });
+      .install__why {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      .install__why li {
+        display: grid;
+        grid-template-columns: 1.2rem 1fr;
+        gap: 0.6rem;
+        font-size: 1rem;
+      }
+      .install__why li::before {
+        content: "";
+        width: 0.55rem;
+        height: 0.55rem;
+        margin-top: 0.55rem;
+        border-radius: 999px;
+        background: var(--roxo);
+      }
+      .howto {
+        display: grid;
+        gap: 1.25rem;
+      }
+      @media (min-width: 40rem) {
+        .howto {
+          grid-template-columns: 1fr 1fr;
+          gap: 1.75rem;
+        }
+      }
+      .howto__col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--rule);
+      }
+      .howto__os {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--roxo);
+      }
+      .howto ol {
+        margin: 0;
+        padding-left: 1.15rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        font-size: 0.98rem;
+      }
+      .howto li::marker {
+        color: var(--ink-soft);
+        font-family: var(--mono);
+        font-size: 0.85rem;
+      }
+      .howto__note {
+        font-size: 0.9rem;
+        color: var(--ink-soft);
+      }
 
-    update();
-  })();
-</script>
-</body>
+      /* ---- blocos de funcionalidade ---- */
+      .features {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .feature {
+        display: grid;
+        gap: 0.4rem 1.5rem;
+        padding: 1.6rem 0;
+        border-top: 1px solid var(--rule);
+      }
+      .feature:last-child {
+        border-bottom: 1px solid var(--rule);
+      }
+      @media (min-width: 44rem) {
+        .feature {
+          grid-template-columns: 12rem 1fr;
+        }
+      }
+      .feature__where {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+        padding-top: 0.2rem;
+      }
+      .feature__body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .feature p {
+        font-size: 1rem;
+        color: var(--ink-soft);
+      }
+      .feature ul {
+        margin: 0.2rem 0 0;
+        padding-left: 1.1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        font-size: 0.98rem;
+      }
+      .feature li::marker {
+        color: var(--roxo);
+      }
+
+      /* ---- passos (sequência real) ---- */
+      .steps {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1.1rem;
+        counter-reset: step;
+      }
+      .steps li {
+        display: grid;
+        grid-template-columns: 2rem 1fr;
+        gap: 1rem;
+        align-items: baseline;
+        counter-increment: step;
+      }
+      .steps li::before {
+        content: counter(step);
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        color: var(--roxo);
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: start;
+      }
+      .steps strong {
+        font-family: var(--display);
+        font-weight: 600;
+      }
+      .steps span {
+        display: block;
+        color: var(--ink-soft);
+        font-size: 0.98rem;
+      }
+
+      /* ---- caixas ---- */
+      .panel {
+        background: var(--paper-raised);
+        border: 1px solid var(--rule);
+        border-radius: 14px;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+      .panel--verde {
+        border-left: 3px solid var(--verde);
+      }
+      .panel--roxo {
+        border-left: 3px solid var(--roxo);
+      }
+
+      .checklist {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.7rem;
+      }
+      .checklist li {
+        display: grid;
+        grid-template-columns: 1.4rem 1fr;
+        gap: 0.6rem;
+        font-size: 1rem;
+      }
+      .checklist li::before {
+        content: "";
+        width: 0.85rem;
+        height: 0.85rem;
+        margin-top: 0.42rem;
+        border: 1.5px solid var(--verde);
+        border-radius: 3px;
+      }
+
+      .known {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+        font-size: 0.98rem;
+        color: var(--ink-soft);
+      }
+      .known b {
+        color: var(--ink);
+        font-family: var(--display);
+        font-weight: 600;
+      }
+
+      .fill {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+        background: color-mix(in srgb, var(--roxo) 12%, transparent);
+        color: var(--roxo);
+        padding: 0.1rem 0.4rem;
+        border-radius: 4px;
+      }
+
+      footer {
+        border-top: 1px solid var(--rule);
+        padding-top: 1.5rem;
+        font-family: var(--mono);
+        font-size: 0.78rem;
+        color: var(--ink-soft);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem 1.5rem;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="spine" aria-hidden="true">
+      <div class="spine__fill" id="spine-fill"></div>
+    </div>
+
+    <div class="page">
+      <header class="hero">
+        <div>
+          <span class="eyebrow">Teste por convite</span>
+          <h1>Livrea</h1>
+        </div>
+        <p class="lede">
+          Um lugar para ler acompanhada de outras pessoas: clubes de leitura,
+          acompanhamento do que você está lendo e conversa sobre o livro sem
+          levar spoiler na cara.
+        </p>
+        <a class="cta" href="https://livrea.vercel.app/">Abrir o Livrea →</a>
+        <div class="hero__meta">
+          <span
+            ><b>Endereço:</b>
+            <a class="fill" href="https://livrea.vercel.app/"
+              >livrea.vercel.app</a
+            ></span
+          >
+          <span><b>Feito para o celular</b> — abra por lá</span>
+          <span><b>Custo:</b> nenhum</span>
+        </div>
+      </header>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">Por dentro</span>
+          <h2>É com essa cara</h2>
+        </div>
+        <p class="gallery-hint">Arraste para o lado →</p>
+        <div class="gallery">
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/01-home-clubes.jpg"
+                alt="Tela do Livrea: Home"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Home</b>Clubes perto de você, online e indicados pelos seus
+              gêneros.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/02-clube.jpg"
+                alt="Tela do Livrea: Dentro do clube"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Dentro do clube</b>Descrição, participantes, próximo encontro e
+              a leitura da vez.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/03-leitura.jpg"
+                alt="Tela do Livrea: Leitura do clube"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Leitura do clube</b>O livro que o clube está lendo agora, com
+              leitores e resenhas.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/04-chat.jpg"
+                alt="Tela do Livrea: Chat com spoiler"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Chat com spoiler</b>A mensagem marcada chega borrada para quem
+              ainda não chegou lá.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/05-livros.jpg"
+                alt="Tela do Livrea: Livros"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Livros</b>Busca e recomendação; daqui você monta sua
+              biblioteca.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/06-livro.jpg"
+                alt="Tela do Livrea: Sua leitura"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Sua leitura</b>Status, progresso em porcentagem e o registro de
+              leitura.
+            </figcaption>
+          </figure>
+          <figure class="shot">
+            <div class="shot__frame">
+              <img
+                src="/convite/telas/07-perfil.jpg"
+                alt="Tela do Livrea: Perfil"
+                loading="lazy"
+                width="780"
+                height="1328"
+              />
+            </div>
+            <figcaption>
+              <b>Perfil</b>Seus clubes, sua biblioteca, quem te segue.
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">Comece por aqui</span>
+          <h2>Instale na tela de início — faz diferença</h2>
+        </div>
+
+        <div class="install">
+          <p>
+            O Livrea abre no navegador, mas foi feito para virar um app
+            instalado no celular. São dois toques e não passa por loja nenhuma.
+          </p>
+
+          <ul class="install__why">
+            <li>
+              <span
+                ><b>As notificações só chegam assim.</b> Pedido aceito, mensagem
+                nova no clube, alguém te seguindo — instalado, chega no celular;
+                pelo navegador, não.</span
+              >
+            </li>
+            <li>
+              <span
+                ><b>Abre em tela cheia</b>, sem a barra de endereço comendo
+                espaço.</span
+              >
+            </li>
+            <li>
+              <span
+                ><b>Fica com ícone na tela de início</b>, igual a qualquer outro
+                app.</span
+              >
+            </li>
+          </ul>
+
+          <div class="howto">
+            <div class="howto__col">
+              <span class="howto__os">iPhone · Safari</span>
+              <ol>
+                <li>
+                  Abra o link no <strong>Safari</strong> (no iPhone só funciona
+                  nele)
+                </li>
+                <li>
+                  Toque no botão <strong>Compartilhar</strong>, o quadradinho
+                  com a seta pra cima
+                </li>
+                <li>
+                  Role e escolha <strong>Adicionar à Tela de Início</strong>
+                </li>
+                <li>Confirme em <strong>Adicionar</strong></li>
+              </ol>
+              <p class="howto__note">
+                Depois abra sempre pelo ícone novo, não pelo Safari.
+              </p>
+            </div>
+
+            <div class="howto__col">
+              <span class="howto__os">Android · Chrome</span>
+              <ol>
+                <li>Abra o link no <strong>Chrome</strong></li>
+                <li>Toque nos <strong>três pontinhos</strong> do canto</li>
+                <li>
+                  Escolha <strong>Instalar app</strong> (ou "Adicionar à tela
+                  inicial")
+                </li>
+                <li>Confirme em <strong>Instalar</strong></li>
+              </ol>
+              <p class="howto__note">
+                Às vezes o próprio Chrome oferece instalar numa barrinha
+                embaixo.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <p>
+          No computador funciona e você pode testar por lá também — mas as telas
+          foram desenhadas primeiro para o celular, e é no celular que a
+          experiência está redonda. Se for testar só num lugar, teste no
+          celular.
+        </p>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">O que dá pra fazer</span>
+          <h2>Cinco coisas, e onde cada uma mora</h2>
+        </div>
+
+        <div class="features">
+          <article class="feature">
+            <div class="feature__where">Home</div>
+            <div class="feature__body">
+              <h3>Encontrar e criar clubes</h3>
+              <p>
+                A tela inicial mostra clubes perto de você, clubes online e
+                recomendações pelos gêneros que você escolheu no cadastro.
+              </p>
+              <ul>
+                <li>
+                  Peça para entrar num clube — quem administra aceita ou recusa
+                </li>
+                <li>Crie o seu, público ou privado, com capa e descrição</li>
+                <li>Marque encontros e confirme presença</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__where">Clube → Leitura</div>
+            <div class="feature__body">
+              <h3>Ler o mesmo livro junto</h3>
+              <p>
+                Cada clube tem uma leitura atual. Numa tela só você vê quem está
+                lendo, em que ponto cada pessoa está, as resenhas e os trechos
+                destacados.
+              </p>
+              <ul>
+                <li>Quem administra define o livro da vez</li>
+                <li>O clube fecha uma nota coletiva para o livro</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__where">Clube → Chat</div>
+            <div class="feature__body">
+              <h3>Conversar sem estragar o livro</h3>
+              <p>
+                O chat é só dos participantes. Ao mandar uma mensagem você pode
+                marcá-la como spoiler: ela chega borrada e só se revela para
+                quem já passou daquele ponto da leitura.
+              </p>
+              <ul>
+                <li>
+                  É o recurso mais incomum do app — vale testar com atenção
+                </li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__where">Livros</div>
+            <div class="feature__body">
+              <h3>Sua biblioteca e seu progresso</h3>
+              <p>
+                Busque qualquer título e coloque em <em>lido</em>,
+                <em>lendo</em> ou <em>quero ler</em>.
+              </p>
+              <ul>
+                <li>Registre o progresso com anotação e como você se sentiu</li>
+                <li>Guarde destaques — os trechos que valem voltar</li>
+                <li>Escreva a resenha e dê sua nota</li>
+              </ul>
+            </div>
+          </article>
+
+          <article class="feature">
+            <div class="feature__where">Perfil</div>
+            <div class="feature__body">
+              <h3>Gente, avisos e personalização</h3>
+              <p>
+                Seu perfil reúne seus clubes e sua biblioteca. Dá para seguir
+                outros leitores e escolher a cor do cabeçalho.
+              </p>
+              <ul>
+                <li>
+                  As notificações avisam sobre pedidos, mensagens e novos
+                  seguidores
+                </li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">Como começar</span>
+          <h2>A ordem que funciona melhor</h2>
+        </div>
+
+        <ol class="steps">
+          <li>
+            <div>
+              <strong>Instale na tela de início</strong>
+              <span
+                >Antes de tudo, pelo passo a passo acima. Assim você já testa o
+                app do jeito certo desde o começo.</span
+              >
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Crie sua conta</strong>
+              <span>Com e-mail e senha ou direto pelo Google.</span>
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Escolha gêneros e livros</strong>
+              <span
+                >É o que alimenta as recomendações de clubes e livros. Vale
+                caprichar aqui — o app fica bem mais interessante depois.</span
+              >
+            </div>
+          </li>
+          <li>
+            <div>
+              <strong>Entre num clube (ou crie um)</strong>
+              <span
+                >Sem clube você não vê chat nem leitura em grupo, que é a melhor
+                parte.</span
+              >
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">O que mais ajuda</span>
+          <h2>Se puder testar só algumas coisas, teste estas</h2>
+        </div>
+
+        <div class="panel panel--verde">
+          <ul class="checklist">
+            <li>Instalar na tela de início e usar por ali por alguns dias</li>
+            <li>
+              Fazer o cadastro inteiro e ver se algum passo trava ou confunde
+            </li>
+            <li>Criar um clube do zero e convidar alguém</li>
+            <li>
+              Pedir para entrar num clube dos outros e ver o pedido chegar do
+              outro lado
+            </li>
+            <li>
+              Mandar uma mensagem marcada como spoiler e conferir se ela some
+              para quem está atrás na leitura
+            </li>
+            <li>
+              Registrar progresso de leitura mais de uma vez no mesmo livro
+            </li>
+            <li>Ativar as notificações e ver se elas chegam</li>
+            <li>
+              Buscar um livro difícil — brasileiro, antigo, indie — e ver se
+              aparece
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">Achou algo errado</span>
+          <h2>Como reportar</h2>
+        </div>
+
+        <div class="panel panel--roxo">
+          <p>
+            Conta pra gente
+            <a
+              class="fill"
+              href="https://forms.gle/m6MuxaHgVQ3frka79"
+              target="_blank"
+              rel="noopener"
+              >neste formulário</a
+            >. O que ajuda num relato:
+          </p>
+          <ul class="checklist">
+            <li>O que você estava fazendo</li>
+            <li>O que você esperava que acontecesse</li>
+            <li>O que aconteceu</li>
+            <li>Print da tela, e se foi no celular ou no computador</li>
+          </ul>
+          <p>
+            "Achei confuso" também é um relato válido — confusão é bug de
+            design.
+          </p>
+          <p>
+            <b
+              >O mesmo formulário serve para mandar sugestões e feedbacks — não
+              precisa ser só bug.</b
+            >
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <span class="eyebrow">Antes de estranhar</span>
+          <h2>Coisas que a gente já sabe</h2>
+        </div>
+
+        <ul class="known">
+          <li>
+            <b>Notificação no iPhone só com o app instalado.</b> É limitação do
+            iOS, não do Livrea.
+          </li>
+          <li>
+            <b>O chat atualiza a cada poucos segundos</b>, não instantaneamente.
+            Foi decisão, não esquecimento.
+          </li>
+          <li>
+            <b>Alguns livros podem vir sem capa ou sem sinopse</b> — depende do
+            que as bases externas têm sobre aquele título.
+          </li>
+          <li>
+            <b>No computador o visual é mais simples</b> — o desenho começou
+            pelo celular e o desktop veio depois.
+          </li>
+        </ul>
+      </section>
+
+      <footer>
+        <span>Livrea · teste fechado</span>
+        <span>Obrigada por topar</span>
+      </footer>
+    </div>
+
+    <script>
+      // lombada preenche conforme a rolagem — mesmo gesto do progresso de leitura
+      (function () {
+        var fill = document.getElementById("spine-fill");
+        if (!fill) return;
+        var reduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        var ticking = false;
+
+        function update() {
+          var doc = document.documentElement;
+          var max = doc.scrollHeight - window.innerHeight;
+          var pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+          fill.style.height = pct.toFixed(2) + "%";
+          ticking = false;
+        }
+
+        if (reduced) {
+          fill.style.height = "100%";
+          return;
+        }
+
+        window.addEventListener(
+          "scroll",
+          function () {
+            if (!ticking) {
+              ticking = true;
+              window.requestAnimationFrame(update);
+            }
+          },
+          { passive: true },
+        );
+
+        update();
+      })();
+    </script>
+  </body>
 </html>
