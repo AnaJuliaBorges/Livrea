@@ -23,6 +23,8 @@ interface Props {
   logs: ReadingLogEntry[];
 }
 
+type ProgressUnit = "page" | "percent";
+
 const feelings: { label: ReadingFeeling; emoji: string }[] = [
   { label: "não curti", emoji: "☹️​" },
   { label: "meh", emoji: "🙁​" },
@@ -42,8 +44,10 @@ export default function RegisterReadHistory({
   );
   const [note, setNote] = useState("");
   const [currentPage, setCurrentPage] = useState(lastProgress);
-  const [isEditingPage, setIsEditingPage] = useState(false);
-  const [pageInput, setPageInput] = useState(String(lastProgress));
+  const [isEditingProgress, setIsEditingProgress] = useState(false);
+  const [progressInput, setProgressInput] = useState(String(lastProgress));
+  // leitores de Kindle acompanham a % — o valor continua guardado em páginas
+  const [unit, setUnit] = useState<ProgressUnit>("page");
 
   // após salvar, o progresso confirmado pelo servidor vira a nova base
   // (ajuste de estado durante o render, sem efeito)
@@ -59,6 +63,12 @@ export default function RegisterReadHistory({
   const [logToDelete, setLogToDelete] = useState<string | null>(null);
 
   const finished = totalPages > 0 && lastProgress >= totalPages;
+
+  // a % só faz sentido quando dá pra converter em página (precisa do total)
+  const canUsePercent = totalPages > 0;
+  const currentPercent = canUsePercent
+    ? Math.round((currentPage / totalPages) * 100)
+    : 0;
 
   const handleDeleteLog = () => {
     if (!logToDelete) return;
@@ -88,13 +98,38 @@ export default function RegisterReadHistory({
     }
   }
 
-  function commitPageInput() {
-    const parsed = Number(pageInput);
+  function changeUnit(next: ProgressUnit) {
+    setIsEditingProgress(false);
+    setUnit(next);
+  }
+
+  function startEditing() {
+    setProgressInput(String(unit === "percent" ? currentPercent : currentPage));
+    setIsEditingProgress(true);
+  }
+
+  function commitProgressInput() {
+    const parsed = Number(progressInput);
     if (Number.isInteger(parsed)) {
-      const max = totalPages > 0 ? totalPages : Infinity;
-      setCurrentPage(Math.min(Math.max(parsed, 0), max));
+      if (unit === "percent") {
+        const pct = Math.min(Math.max(parsed, 0), 100);
+        setCurrentPage(Math.round((pct / 100) * totalPages));
+      } else {
+        const max = totalPages > 0 ? totalPages : Infinity;
+        setCurrentPage(Math.min(Math.max(parsed, 0), max));
+      }
     }
-    setIsEditingPage(false);
+    setIsEditingProgress(false);
+  }
+
+  // no modo %, o passo é de 1% (convertido pra páginas); no modo página, 1 página
+  function stepProgress(delta: 1 | -1) {
+    if (unit === "percent") {
+      const nextPct = Math.min(Math.max(currentPercent + delta, 0), 100);
+      setCurrentPage(Math.round((nextPct / 100) * totalPages));
+    } else {
+      setCurrentPage((prev: number) => prev + delta);
+    }
   }
 
   function getDetails(log: ReadingLogEntry) {
@@ -113,34 +148,74 @@ export default function RegisterReadHistory({
         <ContainerBorder>
           <p className="text-sm font-medium">Progresso da leitura</p>
           <div className="flex flex-col gap-5 bg-gray-200 p-4 rounded-xl">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-sm">Página atual</p>
-              <div className="flex gap-2 items-center">
+            <div className="flex flex-col gap-3">
+              <div className="flex mb-2 items-center justify-between">
+                <p className="font-medium text-sm">
+                  {unit === "percent" ? "Progresso" : "Página atual"}
+                </p>
+                {canUsePercent && (
+                  <div className="flex rounded-lg bg-white p-0.5 text-xs font-medium">
+                    <button
+                      type="button"
+                      onClick={() => changeUnit("page")}
+                      className={cn(
+                        "rounded-md px-3 py-1 transition-colors",
+                        unit === "page"
+                          ? "bg-primary text-white"
+                          : "text-gray-600",
+                      )}
+                    >
+                      Páginas
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => changeUnit("percent")}
+                      className={cn(
+                        "rounded-md px-3 py-1 transition-colors",
+                        unit === "percent"
+                          ? "bg-primary text-white"
+                          : "text-gray-600",
+                      )}
+                    >
+                      %
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 items-center justify-center">
                 <Button
-                  className="bg-white text-primary font-semibold rounded-xl"
-                  onClick={() => setCurrentPage((prev: number) => prev - 1)}
+                  size="icon-sm"
+                  className="bg-white text-primary text-lg font-semibold rounded-xl"
+                  onClick={() => stepProgress(-1)}
                   disabled={currentPage <= 0}
                 >
                   -
                 </Button>
 
-                {isEditingPage ? (
+                {isEditingProgress ? (
                   <Input
                     type="number"
                     inputMode="numeric"
                     autoFocus
                     min={0}
-                    max={totalPages > 0 ? totalPages : undefined}
-                    value={pageInput}
-                    onChange={(event) => setPageInput(event.target.value)}
-                    onBlur={commitPageInput}
+                    max={
+                      unit === "percent"
+                        ? 100
+                        : totalPages > 0
+                          ? totalPages
+                          : undefined
+                    }
+                    value={progressInput}
+                    onChange={(event) => setProgressInput(event.target.value)}
+                    onBlur={commitProgressInput}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
                         event.preventDefault();
-                        commitPageInput();
+                        commitProgressInput();
                       }
                       if (event.key === "Escape") {
-                        setIsEditingPage(false);
+                        setIsEditingProgress(false);
                       }
                     }}
                     className="h-8 w-16 px-2 py-1 text-center text-sm"
@@ -149,26 +224,37 @@ export default function RegisterReadHistory({
                   <p
                     role="button"
                     tabIndex={0}
-                    onClick={() => {
-                      setPageInput(String(currentPage));
-                      setIsEditingPage(true);
-                    }}
+                    onClick={startEditing}
                     onKeyDown={(event) => {
                       if (event.key === "Enter") {
-                        setPageInput(String(currentPage));
-                        setIsEditingPage(true);
+                        startEditing();
                       }
                     }}
                     className="cursor-pointer"
                   >
-                    <span className="text-xl font-bold">{currentPage}</span>/
-                    <span className="text-xs font-medium">{totalPages}</span>
+                    {unit === "percent" ? (
+                      <>
+                        <span className="text-xl font-bold">
+                          {currentPercent}
+                        </span>
+                        <span className="text-xs font-medium">%</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-xl font-bold">{currentPage}</span>
+                        /
+                        <span className="text-xs font-medium">
+                          {totalPages}
+                        </span>
+                      </>
+                    )}
                   </p>
                 )}
 
                 <Button
-                  className="bg-white text-primary font-semibold rounded-xl"
-                  onClick={() => setCurrentPage((prev: number) => prev + 1)}
+                  size="icon-sm"
+                  className="bg-white text-primary text-lg font-semibold rounded-xl"
+                  onClick={() => stepProgress(1)}
                   disabled={totalPages > 0 && currentPage >= totalPages}
                 >
                   +

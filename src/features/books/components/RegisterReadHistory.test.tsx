@@ -282,6 +282,56 @@ describe("RegisterReadHistory", () => {
     );
   });
 
+  it("registra o progresso em porcentagem convertendo para páginas", async () => {
+    const user = userEvent.setup();
+    const save = mockMutation();
+    save.mockResolvedValue(undefined);
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={300}
+        lastProgress={0}
+        logs={[]}
+      />,
+    );
+
+    // troca a unidade para porcentagem e digita 50%
+    await user.click(screen.getByRole("button", { name: "%" }));
+    await user.click(screen.getByRole("button", { name: "0%" }));
+    const input = screen.getByRole("spinbutton");
+    await user.clear(input);
+    await user.type(input, "50");
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByRole("button", { name: "50%" })).toBeInTheDocument();
+
+    await selectFeeling(user, "amei");
+    await user.click(screen.getByText("Salvar registro"));
+
+    // 50% de 300 páginas = 150 (o valor continua sendo salvo em páginas)
+    expect(save).toHaveBeenCalledWith({
+      currentPage: 150,
+      feeling: "amei",
+      note: "",
+    });
+  });
+
+  it("não oferece porcentagem quando o livro não tem total de páginas", () => {
+    mockMutation();
+
+    render(
+      <RegisterReadHistory
+        bookId="book-1"
+        totalPages={0}
+        lastProgress={0}
+        logs={[]}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "%" })).not.toBeInTheDocument();
+  });
+
   it("atualiza a página atual quando lastProgress muda após salvar", () => {
     mockMutation();
 
