@@ -2,12 +2,6 @@ import { Outlet } from "react-router-dom";
 import { WelcomeTour } from "@/features/onboarding";
 import MenuBar from "./MenuBar";
 
-// Layouts de rota (pathless) declarados em src/main.tsx — a decisão de qual
-// shell usar vive no router, não numa lista de pathnames duplicada aqui.
-
-// Rotas de visitante: sem MenuBar — todos os links dele são rotas
-// protegidas e, no mobile, o menu fixo do rodapé cobria o botão
-// "Continuar" do login.
 export function AuthLayout() {
   return (
     <div className="min-h-screen bg-surface selection:bg-primary/20">

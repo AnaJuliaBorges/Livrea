@@ -46,7 +46,6 @@ function ClubSettingsForm({ club }: { club: Club }) {
     club.stateId ? String(club.stateId) : "",
   );
   const [cityId, setCityId] = useState(club.cityId ? String(club.cityId) : "");
-  // valor do enum club_meeting_type direto (in_person/hybrid/online)
   const [meetingType, setMeetingType] = useState(club.type);
   const [headerColor, setHeaderColor] = useState(club.headerColor);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -97,7 +96,6 @@ function ClubSettingsForm({ club }: { club: Club }) {
         meetingType,
       });
 
-      // a cor vive em outra RPC (set_club_header_color), fora do update_club
       if (headerColor !== club.headerColor) {
         await setClubHeaderColor.mutateAsync(headerColor);
       }

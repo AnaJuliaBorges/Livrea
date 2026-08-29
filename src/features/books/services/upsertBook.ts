@@ -1,9 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import type { Book } from "../types/book";
 
-// Garante que um livro da busca externa exista no banco e retorna o id.
-// Só grava o mínimo (isbn/título/autores/capa) — a página de detalhes
-// completa o restante via complete_book_data.
 export async function upsertBook(book: Book): Promise<string> {
   if (!book.info.isbn) {
     throw new Error("Livro sem ISBN não pode ser salvo");

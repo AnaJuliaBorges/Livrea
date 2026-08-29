@@ -65,7 +65,6 @@ async function mockRoute(
 }
 
 type SetupOptions = {
-  // valor de profiles.welcome_tour_seen que o backend "retorna"
   welcomeTourSeen?: boolean;
 };
 
@@ -111,8 +110,6 @@ async function setupMocks(page: Page, opts: SetupOptions = {}) {
     await route.fulfill(jsonResponse([]));
   });
 
-  // O tour lê/escreve profiles.welcome_tour_seen direto (sem RPC): GET é o
-  // maybeSingle do "já viu?"; PATCH é o "marcar como visto".
   await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
     if (route.request().method() === "PATCH") {
       state.markedSeen = true;
@@ -154,7 +151,6 @@ test.describe("Onboarding (tour de boas-vindas)", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible();
 
-    // primeiro passo: "Pular", sem "Voltar"
     await expect(dialog.getByRole("button", { name: "Pular" })).toBeVisible();
 
     await dialog.getByRole("button", { name: "Próximo" }).click();
@@ -167,7 +163,6 @@ test.describe("Onboarding (tour de boas-vindas)", () => {
       dialog.getByRole("heading", { name: "Boas-vindas ao Livrea" }),
     ).toBeVisible();
 
-    // avança até o último passo e finaliza
     for (let i = 0; i < 4; i++) {
       await dialog.getByRole("button", { name: "Próximo" }).click();
     }
@@ -198,7 +193,6 @@ test.describe("Onboarding (tour de boas-vindas)", () => {
     await setupMocks(page, { welcomeTourSeen: true });
     await login(page);
 
-    // remonta o shell e espera o "já viu?" resolver antes de afirmar a ausência
     const seenResolved = page.waitForResponse((r) =>
       r.url().includes("/rest/v1/profiles"),
     );

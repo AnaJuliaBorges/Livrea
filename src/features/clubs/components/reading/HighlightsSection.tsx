@@ -9,8 +9,6 @@ import {
   type HighlightGroup,
 } from "../../utils/groupHighlights";
 
-// Modalzinho com quem marcou a citação — cada participante com a página
-// da própria edição.
 function HighlightParticipantsModal({
   group,
   onClose,

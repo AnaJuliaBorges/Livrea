@@ -20,7 +20,6 @@ vi.mock("react-router-dom", async (importOriginal) => {
 const reloadMock = vi.fn();
 const reportErrorMock = vi.mocked(reportError);
 
-// window.location.reload não é espionável direto no jsdom
 beforeAll(() => {
   Object.defineProperty(window, "location", {
     configurable: true,
@@ -43,8 +42,6 @@ const notFoundResponse = {
 };
 
 describe("RouteError", () => {
-  // as três variantes de mensagem que os navegadores usam quando o import()
-  // de uma rota falha por o chunk não existir mais
   it.each([
     "Failed to fetch dynamically imported module: /assets/ClubDetails-a1b2.js",
     "error loading dynamically imported module",

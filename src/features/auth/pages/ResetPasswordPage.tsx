@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { updatePassword } from "../services/passwordReset";
 
-// O link do email abre esta página; o Supabase troca o token da URL por
-// uma sessão de recuperação — só então dá para salvar a nova senha.
 type LinkState = "checking" | "ready" | "invalid";
 
 export default function ResetPassword() {
@@ -26,7 +24,6 @@ export default function ResetPassword() {
       if (data.session) setLinkState("ready");
     });
 
-    // a troca do token da URL pela sessão acontece depois do mount
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {

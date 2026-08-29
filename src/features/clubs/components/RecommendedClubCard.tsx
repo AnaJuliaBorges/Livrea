@@ -4,7 +4,6 @@ import placeholder from "../../../assets/placeholder.png";
 import { MeetingTypeTag } from "./MeetingTypeTag";
 import type { ClubListItem } from "../dtos";
 
-// máximo de tags de gênero no card; o resto vira "+N"
 const MAX_GENRE_TAGS = 3;
 
 export function RecommendedClubCard({ club }: { club: ClubListItem }) {

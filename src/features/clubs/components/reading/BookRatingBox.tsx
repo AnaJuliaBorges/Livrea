@@ -10,11 +10,6 @@ import { useClubBookRating } from "../../hooks/useClubBookRating";
 import { useClubReadingReaders } from "../../hooks/useClubReadingReaders";
 import { BookmarkMinus, NotepadText, PencilLine, Star } from "lucide-react";
 
-// Box "Avaliação do livro", reaproveitado pra leitura atual e pra cada item
-// do histórico:
-//   Global — média geral do livro (local do banco > global do Google > 0.0)
-//   Clube — média das notas dos membros do clube pro livro (ao vivo)
-//   Individual — a nota do próprio usuário pro livro
 export function BookRatingBox({
   book,
   clubId,
@@ -29,8 +24,6 @@ export function BookRatingBox({
   text?: string;
 }) {
   const { data: rating } = useClubBookRating(clubId, bookId);
-  // mesma query da sub-tela Leitores (cache compartilhado) — daqui sai a
-  // porcentagem de participantes que já terminaram o livro
   const { data: readers } = useClubReadingReaders(clubId, bookId);
 
   const finishedPercent =

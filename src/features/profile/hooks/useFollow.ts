@@ -17,7 +17,6 @@ export function useFollowInfo(userId: string | undefined) {
   });
 }
 
-// só busca quando `enabled` (ex.: modal de seguidores aberto)
 export function useFollowers(userId: string | undefined, enabled = true) {
   return useQuery({
     queryKey: ["followers", userId],
@@ -34,9 +33,6 @@ export function useFollowing(userId: string | undefined, enabled = true) {
   });
 }
 
-// Deixa de seguir alguém a partir da lista "Seguindo" do próprio perfil
-// (`profileUserId`): atualiza a lista, as contagens do dono e o follow-info
-// do alvo. Diferente de useUnfollowUser (botão de um perfil específico).
 export function useUnfollow(profileUserId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -58,8 +54,6 @@ export function useFollowUser(userId: string | undefined) {
   return useMutation({
     mutationFn: () => followUser(userId!),
     onSuccess: () => {
-      // fire-and-forget: a Edge Function valida o follow no banco antes de
-      // notificar; falha aqui não desfaz o follow
       notifyNewFollower(userId!).catch((error) =>
         console.error("Erro ao notificar novo seguidor:", error),
       );

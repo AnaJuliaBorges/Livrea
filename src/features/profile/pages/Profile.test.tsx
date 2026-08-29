@@ -189,11 +189,9 @@ describe("Profile", () => {
 
     expect(screen.getByText("Ana Julia Borges")).toBeInTheDocument();
     expect(screen.getByText('"Leitora voraz"')).toBeInTheDocument();
-    // "Campinas, SP" aparece no cabeçalho do perfil e no card do clube
     expect(screen.getAllByText(/Campinas/).length).toBeGreaterThanOrEqual(1);
   });
 
-  // os três contadores do topo; o de clubes vive no rótulo da aba
   it("mostra as quantidades de livros lidos, seguidores e seguindo", () => {
     mockQueryState({ data: profile });
     mockFollowState({ followersCount: 3, followingCount: 5 });

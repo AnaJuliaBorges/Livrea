@@ -39,9 +39,7 @@ export default function MenuBar() {
     <nav
       className={cn(
         "fixed z-50 border-border bg-background",
-        // Mobile
         "bottom-0 left-0 right-0 border-t p-4",
-        // Desktop
         "md:top-0 md:bottom-auto md:border-b md:border-t-0 md:px-8 md:py-6",
       )}
     >

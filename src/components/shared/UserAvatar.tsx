@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Duas primeiras iniciais do nome ("Ana Julia Borges" → "AJ")
 function nameInitials(name: string): string {
   return name
     .trim()
@@ -10,9 +9,6 @@ function nameInitials(name: string): string {
     .join("");
 }
 
-// Avatar de usuário com fallback de iniciais — único lugar dessa composição
-// (antes copiada em ~11 componentes). Tamanho via className ("size-8",
-// "h-10 w-10"...); `fallback` aparece quando o nome não rende iniciais.
 export function UserAvatar({
   name,
   src,

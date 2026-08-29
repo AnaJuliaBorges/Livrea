@@ -6,7 +6,6 @@ export type UpdateProfileParams = {
   bio: string | null;
   stateId: number;
   cityId: number;
-  // chave da paleta HEADER_COLORS (profiles.header_color)
   headerColor: string;
 };
 

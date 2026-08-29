@@ -69,7 +69,6 @@ describe("ReviewsSection", () => {
     await screen.findByText("Bruna");
 
     expect(screen.queryByText("null")).not.toBeInTheDocument();
-    // só o texto da resenha, sem bloco de nota
     expect(document.querySelectorAll("svg.lucide-star")).toHaveLength(0);
   });
 

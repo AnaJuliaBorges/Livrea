@@ -16,7 +16,6 @@ vi.mock("../services/welcomeTour", () => ({
 const getSeenMock = vi.mocked(getWelcomeTourSeen);
 const markSeenMock = vi.mocked(markWelcomeTourSeen);
 
-// expõe também o valor atual de ?tour pra observar a limpeza da URL
 function useHarness() {
   const tour = useWelcomeTour();
   const [params] = useSearchParams();
@@ -44,8 +43,6 @@ describe("useWelcomeTour", () => {
     await waitFor(() => expect(result.current.isOpen).toBe(true));
   });
 
-  // falha ao ler a sessão/profile: trata como já visto, o tour é enfeite e não
-  // deve aparecer por engano (linha do .catch)
   it("trata falha na leitura como já visto e não abre", async () => {
     getSeenMock.mockRejectedValue(new Error("rls"));
 
@@ -71,7 +68,6 @@ describe("useWelcomeTour", () => {
       result.current.dismiss();
     });
 
-    // fecha, grava a flag e some com o ?tour=1 (senão um refresh reabriria)
     expect(result.current.isOpen).toBe(false);
     expect(result.current.tourParam).toBeNull();
     expect(markSeenMock).toHaveBeenCalledTimes(1);

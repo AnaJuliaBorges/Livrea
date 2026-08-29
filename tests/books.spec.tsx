@@ -28,8 +28,6 @@ const fakeUser = {
   updated_at: nowIso,
 };
 
-// JWT fake, apenas com formato válido — o cliente Supabase só o decodifica,
-// não valida a assinatura no browser (mesma técnica de tests/profile.spec.tsx).
 function fakeJwt() {
   const encode = (payload: object) =>
     Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -52,8 +50,6 @@ function jsonResponse(body: unknown, status = 200) {
   };
 }
 
-// Registra uma rota tratando o preflight CORS automaticamente; `resolver`
-// decide a resposta a partir do método/URL da requisição real.
 async function mockRoute(
   page: Page,
   pattern: string,
@@ -140,8 +136,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
   const isbndbGenreBooks = opts.isbndbGenreBooks ?? [isbndbGenreBook];
   const isbndbQueryBooks = opts.isbndbQueryBooks ?? [isbndbQueryBook];
   const bookRow = opts.bookRow ?? completeBookRow();
-  // mutável: refletir upserts/deletes feitos durante o teste, já que o
-  // hook de status invalida e refaz a busca logo após salvar (onSettled)
   let userLibraryStatus: { status: string } | null =
     opts.userLibraryStatus === undefined ? null : opts.userLibraryStatus;
   const tracking = opts.tracking === undefined ? null : opts.tracking;
@@ -167,9 +161,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
-  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
-  // Fixamos "já visto" para o tour não abrir por cima destes fluxos (senão
-  // dependeria da requisição falhar na rede fake, o que é frágil).
   await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
     await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
   });
@@ -182,8 +173,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(genres));
   });
 
-  // a ISBNDB agora é chamada via Edge Function (proxy que esconde a chave);
-  // a action no corpo diz qual endpoint upstream seria usado
   await mockRoute(page, "**/functions/v1/isbndb", async (route) => {
     const { action } = (route.request().postDataJSON() ?? {}) as {
       action?: string;
@@ -218,12 +207,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
     await route.fulfill(jsonResponse(reviews));
   });
 
-  // recomendação do banco vem da RPC get_books_by_genres (a RLS de books
-  // bloqueia SELECT direto do client). PRECISA ser registrada DEPOIS de
-  // get_book*: o glob "get_book*" também casa com "get_books_by_genres" e, no
-  // Playwright, a rota registrada por último é avaliada primeiro — sem isso o
-  // handler de get_book intercepta a chamada e devolve um objeto único, que
-  // estoura o .map() em getBooksByGenres e some com os recomendados do banco.
   await mockRoute(
     page,
     "**/rest/v1/rpc/get_books_by_genres*",
@@ -258,7 +241,6 @@ async function setupBookMocks(page: Page, opts: BookMockOptions = {}) {
       await route.fulfill(jsonResponse([]));
       return;
     }
-    // PATCH (progresso, avaliação)
     await route.fulfill(jsonResponse([{}]));
   });
 

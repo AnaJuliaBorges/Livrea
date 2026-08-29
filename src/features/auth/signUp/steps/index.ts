@@ -1,4 +1,3 @@
-// UI Components
 export { default as FirstStep } from "./FirstStep";
 export { default as GoogleFirstStep } from "./GoogleFirstStep";
 export { default as SecondStep } from "./SecondStep";

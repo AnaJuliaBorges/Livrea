@@ -46,11 +46,8 @@ export default function RegisterReadHistory({
   const [currentPage, setCurrentPage] = useState(lastProgress);
   const [isEditingProgress, setIsEditingProgress] = useState(false);
   const [progressInput, setProgressInput] = useState(String(lastProgress));
-  // leitores de Kindle acompanham a % — o valor continua guardado em páginas
   const [unit, setUnit] = useState<ProgressUnit>("page");
 
-  // após salvar, o progresso confirmado pelo servidor vira a nova base
-  // (ajuste de estado durante o render, sem efeito)
   const [prevLastProgress, setPrevLastProgress] = useState(lastProgress);
   if (prevLastProgress !== lastProgress) {
     setPrevLastProgress(lastProgress);
@@ -64,7 +61,6 @@ export default function RegisterReadHistory({
 
   const finished = totalPages > 0 && lastProgress >= totalPages;
 
-  // a % só faz sentido quando dá pra converter em página (precisa do total)
   const canUsePercent = totalPages > 0;
   const currentPercent = canUsePercent
     ? Math.round((currentPage / totalPages) * 100)
@@ -122,7 +118,6 @@ export default function RegisterReadHistory({
     setIsEditingProgress(false);
   }
 
-  // no modo %, o passo é de 1% (convertido pra páginas); no modo página, 1 página
   function stepProgress(delta: 1 | -1) {
     if (unit === "percent") {
       const nextPct = Math.min(Math.max(currentPercent + delta, 0), 100);

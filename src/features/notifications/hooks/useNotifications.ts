@@ -11,7 +11,6 @@ export function useNotifications() {
   });
 }
 
-// contagem pro badge do sino — deriva da mesma query (cache compartilhado)
 export function useUnreadNotificationsCount() {
   const { data } = useNotifications();
   return (data ?? []).filter((notification) => !notification.read).length;

@@ -1,7 +1,6 @@
 import { Users, Monitor, Blend } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Valores do enum club_meeting_type do banco
 const config: Record<string, { label: string; Icon: typeof Users }> = {
   in_person: { label: "Presencial", Icon: Users },
   online: { label: "Online", Icon: Monitor },
@@ -14,8 +13,6 @@ export function MeetingTypeTag({
   className,
 }: {
   type: string;
-  // solid: destaque com fundo (detalhe do clube); soft: discreto em cinza,
-  // mesmo peso visual da LocalizationPin (listagens)
   variant?: "solid" | "soft";
   className?: string;
 }) {

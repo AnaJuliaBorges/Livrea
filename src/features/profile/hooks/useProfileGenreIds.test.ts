@@ -59,9 +59,6 @@ describe("useProfileGenreIds", () => {
     expect(result.current.isError).toBe(false);
   });
 
-  // O bug: getUser() não lança quando falha, devolve { user: null, error }.
-  // Ignorar esse error fazia a query "ter sucesso" com null, a de gêneros
-  // ficar presa em enabled:false e a tela dizer "você não tem gêneros".
   it("expõe erro quando a autenticação falha, em vez de fingir lista vazia", async () => {
     getUserMock.mockResolvedValue({
       data: { user: null },
@@ -72,7 +69,6 @@ describe("useProfileGenreIds", () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.data).toBeUndefined();
-    // sem usuário, a query de gêneros nem deve ser tentada
     expect(getProfileGenreIdsMock).not.toHaveBeenCalled();
   });
 

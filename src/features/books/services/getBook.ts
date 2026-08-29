@@ -70,8 +70,6 @@ function isIncomplete(row: RawBookRow) {
   );
 }
 
-// complete_book_data nunca sobrescreve dado existente — aplicar patch
-// de fontes diferentes em fases é seguro
 function buildPatch(book: Book) {
   return {
     subtitle: book.info.subtitle || null,
@@ -85,8 +83,6 @@ function buildPatch(book: Book) {
     image_large: book.image.large ?? null,
     average_rating: book.averageRating ?? null,
     ratings_count: book.ratingsCount ?? null,
-    // a RPC reparte: o que casa com a tabela genres vira gênero,
-    // o restante vira subjects
     categories: [book.genre.main, ...(book.genre.secondary ?? [])].filter(
       Boolean,
     ),
@@ -102,8 +98,6 @@ async function applyPatch(bookId: string, patch: ReturnType<typeof buildPatch>) 
   if (error) throw error;
 }
 
-// Fase 1 (rápida, bloqueia a página): completa com a ISBNDB, que traz
-// sinopse e subjects pelo ISBN. Falha não bloqueia a exibição.
 async function enrichFromIsbndb(row: RawBookRow): Promise<RawBookRow> {
   const isbndb = await fetchIsbndbBookData(row.isbn).catch(() => null);
   if (!isbndb) return row;
@@ -115,7 +109,6 @@ async function enrichFromIsbndb(row: RawBookRow): Promise<RawBookRow> {
     return row;
   }
 
-  // relê para pegar o registro completo (inclusive o gênero resolvido)
   return fetchBookRow(row.id);
 }
 
@@ -129,8 +122,6 @@ export async function getBook(id: string): Promise<BookTemp> {
   return mapRow(row);
 }
 
-// Ainda falta algo que só o Google Books fornece? (imagens medium/large,
-// categorias que viram gêneros, nota média junto no patch)
 export function needsGoogleEnrichment(book: BookTemp) {
   return (
     !!book.isbn &&
@@ -141,9 +132,6 @@ export function needsGoogleEnrichment(book: BookTemp) {
   );
 }
 
-// Fase 2 (segundo plano, com a página já exibida): o Google Books —
-// instável, vive dando 503 — completa o que a ISBNDB não tem.
-// Retorna true se aplicou dados novos.
 export async function enrichBookWithGoogle(book: BookTemp): Promise<boolean> {
   const google = await fetchGoogleBookData(book.isbn).catch(() => null);
   if (!google) return false;

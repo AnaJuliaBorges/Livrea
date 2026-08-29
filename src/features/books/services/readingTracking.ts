@@ -64,8 +64,6 @@ export async function getReadingTracking(
   };
 }
 
-// logs e destaques têm FK para a user_library — garante a linha sem
-// mexer num status já escolhido pelo usuário
 async function ensureLibraryRow(userId: string, bookId: string) {
   const { error } = await supabase.from("user_library").upsert(
     { user_id: userId, book_id: bookId, status: "reading" },
@@ -149,8 +147,6 @@ export async function saveReview(
   if (error) throw error;
 }
 
-// Apaga um registro do histórico e recua a página atual pro maior progresso
-// restante (senão a barra de progresso ficaria mentindo pra sempre).
 export async function deleteReadingLog(bookId: string, logId: string) {
   const userId = await requireUserId();
 
@@ -193,8 +189,6 @@ export async function deleteHighlight(highlightId: string) {
   if (error) throw error;
 }
 
-// A avaliação mora na user_library — excluir é zerar nota e texto
-// (a linha fica, preservando status/progresso da leitura)
 export async function deleteReview(bookId: string) {
   const userId = await requireUserId();
 

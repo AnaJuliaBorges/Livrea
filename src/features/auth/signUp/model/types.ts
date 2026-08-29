@@ -3,7 +3,6 @@ import type { Book } from "@/features/books";
 export type SignUpWizardData = {
   step: number;
 
-  // conta criada via OAuth: o passo 1 vira "complete seu perfil"
   googleSignUp?: boolean;
 
   account: {
@@ -14,7 +13,6 @@ export type SignUpWizardData = {
     bio?: string;
     state_id: number;
     city_id: number;
-    // foto vinda do Google, usada como preview inicial do avatar
     avatar_url?: string;
   };
 

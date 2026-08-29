@@ -26,8 +26,6 @@ function mapFollowUsers(data: unknown): FollowUser[] {
   }));
 }
 
-// Seguidores do perfil (nome + avatar). Via RPC SECURITY DEFINER porque a
-// tabela profiles não é lida direto pelo client.
 export async function getFollowers(userId: string): Promise<FollowUser[]> {
   const { data, error } = await supabase.rpc("get_followers", {
     p_user_id: userId,
@@ -38,7 +36,6 @@ export async function getFollowers(userId: string): Promise<FollowUser[]> {
   return mapFollowUsers(data);
 }
 
-// Quem o perfil está seguindo.
 export async function getFollowing(userId: string): Promise<FollowUser[]> {
   const { data, error } = await supabase.rpc("get_following", {
     p_user_id: userId,
@@ -59,8 +56,6 @@ async function getCurrentUserId(): Promise<string> {
   return user.id;
 }
 
-// Contagens de seguidores/seguindo do perfil + se o usuário logado já segue.
-// RLS permite SELECT em follows para qualquer autenticado.
 export async function getFollowInfo(userId: string): Promise<FollowInfo> {
   const currentUserId = await getCurrentUserId();
 
@@ -93,7 +88,6 @@ export async function getFollowInfo(userId: string): Promise<FollowInfo> {
   };
 }
 
-// Idempotente: seguir quem já se segue não é erro (ON CONFLICT DO NOTHING).
 export async function followUser(userId: string): Promise<void> {
   const currentUserId = await getCurrentUserId();
 

@@ -27,7 +27,6 @@ export async function getUserBookStatus(
   return (data?.status as UserBookStatus) ?? null;
 }
 
-// status null remove o livro da biblioteca do usuário
 export async function setUserBookStatus(
   bookId: string,
   status: UserBookStatus | null,

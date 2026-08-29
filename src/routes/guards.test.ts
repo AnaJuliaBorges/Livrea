@@ -22,7 +22,6 @@ function googleSession(userId = "user-1") {
   return { user: { id: userId, app_metadata: { provider: "google" } } };
 }
 
-// Encadeia from().select().eq().maybeSingle() devolvendo o state_id informado
 function mockProfileStateId(stateId: number | null) {
   const maybeSingle = vi.fn().mockResolvedValue({
     data: { state_id: stateId },

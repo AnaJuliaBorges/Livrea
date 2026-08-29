@@ -39,7 +39,6 @@ export function BookDetail() {
   const { data: reviews } = useBookReviews(id);
   const status = userStatus ?? "";
 
-  // logs vêm do mais recente para o mais antigo
   const lastLog = tracking?.logs[0];
   const firstLog = tracking?.logs[tracking.logs.length - 1];
 

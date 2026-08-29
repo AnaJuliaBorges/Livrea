@@ -24,12 +24,9 @@ function useInvalidateTracking(bookId?: string) {
 
   return () => {
     queryClient.invalidateQueries({ queryKey: ["reading-tracking", bookId] });
-    // o progresso pode criar a linha na user_library (status "reading")
     queryClient.invalidateQueries({ queryKey: ["user-book-status", bookId] });
     queryClient.invalidateQueries({ queryKey: ["my-profile"] });
-    // resenha salva aparece na lista de avaliações do detalhe
     queryClient.invalidateQueries({ queryKey: ["book-reviews", bookId] });
-    // a nota entra nas médias de clube/individual do box de avaliação
     queryClient.invalidateQueries({ queryKey: ["club-book-rating"] });
   };
 }

@@ -1,7 +1,3 @@
-// API pública da feature books — o que as outras features podem importar.
-// Import cross-feature só passa por aqui (regra em eslint.config.js);
-// páginas ficam de fora de propósito (o router as importa direto pro
-// code splitting por rota).
 export { BookImage } from "./components/BookImage";
 export { BookListCard } from "./components/BookListCard";
 export { BookResults } from "./components/BookResults";

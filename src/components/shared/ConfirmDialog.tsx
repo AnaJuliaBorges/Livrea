@@ -10,8 +10,6 @@ interface Props {
   onClose: () => void;
 }
 
-// Modal de confirmação para ações destrutivas (mesmo visual do
-// DeleteClubDialog). Nada destrutivo deve acontecer num clique só.
 export function ConfirmDialog({
   title,
   description,

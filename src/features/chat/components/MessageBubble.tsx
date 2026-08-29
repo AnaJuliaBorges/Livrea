@@ -10,10 +10,6 @@ function formatTime(iso: string) {
 }
 
 export function MessageBubble({ message }: { message: ClubMessage }) {
-  // spoiler começa borrado; clique revela (estado local, por mensagem).
-  // hideSpoiler já vem calculado pro leitor (quem passou do ponto do
-  // remetente não precisa do borrão) e a própria mensagem nunca é
-  // escondida de quem enviou — o remetente só vê a tag "Spoiler".
   const [revealed, setRevealed] = useState(false);
   const hidden = message.hideSpoiler && !message.isMine && !revealed;
 

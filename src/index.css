@@ -7,7 +7,6 @@
 
 @theme {
   --font-sans: "Work Sans", sans-serif;
-  /* Cores Principais do Livrea */
   --color-primary: #8c11dc;
   --color-primary-foreground: #ffffff;
 
@@ -37,7 +36,6 @@
   --color-info: #3aa5c3;
   --color-info-light: #d2f5ff;
 
-  /* Raio de borda padrão do shadcn */
   --radius-lg: 0.5rem;
   --radius-md: calc(0.5rem - 2px);
   --radius-sm: calc(0.5rem - 4px);
@@ -49,14 +47,10 @@
   }
   body {
     @apply bg-background text-foreground;
-    /* texto sem classe text-* acompanha a escala (20px no desktop) */
     font-size: var(--text-base);
   }
 }
 
-/* Desktop: escala tipográfica 25% maior (base 16px → 20px). As utilities
-   text-* do Tailwind v4 leem essas variáveis em tempo de execução, então
-   toda a hierarquia (xs→4xl) cresce proporcionalmente sem mexer no mobile. */
 @media (min-width: 48rem) {
   :root {
     --text-xs: calc(0.75rem * 1.25);

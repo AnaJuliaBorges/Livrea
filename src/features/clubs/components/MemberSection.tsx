@@ -186,7 +186,6 @@ export default function MembersSection({ club }: Props) {
       <div className="flex flex-col gap-2">
         <p className="font-medium text-sm mb-2">Participantes</p>
         {members.map((member) => {
-          // dono gerencia papéis de todos, menos do próprio dono
           const canManageRole = club.isOwner && !member.isOwner;
           const isProcessing =
             (promote.isPending && promote.variables === member.id) ||

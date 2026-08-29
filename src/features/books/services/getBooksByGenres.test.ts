@@ -10,9 +10,6 @@ vi.mock("@/lib/supabase", () => ({
 
 const rpcMock = vi.mocked(supabase.rpc);
 
-// a cascata (junção book_genres → primary_genre_id → todos os livros) vive
-// na RPC get_books_by_genres, no SQL; aqui o service só repassa os ids e
-// mapeia as linhas cruas que a RPC devolve
 function rpcResult(data: unknown, error: unknown = null) {
   return { data, error } as unknown as Awaited<
     ReturnType<typeof supabase.rpc>

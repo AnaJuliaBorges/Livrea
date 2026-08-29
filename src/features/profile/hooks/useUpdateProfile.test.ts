@@ -35,8 +35,6 @@ describe("useUpdateProfile", () => {
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    // mutationFn é o service direto: o React Query passa (variables, context),
-    // então conferimos só o primeiro argumento
     expect(updateProfileMock.mock.calls[0][0]).toEqual(params);
   });
 

@@ -56,8 +56,6 @@ function Carousel({
     },
     plugins
   )
-  // estado derivado da embla lida como store externo: o snapshot é lido na
-  // hora (sem setState em effect) e reassinado quando a api muda
   const subscribe = React.useCallback(
     (onStoreChange: () => void) => {
       if (!api) return () => {}

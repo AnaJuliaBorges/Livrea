@@ -1,14 +1,9 @@
 import { supabase } from "@/lib/supabase";
 
-// A chave pública VAPID identifica o app pro serviço de push do navegador.
-// Ausente (CI/testes), o fluxo inteiro vira no-op silencioso.
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as
   | string
   | undefined;
 
-// PushManager.subscribe espera a chave como bytes, não base64url.
-// Constrói sobre um ArrayBuffer explícito — o TS exige Uint8Array<ArrayBuffer>
-// (não ArrayBufferLike) no applicationServerKey.
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding)
@@ -37,8 +32,6 @@ export type PushPermissionState =
   | "granted"
   | "denied";
 
-// Estado atual da permissão neste aparelho — usado pela UI pra decidir se
-// mostra o convite "Ativar notificações".
 export function getPushPermissionState(): PushPermissionState {
   if (!VAPID_PUBLIC_KEY || !isPushSupported()) return "unsupported";
   return Notification.permission;
@@ -50,11 +43,6 @@ export type PushSubscriptionResult =
   | "unsupported"
   | "error";
 
-// Pede permissão (se necessário), assina o push no SW e salva a inscrição
-// no Supabase. Chamada após o login e pelo botão "Ativar notificações" —
-// falha nunca quebra o fluxo de quem chamou. Em `npm run dev` não há
-// service worker registrado, então getRegistration() resolve undefined e
-// a função reporta "unsupported".
 export async function ensurePushSubscription(): Promise<PushSubscriptionResult> {
   try {
     if (!VAPID_PUBLIC_KEY || !isPushSupported()) return "unsupported";
@@ -66,8 +54,6 @@ export async function ensurePushSubscription(): Promise<PushSubscriptionResult> 
 
     if (permission !== "granted") return "denied";
 
-    // getRegistration (e não .ready, que travaria pra sempre em dev, onde
-    // nenhum SW é registrado) — sem SW, reporta "unsupported"
     const registration = await navigator.serviceWorker.getRegistration();
     if (!registration) return "unsupported";
 
@@ -102,7 +88,6 @@ export async function ensurePushSubscription(): Promise<PushSubscriptionResult> 
 
     return "subscribed";
   } catch (error) {
-    // notificação é acessório — nunca derruba login/fluxo principal
     console.error("Erro ao registrar inscrição de push:", error);
     return "error";
   }

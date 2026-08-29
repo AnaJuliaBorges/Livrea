@@ -16,9 +16,6 @@ export function useBook(id?: string) {
 
   const book = query.data;
 
-  // Fase 2: com a página já exibindo os dados da ISBNDB, o Google Books
-  // completa em segundo plano o que faltar (imagens grandes, gêneros,
-  // nota média); a invalidação atualiza a tela quando terminar
   useQuery({
     queryKey: ["book-google-enrichment", id],
     enabled: !!book && needsGoogleEnrichment(book),

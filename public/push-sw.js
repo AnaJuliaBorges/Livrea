@@ -1,6 +1,3 @@
-// Handlers de web push — anexado ao service worker gerado pelo
-// vite-plugin-pwa via workbox.importScripts (vite.config.ts).
-
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
 
@@ -18,7 +15,6 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const url = event.notification.data?.url ?? "/";
 
-  // foca uma aba já aberta do app se existir; senão abre uma nova
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })

@@ -4,8 +4,6 @@ const EMAIL = "e2e@livrea.test";
 const PASSWORD = "senha-e2e";
 const USER_ID = "e2e-user";
 
-// Perfil no formato cru retornado pela RPC get_my_profile (snake_case),
-// interceptada nos testes para tornar as asserções determinísticas.
 const rawProfile = {
   id: USER_ID,
   name: "Ana E2E Teste",
@@ -64,7 +62,6 @@ const corsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "*",
   "access-control-allow-methods": "*",
-  // sem expor content-range o browser não lê a contagem (count: exact)
   "access-control-expose-headers": "content-range",
 };
 
@@ -86,8 +83,6 @@ const fakeUser = {
   updated_at: nowIso,
 };
 
-// JWT fake, apenas com formato válido — o cliente Supabase só o decodifica,
-// não valida a assinatura no browser.
 function fakeJwt() {
   const encode = (payload: object) =>
     Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -110,8 +105,6 @@ function jsonResponse(body: unknown) {
   };
 }
 
-// Intercepta os endpoints do Supabase usados pelo fluxo de perfil:
-// login (token), usuário autenticado e a RPC get_my_profile.
 async function setupMocks(page: Page, profile: unknown = rawProfile) {
   const preflight = async (route: {
     request: () => { method: () => string };
@@ -140,10 +133,6 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
-  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
-  // Fixamos "já visto" pra o tour não abrir por cima do menu — o overlay
-  // (z-[60], inset-0) intercepta cliques como o de "Perfil". Testes que
-  // precisam do PATCH em profiles sobrescrevem esta rota, mantendo o GET assim.
   await page.route("**/rest/v1/profiles*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
@@ -154,9 +143,6 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
     await route.fulfill(jsonResponse(profile));
   });
 
-  // Gêneros do usuário + catálogo. A edição de perfil exige genres.min(3)
-  // (editProfileSchema), então sem estes o form nasce inválido e o botão
-  // "Salvar alterações" fica travado.
   await page.route("**/rest/v1/profile_genres*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(
@@ -175,8 +161,6 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
     );
   });
 
-  // endpoints novos usados pela página de perfil — sem mock, as queries
-  // batem na rede de verdade e atrasam os testes com retries
   await page.route("**/rest/v1/rpc/get_profile_header_color*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(jsonResponse("purple"));
@@ -187,7 +171,6 @@ async function setupMocks(page: Page, profile: unknown = rawProfile) {
     await route.fulfill(jsonResponse([]));
   });
 
-  // follows: HEAD = contagem de seguidores, GET = maybeSingle do "eu sigo?"
   await page.route("**/rest/v1/follows*", async (route) => {
     const method = route.request().method();
     if (method === "OPTIONS") return preflight(route);
@@ -210,8 +193,6 @@ async function login(page: Page) {
   await page.waitForURL("**/clubes");
 }
 
-// Navega para /perfil pelo menu (client-side) em vez de um full page load,
-// que sob paralelismo estoura o timeout no dev server do Vite.
 async function goToProfile(page: Page) {
   await page.getByRole("button", { name: "Perfil" }).click();
   await page.waitForURL("**/perfil");
@@ -233,7 +214,6 @@ test.describe("Perfil", () => {
     await expect(page.getByText("Ana E2E Teste")).toBeVisible();
     await expect(page.getByText('"Bio de teste e2e"')).toBeVisible();
 
-    // contadores do topo: 2 livros lidos e os follows (mock devolve 0)
     await expect(
       page.getByText("livros lidos", { exact: true }).locator(".."),
     ).toContainText("2");
@@ -241,12 +221,10 @@ test.describe("Perfil", () => {
       page.getByText("seguidores", { exact: true }).locator(".."),
     ).toContainText("0");
 
-    // a contagem de clubes vive no rótulo da aba
     await expect(
       page.getByRole("tab", { name: "Meus clubes (1)" }),
     ).toBeVisible();
 
-    // aba padrão lista os clubes
     await expect(page.getByText("Clube E2E da Fantasia")).toBeVisible();
     await expect(page.getByText("administrador")).toBeVisible();
   });
@@ -272,7 +250,6 @@ test.describe("Perfil", () => {
 
     await page.getByRole("tab", { name: "Meus livros" }).click();
 
-    // tag padrão: Lido
     await expect(page.getByText("O Hobbit E2E")).toBeVisible();
     await expect(page.getByText("Duna E2E")).toBeVisible();
 
@@ -308,7 +285,6 @@ test.describe("Perfil", () => {
   test("altera a cor do cabeçalho do perfil e salva", async ({ page }) => {
     await setupMocks(page);
 
-    // captura o corpo do update em profiles pra conferir a cor enviada
     let patchBody: Record<string, unknown> | null = null;
     await page.route("**/rest/v1/profiles*", async (route) => {
       const method = route.request().method();
@@ -321,8 +297,6 @@ test.describe("Perfil", () => {
         await route.fulfill(jsonResponse([]));
         return;
       }
-      // GET = leitura do welcome_tour_seen: "já visto" pra o tour não abrir e
-      // interceptar o clique em "Perfil" no goToProfile
       await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
     });
 

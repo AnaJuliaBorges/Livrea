@@ -25,12 +25,8 @@ export type GoogleBooksItem = {
   id: string;
 };
 
-// "General" é preenchimento do BISAC ("Fantasy / General") e casa com
-// gênero errado no banco — nunca identifica um gênero de verdade
 const IGNORED_CATEGORIES = new Set(["general"]);
 
-// As categorias do Google vêm como "Fiction / Fantasy / Epic";
-// divide por "/", achata e deduplica sem diferenciar maiúsculas.
 function normalizeCategories(categories: string[]): string[] {
   const seen = new Set<string>();
   const result: string[] = [];

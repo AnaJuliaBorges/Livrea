@@ -84,7 +84,6 @@ describe("useFollowers / useFollowing", () => {
     expect(getFollowersMock).toHaveBeenCalledWith("user-1");
   });
 
-  // o modal só busca a aba aberta: enabled=false não deve disparar a query
   it("não busca seguidores quando desabilitado", () => {
     const { result } = renderHook(() => useFollowers("user-1", false), {
       wrapper: createWrapper(),
@@ -167,7 +166,6 @@ describe("useFollowUser", () => {
     expect(vi.mocked(toast.success)).toHaveBeenCalled();
   });
 
-  // fire-and-forget: se a notificação falha, o follow continua bem-sucedido
   it("não desfaz o follow quando a notificação falha", async () => {
     followUserMock.mockResolvedValue(undefined);
     notifyNewFollowerMock.mockRejectedValue(new Error("edge down"));

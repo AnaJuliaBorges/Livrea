@@ -16,7 +16,6 @@ describe("MeetingTypeTag", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  // a variante soft (listagens) usa o estilo discreto em vez do fundo colorido
   it("aplica o estilo soft quando pedido", () => {
     render(<MeetingTypeTag type="online" variant="soft" />);
     const tag = screen.getByText("Online").closest("span");

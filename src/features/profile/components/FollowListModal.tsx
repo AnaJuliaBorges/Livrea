@@ -6,9 +6,6 @@ import { UserRoundMinus } from "lucide-react";
 
 type Variant = "followers" | "following";
 
-// Lista de seguidores ("followers") ou de quem o perfil segue ("following").
-// No modo "following" do próprio perfil (canUnfollow), cada linha permite
-// deixar de seguir. Cada item leva ao perfil da pessoa.
 export function FollowListModal({
   userId,
   variant,

@@ -8,7 +8,6 @@ const corsHeaders = {
   "access-control-allow-origin": "*",
   "access-control-allow-headers": "*",
   "access-control-allow-methods": "*",
-  // sem expor content-range o browser não lê a contagem (count: exact)
   "access-control-expose-headers": "content-range",
 };
 
@@ -30,8 +29,6 @@ const fakeUser = {
   updated_at: nowIso,
 };
 
-// JWT fake, apenas com formato válido — o cliente Supabase só o decodifica,
-// não valida a assinatura no browser (mesma técnica de tests/profile.spec.tsx).
 function fakeJwt() {
   const encode = (payload: object) =>
     Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -54,8 +51,6 @@ function jsonResponse(body: unknown, status = 200) {
   };
 }
 
-// Registra uma rota tratando o preflight CORS automaticamente; `resolver`
-// decide a resposta a partir do método/corpo da requisição real.
 async function mockRoute(
   page: Page,
   pattern: string,
@@ -83,7 +78,6 @@ const emptyProfile = {
   library: { read: [], reading: [], want_to_read: [] },
 };
 
-// Item cru retornado pela RPC list_clubs (campos em snake_case).
 function rawClubListItem(overrides: Record<string, unknown> = {}) {
   return {
     id: "club-x",
@@ -106,7 +100,6 @@ function rawClubListItem(overrides: Record<string, unknown> = {}) {
   };
 }
 
-// Detalhe cru retornado pela RPC get_club (campos em snake_case).
 function rawClubDetail(overrides: Record<string, unknown> = {}) {
   return {
     id: "club-x",
@@ -138,7 +131,6 @@ function rawClubDetail(overrides: Record<string, unknown> = {}) {
   };
 }
 
-// Perfil cru retornado pela RPC get_my_profile/get_user_profile.
 function rawUserProfile(overrides: Record<string, unknown> = {}) {
   return {
     id: "user-y",
@@ -173,7 +165,6 @@ type ClubsMockOptions = {
   genres?: { id: number; name: string; google_category: string[] | null }[];
   states?: { id: number; name: string; sigla: string }[];
   cities?: { id: number; name: string; state_id: number }[];
-  // linhas cruas de profile_genres — alimenta os "Clubes indicados pra você"
   profileGenreRows?: { genre_id: number }[];
 };
 
@@ -208,9 +199,6 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
-  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
-  // Fixamos "já visto" para o tour não abrir por cima destes fluxos (senão
-  // dependeria da requisição falhar na rede fake, o que é frágil).
   await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
     await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
   });
@@ -223,15 +211,10 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
     await route.fulfill(jsonResponse(opts.profileGenreRows ?? []));
   });
 
-  // Endpoints do perfil/social usados pelas páginas visitadas nos fluxos de
-  // clube (perfil de participante, sino de notificações). Sem mock eles
-  // batem na rede de verdade e atrasam os testes com retries.
   await mockRoute(page, "**/rest/v1/notifications*", async (route) => {
     await route.fulfill(jsonResponse([]));
   });
 
-  // follows: HEAD = contagem de seguidores (content-range), GET = maybeSingle
-  // do "eu sigo?" (null = não segue). Testes de follow sobrescrevem esta rota.
   await mockRoute(page, "**/rest/v1/follows*", async (route) => {
     const method = route.request().method();
     if (method === "HEAD") {
@@ -295,10 +278,6 @@ async function setupClubMocks(page: Page, opts: ClubsMockOptions = {}) {
     await route.fulfill(jsonResponse(club ?? null));
   });
 
-  // Registrada depois de get_club* de propósito: Playwright resolve rotas
-  // sobrepostas da mais recente para a mais antiga, então esta é checada
-  // primeiro para URLs de get_club_members (que também bateriam no glob
-  // "get_club*" acima).
   await mockRoute(page, "**/rest/v1/rpc/get_club_members*", async (route) => {
     const body = route.request().postDataJSON() as { p_club_id?: string };
     const members = body?.p_club_id ? clubMembers[body.p_club_id] : undefined;
@@ -375,7 +354,6 @@ test.describe("Clubes", () => {
     await expect(page.getByText("Clube Público E2E")).toBeVisible();
     await expect(page.getByText("Clube Privado E2E")).toBeVisible();
 
-    // só o clube privado mostra o ícone de cadeado
     await expect(page.locator('[aria-label="Clube privado"]')).toHaveCount(1);
   });
 
@@ -555,7 +533,6 @@ test.describe("Clubes", () => {
 
     await page.waitForURL("**/perfil/user-2");
     await expect(page.getByText("Lucas Martins")).toBeVisible();
-    // perfil de outra pessoa: sem ícone de configurações (não pode editar)
     await expect(page.locator("svg.lucide-settings")).toHaveCount(0);
   });
 
@@ -605,7 +582,6 @@ test.describe("Clubes", () => {
 
     await page.getByRole("tab", { name: "Participantes" }).click();
 
-    // dono não tem ação no próprio nome, só no outro participante
     await expect(
       page.getByRole("button", { name: "Tornar admin" }),
     ).toHaveCount(1);
@@ -623,7 +599,6 @@ test.describe("Clubes", () => {
     await setupClubMocks(page);
     await login(page);
 
-    // simula reabrir o app (PWA abre em "/"): full load com sessão salva
     await page.goto("/");
     await page.waitForURL("**/clubes");
 
@@ -668,7 +643,6 @@ test.describe("Clubes", () => {
     await page.getByRole("tab", { name: "Participantes" }).click();
     await page.getByRole("button", { name: "Sair do clube" }).click();
 
-    // diálogo de confirmação
     await page.getByRole("button", { name: "Sair", exact: true }).click();
 
     await expect(page.getByText("Você saiu do clube.")).toBeVisible();
@@ -699,8 +673,6 @@ test.describe("Clubes", () => {
       },
     });
 
-    // mock com estado, registrado depois do setup pra ter precedência:
-    // POST segue, DELETE deixa de seguir, GET/HEAD refletem o estado atual
     let isFollowing = false;
     await mockRoute(page, "**/rest/v1/follows*", async (route) => {
       const method = route.request().method();
@@ -746,7 +718,6 @@ test.describe("Clubes", () => {
     await expect(followButton).toBeEnabled();
     await followButton.click();
 
-    // após seguir, o botão vira "Deixar de seguir" e a contagem sobe
     const unfollowButton = page.getByRole("button", {
       name: "Deixar de seguir",
     });
@@ -770,7 +741,6 @@ test.describe("Clubes", () => {
     );
 
     await context.grantPermissions(["clipboard-read", "clipboard-write"]);
-    // força o caminho de copiar link (sem o menu nativo de compartilhar)
     await page.addInitScript(() => {
       Object.defineProperty(navigator, "share", { value: undefined });
     });
@@ -814,17 +784,14 @@ test.describe("Clubes", () => {
     });
     await login(page);
 
-    // com gênero em comum e sem busca, o carrossel de indicados aparece
     await expect(page.getByText("Clubes indicados pra você")).toBeVisible();
 
-    // busca sem acento acha o clube acentuado; carrossel some
     await page.getByPlaceholder("Buscar clubes").fill("fantasia");
     await expect(
       page.getByText("Clubes indicados pra você"),
     ).not.toBeVisible();
     await expect(page.getByText("Clube da Fantásia Épica")).toBeVisible();
 
-    // busca sem resultado mostra a mensagem de vazio
     await page.getByPlaceholder("Buscar clubes").fill("inexistente");
     await expect(page.getByText("❌ Nenhum clube encontrado")).toBeVisible();
   });
@@ -849,8 +816,6 @@ test.describe("Clubes", () => {
       },
     });
 
-    // mensagens com estado: enviar acrescenta à lista (registrado depois do
-    // setup pra ter precedência sobre o glob get_club*)
     const chatMessages: Record<string, unknown>[] = [
       {
         id: "msg-1",
@@ -917,18 +882,15 @@ test.describe("Clubes", () => {
     await page.getByRole("button", { name: "Chat do clube" }).click();
     await page.waitForURL("**/clubes/club-chat-1/chat");
 
-    // mensagem normal aparece com autor e badge de admin
     await expect(page.getByText("Terminei o capítulo 5!")).toBeVisible();
     await expect(page.getByText("Lucas Martins")).toBeVisible();
     await expect(page.getByText("Administrador ✓")).toBeVisible();
 
-    // spoiler vem escondido; clicar revela
     await expect(page.getByText("Alerta de spoiler")).toBeVisible();
     await page.getByRole("button", { name: "Revelar spoiler" }).click();
     await expect(page.getByText("Alerta de spoiler")).not.toBeVisible();
     await expect(page.getByText("O dragão morre no final")).toBeVisible();
 
-    // envia uma mensagem e ela aparece na conversa
     await page.getByPlaceholder("Mensagem", { exact: true }).fill("Olá pessoal!");
     await page.getByRole("button", { name: "Enviar mensagem" }).click();
 
@@ -963,7 +925,6 @@ test.describe("Clubes", () => {
     await expect(page.getByText("Clube Online Fantasia")).toBeVisible();
     await expect(page.getByText("Clube Presencial Mistério")).toBeVisible();
 
-    // tipo: só o clube online fica
     await page.getByLabel("Filtrar por tipo").click();
     await page.getByRole("option", { name: "Online" }).click();
     await expect(page.getByText("Clube Presencial Mistério")).not.toBeVisible();
@@ -972,7 +933,6 @@ test.describe("Clubes", () => {
     await page.getByLabel("Filtrar por tipo").click();
     await page.getByRole("option", { name: "Todos os tipos" }).click();
 
-    // gênero: só o clube de Mistério fica
     await page.getByLabel("Filtrar por gênero").click();
     await page.getByRole("option", { name: "Mistério" }).click();
     await expect(page.getByText("Clube Online Fantasia")).not.toBeVisible();
@@ -981,7 +941,6 @@ test.describe("Clubes", () => {
     await page.getByLabel("Filtrar por gênero").click();
     await page.getByRole("option", { name: "Todos os gêneros" }).click();
 
-    // privacidade: só o clube privado fica
     await page.getByLabel("Filtrar por privacidade").click();
     await page.getByRole("option", { name: "Privado" }).click();
     await expect(page.getByText("Clube Online Fantasia")).not.toBeVisible();
@@ -1008,7 +967,6 @@ test.describe("Clubes", () => {
       },
     });
 
-    // captura a cor enviada pra RPC (registrado depois do setup = precedência)
     let sentColor: string | null = null;
     await mockRoute(
       page,
@@ -1053,7 +1011,6 @@ test.describe("Clubes", () => {
       page.getByText("Configure como serão os encontros do clube"),
     ).toBeVisible();
 
-    // voltar deve retornar ao passo 1 com os campos preenchidos
     await page.locator("button:has(svg.lucide-arrow-left)").first().click();
 
     await expect(

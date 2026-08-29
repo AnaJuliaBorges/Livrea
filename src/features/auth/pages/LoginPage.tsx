@@ -22,21 +22,12 @@ export default function Login() {
 
   const handleSubmit = async (e: React.SubmitEvent) => {
     e.preventDefault();
-    try {
-      await login(email, password);
-      // quem navega é o useAuthRedirect, ao receber o SIGNED_IN — navegar
-      // aqui também criava uma corrida: este await termina depois (getUser
-      // consulta profiles) e o navigate atrasado puxava o usuário de volta
-    } catch {
-      // erro já exibido pelo estado do useLogin
-    }
+    await login(email, password).catch(() => {});
   };
 
   const handleGoogleLogin = async () => {
     setGoogleError(null);
     try {
-      // volta para /login; o useAuthRedirect leva para /clubes ao
-      // detectar a sessão criada pelo OAuth
       await signInWithGoogle("/login");
     } catch {
       setGoogleError("Não foi possível entrar com o Google. Tente novamente.");

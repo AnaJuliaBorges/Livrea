@@ -18,14 +18,11 @@ export function useAuthRedirect(redirectIfLogged = "/home") {
       );
 
       if (provider === "google") {
-        // cadastro via Google iniciado e não concluído → retoma o wizard
         if (pendingGoogleSignUp) {
           navigate("/cadastrar");
           return;
         }
 
-        // conta Google que nunca completou o onboarding (state_id só é
-        // preenchido no passo "complete seu perfil") → vai para o cadastro
         const { data: profile } = await supabase
           .from("profiles")
           .select("state_id")
@@ -38,8 +35,6 @@ export function useAuthRedirect(redirectIfLogged = "/home") {
           return;
         }
       } else if (pendingGoogleSignUp) {
-        // flag órfã de um fluxo Google abandonado não deve sequestrar
-        // um login por email
         localStorage.removeItem(GOOGLE_SIGNUP_PENDING_KEY);
       }
 
@@ -52,14 +47,10 @@ export function useAuthRedirect(redirectIfLogged = "/home") {
       }
     });
 
-    // no retorno do OAuth a sessão só existe depois que o cliente troca
-    // o código da URL — o getUser acima roda cedo demais nesse caso
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        // setTimeout evita deadlock: o supabase-js segura um lock enquanto
-        // notifica os listeners, e redirectBySession chama o client
         setTimeout(
           () =>
             redirectBySession(

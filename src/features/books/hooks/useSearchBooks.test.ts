@@ -95,15 +95,12 @@ describe("useSearchBooks", () => {
 
     await waitFor(() => expect(result.current.status).toBe("success"));
     expect(result.current.data).toHaveLength(1);
-    // falha parcial não quebra a tela, mas não pode sumir
     expect(reportErrorMock).toHaveBeenCalledWith(expect.any(Error), {
       source: "query",
       detail: 'isbndb subject "Fantasy"',
     });
   });
 
-  // o caso da assinatura da ISBNDB vencida: antes virava lista vazia e a tela
-  // dizia "nenhum livro encontrado", mandando investigar o lugar errado
   it("propaga o erro quando TODOS os gêneros falham", async () => {
     byGenreMock.mockRejectedValue(new Error("Erro ao buscar livros na ISBNDB"));
 

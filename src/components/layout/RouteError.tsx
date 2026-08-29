@@ -7,13 +7,6 @@ import {
 import { Button } from "@/components/ui";
 import { reportError } from "@/lib/reportError";
 
-// errorElement da rota raiz (src/main.tsx): pega erro de render de qualquer
-// página, falha de loader e rota inexistente (404), que antes caíam na tela
-// padrão do React Router — em inglês e sem nenhum registro.
-
-// Depois de um deploy, o index.html em cache aponta pra chunks com hash
-// antigo que não existem mais no servidor, e o import() da rota falha. Não é
-// bug: é versão velha aberta na aba: recarregar resolve.
 function isStaleChunkError(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
 
@@ -30,7 +23,6 @@ export function RouteError() {
   const notFound = isRouteErrorResponse(error) && error.status === 404;
 
   useEffect(() => {
-    // chunk velho e 404 são esperados — reportar só polui o log
     if (staleChunk || notFound) return;
 
     reportError(error, {

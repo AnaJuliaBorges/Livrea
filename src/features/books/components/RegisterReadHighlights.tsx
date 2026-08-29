@@ -20,7 +20,6 @@ export default function RegisterReadHighlights({ bookId, highlights }: Props) {
   const [newQuote, setNewQuote] = useState("");
   const [newQuotePage, setNewQuotePage] = useState("");
 
-  // edição inline: id do destaque em edição e os valores do formulário
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editQuote, setEditQuote] = useState("");
   const [editPage, setEditPage] = useState("");

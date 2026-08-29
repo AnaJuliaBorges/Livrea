@@ -12,12 +12,9 @@ export interface WelcomeTourStep {
   icon: LucideIcon;
   title: string;
   description: string;
-  // o que a pessoa consegue fazer nessa área — vira lista dentro do slide
   bullets: string[];
 }
 
-// Conteúdo do tour de boas-vindas. É a única fonte da verdade do texto —
-// a página externa de convite (docs/onboarding) conta a mesma história.
 export const welcomeTourSteps: WelcomeTourStep[] = [
   {
     id: "welcome",

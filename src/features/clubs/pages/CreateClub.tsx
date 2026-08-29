@@ -143,7 +143,6 @@ export default function CreateClub() {
           <Button
             className="w-content"
             variant="link"
-            // volta um passo do wizard; no primeiro passo sai da tela
             onClick={() =>
               step > 1 ? setStep((prev) => prev - 1) : navigate(-1)
             }

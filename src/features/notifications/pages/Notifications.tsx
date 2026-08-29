@@ -18,7 +18,6 @@ export default function Notifications() {
   const markAllRead = useMarkAllNotificationsRead();
   const alreadyMarked = useRef(false);
 
-  // permissão de push neste aparelho — o banner some assim que inscrever
   const [permissionState, setPermissionState] = useState(
     getPushPermissionState,
   );
@@ -41,7 +40,6 @@ export default function Notifications() {
     }
   };
 
-  // abrir a tela marca tudo como lida (uma vez, quando os dados chegam)
   useEffect(() => {
     if (alreadyMarked.current) return;
     if (notifications?.some((notification) => !notification.read)) {

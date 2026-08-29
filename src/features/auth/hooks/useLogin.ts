@@ -23,8 +23,6 @@ export function useLogin() {
       if (error) throw error;
       if (data.user) {
         await getUser(data);
-        // registra este aparelho pra receber notificações — fire-and-forget,
-        // nunca atrasa nem quebra o login
         void ensurePushSubscription();
       }
     } catch (err) {

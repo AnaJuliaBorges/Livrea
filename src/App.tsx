@@ -16,18 +16,12 @@ function ScrollToTop() {
 }
 
 export default function App() {
-  // quem já deu permissão neste aparelho é re-inscrito silenciosamente a
-  // cada abertura do app (cobre quem já estava logado antes do push existir
-  // e inscrições que o navegador expirou). Quem nunca deu permissão é
-  // convidado pelo botão na tela de notificações — nunca por prompt do nada.
   useEffect(() => {
     if (getPushPermissionState() === "granted") {
       void ensurePushSubscription();
     }
   }, []);
 
-  // o shell visual (main + MenuBar ou não) vem dos layouts de rota
-  // AuthLayout/AppLayout, aninhados no router
   return (
     <>
       <ScrollToTop />

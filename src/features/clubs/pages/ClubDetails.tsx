@@ -53,7 +53,6 @@ export default function ClubDetails() {
         toast.success("Link do clube copiado!");
       }
     } catch (error) {
-      // usuário fechou o menu de compartilhar — não é erro
       if (error instanceof DOMException && error.name === "AbortError") return;
       toast.error("Não foi possível compartilhar o link.");
     }

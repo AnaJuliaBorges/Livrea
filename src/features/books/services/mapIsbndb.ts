@@ -16,7 +16,6 @@ export function mapIsbndb(item: IsbndbBook): Book {
       subtitle: "",
       authors,
       pageCount: item.pages,
-      // presente no endpoint /book/{isbn}; pode conter HTML de formatação
       summary: item.synopsis,
     },
     genre: {
@@ -28,8 +27,6 @@ export function mapIsbndb(item: IsbndbBook): Book {
       publisher: item.publisher || "",
     },
     image: {
-      // ISBNDB fornece uma única imagem; medium/large ficam vazios
-      // para o enriquecimento via Google Books poder preenchê-los
       smallThumbnail: item.image,
       thumbnail: item.image,
       medium: undefined,

@@ -121,7 +121,6 @@ describe("FollowListModal", () => {
     expect(navigateMock).toHaveBeenCalledWith("/perfil/u2");
   });
 
-  // o botão de deixar de seguir é só ícone (sem texto): filtramos por isso
   const findRemoveButton = () =>
     screen
       .getAllByRole("button")

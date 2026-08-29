@@ -13,15 +13,10 @@ import App from "./App";
 import "./index.css";
 import Home from "./features/auth/pages/Home";
 
-// antes de tudo, pra capturar erro que aconteça já na montagem
 initSentry();
 
-// config + funil global de erro de query/mutation em lib/queryClient.ts
 const queryClient = createAppQueryClient();
 
-// Home e Login ficam no bundle inicial (primeiro paint do visitante); o
-// resto vira chunk por página via `lazy` do data router — o loader
-// (proteção de rota) continua estático e roda em paralelo com o import.
 function lazyPage(
   importer: () => Promise<{ default: React.ComponentType }>,
 ): () => Promise<{ Component: React.ComponentType }> {
@@ -32,12 +27,9 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    // na raiz: cobre erro de render/loader de qualquer rota filha e também
-    // as rotas que não existem (404), que não casam com nenhum path abaixo
     errorElement: <RouteError />,
     children: [
       {
-        // visitante: shell sem MenuBar
         element: <AuthLayout />,
         children: [
           { index: true, element: <Home />, loader: publicOnlyLoader },
@@ -65,7 +57,6 @@ export const router = createBrowserRouter([
         ],
       },
       {
-        // app logado: shell com MenuBar (rodapé no mobile, topo no desktop)
         element: <AppLayout />,
         children: [
           {

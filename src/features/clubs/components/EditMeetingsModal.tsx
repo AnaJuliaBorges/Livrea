@@ -11,8 +11,6 @@ interface Props {
   onClose: () => void;
 }
 
-// Edição da box Encontros: descrição geral (clubs.meeting_description) e
-// dados do próximo encontro (club_meetings: local + data + hora).
 export function EditMeetingsModal({ club, onClose }: Props) {
   const [description, setDescription] = useState(club.meetingDescription);
   const [location, setLocation] = useState(club.nextMeeting?.location ?? "");
@@ -62,8 +60,6 @@ export function EditMeetingsModal({ club, onClose }: Props) {
       onClose();
     } catch (error) {
       console.error("Error updating meetings:", error);
-      // exceções das RPCs (ex.: "Defina a leitura atual do clube antes de
-      // agendar um encontro") já vêm como mensagem amigável em português
       const message = getErrorMessage(error);
       toast.error(message ?? "Não foi possível salvar. Tente novamente.");
     }

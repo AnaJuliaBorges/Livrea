@@ -7,8 +7,6 @@ import { useNavigate } from "react-router-dom";
 import { Lock } from "lucide-react";
 
 interface ItemClubProps {
-  // meetingType é opcional porque o ClubSummary do perfil (get_my_profile)
-  // ainda não retorna o tipo de encontro — só a listagem retorna
   club: ClubSummary & { meetingType?: string; isPrivate?: boolean };
   admin?: boolean;
 }

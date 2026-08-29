@@ -13,7 +13,6 @@ function useInvalidateAfterReview(clubId: string) {
     queryClient.invalidateQueries({ queryKey: ["club-members", clubId] });
     queryClient.invalidateQueries({ queryKey: ["club", clubId] });
     queryClient.invalidateQueries({ queryKey: ["clubs"] });
-    // membro novo entra na média do clube e na lista de leitores
     queryClient.invalidateQueries({ queryKey: ["club-book-rating", clubId] });
     queryClient.invalidateQueries({
       queryKey: ["club-reading-readers", clubId],
@@ -25,7 +24,6 @@ export function useApproveJoinRequest(clubId: string) {
   const invalidate = useInvalidateAfterReview(clubId);
 
   return useMutation({
-    // userId é do dono do pedido — usado só pra notificar o aprovado
     mutationFn: ({ requestId }: { requestId: string; userId: string }) =>
       approveJoinRequest(requestId),
     onSuccess: (_data, { userId }) => {

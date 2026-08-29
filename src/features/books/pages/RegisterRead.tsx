@@ -16,8 +16,6 @@ export default function RegisterRead() {
   const { data: book, isLoading: isLoadingBook } = useBook(id);
   const { data: tracking, isLoading: isLoadingTracking } =
     useReadingTracking(id);
-  // o status precisa estar resolvido antes do primeiro render das Tabs:
-  // defaultValue não é controlado e não muda depois
   const { data: userStatus, isLoading: isLoadingStatus } =
     useUserBookStatus(id);
 
@@ -37,8 +35,6 @@ export default function RegisterRead() {
     );
   }
 
-  // marcado como "Lido" libera a resenha mesmo sem o contador de páginas
-  // ter chegado ao fim
   const finished =
     userStatus === "read" ||
     (book.total_pages > 0 && tracking.currentPage >= book.total_pages);

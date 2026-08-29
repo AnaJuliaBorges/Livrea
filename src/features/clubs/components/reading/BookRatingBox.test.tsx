@@ -64,7 +64,6 @@ describe("BookRatingBox", () => {
 
     renderBox();
 
-    // 2 de 4 terminaram → 50%
     expect(await screen.findByText(/50%/)).toBeInTheDocument();
     expect(getReadersMock).toHaveBeenCalledWith("club-1", "book-1");
   });

@@ -30,11 +30,6 @@ export async function getBooksByGenres(
 ): Promise<GenreBook[]> {
   if (genreIds.length === 0) return [];
 
-  // A RLS de `books` bloqueia SELECT direto do client (mesmo motivo de
-  // get_book/search_books), então a recomendação vem de uma RPC
-  // SECURITY DEFINER que faz a cascata em SQL: junção book_genres (gênero
-  // primário + secundários) → primary_genre_id → todos os livros do banco
-  // quando nada casa com os gêneros do usuário.
   const { data, error } = await supabase.rpc("get_books_by_genres", {
     p_genre_ids: genreIds,
   });

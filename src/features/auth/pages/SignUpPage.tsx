@@ -44,7 +44,6 @@ export default function Signup() {
           <Button
             className="w-content"
             variant="link"
-            // volta um passo do wizard; no primeiro passo sai pra home
             onClick={() => (data.step > 1 ? prevStep() : navigate("/"))}
           >
             <ArrowLeftIcon />

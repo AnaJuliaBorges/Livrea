@@ -5,7 +5,6 @@ import {
 import { mapGoogleBook } from "./mapGoogleBook";
 import type { Book } from "../types/book";
 
-// Mescla dois Books: `book` manda, `extra` só preenche lacunas.
 export function mergeBook(book: Book, extra: Book): Book {
   return {
     ...book,
@@ -41,10 +40,6 @@ export function mergeBook(book: Book, extra: Book): Book {
   };
 }
 
-// Busca os dados de um livro no Google Books: por ISBN quando houver
-// (caminho confiável — livros do ISBNDB têm google_id = isbn) ou pelo
-// volume id. Depois puxa o endpoint de detalhe, único que traz as
-// imagens medium/large.
 export async function fetchGoogleBookData(
   isbn?: string,
   googleId?: string,
@@ -59,8 +54,6 @@ export async function fetchGoogleBookData(
 
   let data = mapGoogleBook(item);
 
-  // o detalhe é o registro mais completo (categorias BISAC reais,
-  // imagens medium/large) — ele manda; o item da busca só complementa
   const detail = item.id ? await getGoogleBookById(item.id) : null;
   if (detail) {
     data = mergeBook(mapGoogleBook(detail), data);

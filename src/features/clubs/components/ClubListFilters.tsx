@@ -57,7 +57,6 @@ export function ClubListFilters({
   genres: Genre[] | undefined;
 }) {
   return (
-    // rolagem horizontal sem barra visível: os selects não encolhem nem estouram a tela
     <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <FilterSelect
         placeholder="Tipo"

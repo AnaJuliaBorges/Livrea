@@ -31,6 +31,9 @@ dist-ssr
 /playwright/.cache/
 /playwright/.auth/
 
+# Comentários retirados do código, guardados só localmente
+NOTAS-DO-CODIGO.md
+
 # Test coverage
 coverage/
 test-results/

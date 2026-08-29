@@ -4,9 +4,6 @@ import type { Book } from "../types/book";
 
 export type LibraryStatus = "read" | "want_to_read";
 
-// ISBNDB é a fonte principal (é dela que vem a busca); o Google Books
-// só preenche o que faltar: sinopse, subtítulo, categorias (que viram
-// gêneros no banco), páginas, notas e imagens em alta resolução.
 async function enrichBook(book: Book): Promise<Book> {
   const googleData = await fetchGoogleBookData(
     book.info.isbn,
@@ -16,7 +13,6 @@ async function enrichBook(book: Book): Promise<Book> {
   return googleData ? mergeBook(book, googleData) : book;
 }
 
-// evita estourar rate limit do Google com muitos livros selecionados
 async function enrichInChunks(books: Book[], chunkSize = 5): Promise<Book[]> {
   const enriched: Book[] = [];
 
@@ -43,8 +39,6 @@ export function toBookPayload(book: Book) {
     image_thumbnail: book.image.thumbnail ?? null,
     image_medium: book.image.medium ?? null,
     image_large: book.image.large ?? null,
-    // a RPC reparte: o que casa com a tabela genres vira gênero,
-    // o restante vira subjects
     categories: [book.genre.main, ...(book.genre.secondary ?? [])].filter(
       Boolean,
     ),
@@ -56,7 +50,6 @@ export function toBookPayload(book: Book) {
 export async function saveUserBooks(books: Book[], status: LibraryStatus) {
   const enriched = await enrichInChunks(books);
 
-  // books.isbn é NOT NULL UNIQUE no banco — livros sem ISBN não podem ser salvos
   const payload = enriched.filter((book) => book.info.isbn).map(toBookPayload);
 
   if (payload.length === 0) return;

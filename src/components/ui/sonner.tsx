@@ -7,8 +7,6 @@ import {
 } from "lucide-react";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
-// sem next-themes: o app não tem ThemeProvider, então o hook devolvia
-// sempre "system" — que é exatamente o que passamos fixo aqui
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner

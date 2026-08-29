@@ -27,7 +27,6 @@ function renderTour(initialEntry = "/clubes") {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // padrão: usuário ainda não viu o tour
   getSeenMock.mockResolvedValue(false);
   markSeenMock.mockResolvedValue(undefined);
 });
@@ -45,7 +44,6 @@ describe("WelcomeTour", () => {
 
     renderTour();
 
-    // espera o efeito assíncrono resolver antes de afirmar a ausência
     await waitFor(() => expect(getSeenMock).toHaveBeenCalled());
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });

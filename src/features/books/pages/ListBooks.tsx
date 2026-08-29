@@ -21,8 +21,6 @@ export default function ListBooks() {
   const { mutateAsync: upsertBook, isPending: isOpeningBook } =
     useUpsertBook();
 
-  // livro externo ainda não existe no banco: cria o registro mínimo e
-  // navega — a página de detalhes completa os dados via Google Books
   async function openExternalBook(book: Book) {
     if (isOpeningBook) return;
 
@@ -63,8 +61,6 @@ export default function ListBooks() {
     isSearching ? debouncedSearch : undefined,
   );
 
-  // na recomendação, livros que já estão no banco não repetem na
-  // parte vinda da ISBNDB
   const dedupedExternalBooks = useMemo(() => {
     if (isSearching) return externalBooks;
 
@@ -98,8 +94,6 @@ export default function ListBooks() {
     isLoadingExternal ||
     (!isSearching && isLoadingDbBooks);
 
-  // lista de gêneros vazia só significa "não escolheu gêneros" quando a
-  // consulta de fato deu certo — com erro, `genreIds` cai no default []
   const hasNoGenres =
     !isLoadingGenreIds &&
     !isLoadingGenres &&
@@ -137,8 +131,6 @@ export default function ListBooks() {
           <p className="text-sm text-muted-foreground">Procurando livros...</p>
         </div>
       ) : isEmpty ? (
-        // "vazio" e "quebrou" chegam aqui do mesmo jeito (lista sem itens),
-        // mas mandam investigar lugares opostos — a mensagem tem que separar
         <div className="flex items-center justify-center h-64">
           <p className="text-sm text-muted-foreground">
             {hasFailed

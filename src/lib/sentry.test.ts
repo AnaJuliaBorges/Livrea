@@ -21,20 +21,16 @@ beforeEach(() => {
   vi.unstubAllEnvs();
 });
 
-// initSentry só roda em produção; os testes de comportamento precisam simular
-// isso, senão caem no early return
 function initInProduction(dsn = "https://exemplo@sentry.io/1") {
   vi.stubEnv("VITE_SENTRY_DSN", dsn);
   vi.stubEnv("PROD", true);
   initSentry();
 }
 
-// devolve o beforeSend registrado no init
 function getBeforeSend() {
   return initMock.mock.calls[0][0]!.beforeSend!;
 }
 
-// dispara o callback que initSentry registrou no onAuthStateChange
 function emitAuthState(session: unknown) {
   const listener = onAuthStateChangeMock.mock.calls[0][0];
   (listener as (event: string, session: unknown) => void)(
@@ -53,8 +49,6 @@ describe("initSentry", () => {
     expect(onAuthStateChangeMock).not.toHaveBeenCalled();
   });
 
-  // o SDK não deve nem carregar fora de produção: em dev o Vite serviria
-  // Sentry + Replay sem bundle, pesando em todo page load
   it("não inicializa fora de produção, mesmo com DSN", () => {
     vi.stubEnv("VITE_SENTRY_DSN", "https://exemplo@sentry.io/1");
 

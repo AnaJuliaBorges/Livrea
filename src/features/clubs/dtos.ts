@@ -15,14 +15,12 @@ export interface Reading {
 }
 
 export interface ReadingHistoryBook {
-  // id da linha em club_readings (a nota é por leitura, não por livro)
   readingId: string;
   id: string;
   title: string;
   imageThumbnail: string | null;
   imageMedium: string | null;
   imageLarge: string | null;
-  // texto sobre a leitura finalizada, escrito pelo admin
   note: string | null;
 }
 
@@ -31,12 +29,10 @@ export interface Club {
   name: string;
   description: string;
   coverUrl: string | null;
-  // chave da paleta HEADER_COLORS (clubs.header_color)
   headerColor: string;
   isPrivate: boolean;
   isMember: boolean;
   isAdmin: boolean;
-  // dono = criador do clube; pode excluir e promover/rebaixar admins
   isOwner: boolean;
   hasPendingRequest: boolean;
   participantLimit: number | null;
@@ -66,8 +62,6 @@ export interface Club {
 
 export type ClubMatchGroup = "city" | "state" | "online" | "other";
 
-// Item retornado pela RPC list_clubs. Estruturalmente compatível com o
-// ClubSummary do perfil, que o ItemClub consome.
 export interface ClubListItem {
   id: string;
   name: string;
@@ -110,7 +104,6 @@ export interface ClubMember {
   isOwner: boolean;
 }
 
-// presença no encontro não lida com dono/promoção, então não carrega isOwner
 export interface MeetingAttendanceMember extends Omit<ClubMember, "isOwner"> {
   confirmed: boolean;
 }

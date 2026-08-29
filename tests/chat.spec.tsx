@@ -28,8 +28,6 @@ const fakeUser = {
   updated_at: nowIso,
 };
 
-// JWT fake, apenas com formato válido — o cliente Supabase só o decodifica,
-// não valida a assinatura no browser (mesma técnica dos outros specs).
 function fakeJwt() {
   const encode = (payload: object) =>
     Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -120,8 +118,6 @@ type SetupOptions = {
   messages?: ReturnType<typeof rawMessage>[];
 };
 
-// `messages` é mutável de propósito: o mock de send_club_message insere a
-// mensagem enviada, e o refetch de get_club_messages devolve a lista nova.
 async function setupChatMocks(page: Page, opts: SetupOptions = {}) {
   const messages = opts.messages ?? [];
 
@@ -142,9 +138,6 @@ async function setupChatMocks(page: Page, opts: SetupOptions = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
-  // WelcomeTour lê profiles.welcome_tour_seen ao entrar no shell logado.
-  // Fixamos "já visto" para o tour não abrir por cima destes fluxos (senão
-  // dependeria da requisição falhar na rede fake, o que é frágil).
   await mockRoute(page, "**/rest/v1/profiles*", async (route) => {
     await route.fulfill(jsonResponse({ welcome_tour_seen: true }));
   });
@@ -170,9 +163,6 @@ async function setupChatMocks(page: Page, opts: SetupOptions = {}) {
     await route.fulfill(jsonResponse([]));
   });
 
-  // registrado ANTES das rotas de mensagens de propósito: o Playwright
-  // resolve rotas da última para a primeira, e o glob get_club* também
-  // casaria com get_club_messages — as específicas precisam vencer
   await mockRoute(page, "**/rest/v1/rpc/get_club*", async (route) => {
     await route.fulfill(
       jsonResponse(rawClubDetail({ is_member: opts.isMember ?? true })),
@@ -204,7 +194,6 @@ async function setupChatMocks(page: Page, opts: SetupOptions = {}) {
     await route.fulfill(jsonResponse(null));
   });
 
-  // notificação de mensagem é fire-and-forget — só não pode dar erro
   await mockRoute(page, "**/functions/v1/send-push", async (route) => {
     await route.fulfill(jsonResponse({ ok: true }));
   });

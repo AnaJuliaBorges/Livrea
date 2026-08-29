@@ -17,7 +17,6 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("../hooks/useUpsertBook");
-// a página importa do barrel da feature — o mock precisa mirar o barrel
 vi.mock("@/features/profile");
 vi.mock("../hooks/useGenres");
 vi.mock("../hooks/useBooksByGenres");
@@ -137,9 +136,6 @@ describe("ListBooks", () => {
     expect(screen.getByText("Nenhum livro encontrado")).toBeInTheDocument();
   });
 
-  // lista vazia por falha e lista vazia de verdade chegam iguais na tela, mas
-  // mandam investigar lugares opostos (foi o que custou o diagnóstico da
-  // assinatura da ISBNDB vencida)
   it("diferencia falha da busca de ausência de resultados", () => {
     mockDefaults({ externalError: true });
 
@@ -155,8 +151,6 @@ describe("ListBooks", () => {
     ).not.toBeInTheDocument();
   });
 
-  // falha de auth deixava genreIds cair no default [] e a tela acusava o
-  // usuário de não ter escolhido gêneros
   it("não diz que faltam gêneros quando a consulta de gêneros falhou", () => {
     mockDefaults({ genreIds: [], genreIdsError: true });
 

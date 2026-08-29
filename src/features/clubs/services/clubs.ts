@@ -1,13 +1,8 @@
-// CRUD e listagem do clube em si (create/update/delete/get/list, sair do
-// clube e cor do header). Antes um arquivo por RPC; agrupado por agregado.
 import { supabase } from "@/lib/supabase";
 import { uploadClubCover } from "./uploadClubCover";
 import { DEFAULT_HEADER_COLOR } from "@/lib/headerColors";
 import type { Club, ClubListItem, ClubMatchGroup } from "../dtos";
 
-// ---------------------------------------------------------------- createClub
-
-// Valores do wizard (pt) → enums do banco (club_frequency / club_meeting_type)
 const frequencyMap: Record<string, string> = {
   semanal: "weekly",
   quinzenal: "biweekly",
@@ -71,10 +66,6 @@ export async function createClub(input: CreateClubInput): Promise<CreatedClub> {
   return data as CreatedClub;
 }
 
-// ---------------------------------------------------------------- updateClub
-
-// Campos ausentes (undefined) não são alterados no banco; string vazia limpa
-// (exceto name/genreIds, que não têm estado "vazio" válido).
 export interface UpdateClubInput {
   clubId: string;
   name?: string;
@@ -83,7 +74,6 @@ export interface UpdateClubInput {
   meetingDescription?: string;
   genreIds?: number[];
   cityId?: number;
-  // enum club_meeting_type do banco: in_person/hybrid/online
   meetingType?: string;
 }
 
@@ -102,8 +92,6 @@ export async function updateClub(input: UpdateClubInput): Promise<void> {
   if (error) throw error;
 }
 
-// ---------------------------------------------------------------- deleteClub
-
 export async function deleteClub(clubId: string): Promise<void> {
   const { error } = await supabase.rpc("delete_club", {
     p_club_id: clubId,
@@ -111,8 +99,6 @@ export async function deleteClub(clubId: string): Promise<void> {
 
   if (error) throw error;
 }
-
-// ------------------------------------------------------------------- getClub
 
 type RawClub = {
   id: string;
@@ -193,7 +179,6 @@ function mapClubDetail(raw: RawClub): Club {
       : null,
     rules: raw.rules ?? "",
     readingHistory: raw.reading_history.map((book) => ({
-      // RPC antiga não manda reading_id — cai no id do livro só como key
       readingId: book.reading_id ?? book.id,
       id: book.id,
       title: book.title,
@@ -215,8 +200,6 @@ export async function getClub(clubId: string): Promise<Club | null> {
 
   return mapClubDetail(data as RawClub);
 }
-
-// ----------------------------------------------------------------- listClubs
 
 type RawClubListItem = {
   id: string;
@@ -280,10 +263,6 @@ export async function listClubs(
   return ((data ?? []) as RawClubListItem[]).map(mapClubListItem);
 }
 
-// ----------------------------------------------------------------- leaveClub
-
-// O chamador se remove do clube. O backend valida: dono não pode sair
-// (precisa excluir o clube); quem não é membro recebe erro.
 export async function leaveClub(clubId: string): Promise<void> {
   const { error } = await supabase.rpc("leave_club", {
     p_club_id: clubId,
@@ -292,9 +271,6 @@ export async function leaveClub(clubId: string): Promise<void> {
   if (error) throw error;
 }
 
-// -------------------------------------------------------- setClubHeaderColor
-
-// admin-only (a RPC valida); a cor é uma chave da paleta HEADER_COLORS
 export async function setClubHeaderColor(
   clubId: string,
   color: string,

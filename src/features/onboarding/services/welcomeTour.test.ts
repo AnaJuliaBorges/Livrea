@@ -16,7 +16,6 @@ function mockUser(userId: string | null) {
   } as unknown as SessionResult);
 }
 
-// encadeia .select(...).eq(...).maybeSingle() devolvendo o resultado dado
 function mockSelect(result: { data: unknown; error: unknown }) {
   const maybeSingle = vi.fn().mockResolvedValue(result);
   const eq = vi.fn(() => ({ maybeSingle }));
@@ -25,7 +24,6 @@ function mockSelect(result: { data: unknown; error: unknown }) {
   return { select, eq, maybeSingle };
 }
 
-// encadeia .update(...).eq(...) devolvendo o erro dado
 function mockUpdate(result: { error: unknown }) {
   const eq = vi.fn().mockResolvedValue(result);
   const update = vi.fn(() => ({ eq }));
@@ -56,7 +54,6 @@ describe("getWelcomeTourSeen", () => {
     expect(chain.eq).toHaveBeenCalledWith("id", "user-1");
   });
 
-  // sem sessão não consulta o banco e não mostra o tour
   it("trata ausência de sessão como já visto, sem consultar profiles", async () => {
     mockUser(null);
 

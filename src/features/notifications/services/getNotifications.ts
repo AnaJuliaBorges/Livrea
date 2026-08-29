@@ -18,7 +18,6 @@ type RawNotification = {
   created_at: string;
 };
 
-// RLS garante que só vêm as notificações do próprio usuário
 export async function getNotifications(): Promise<AppNotification[]> {
   const { data, error } = await supabase
     .from("notifications")
@@ -38,7 +37,6 @@ export async function getNotifications(): Promise<AppNotification[]> {
   }));
 }
 
-// marca todas como lidas — chamada ao abrir a tela de notificações
 export async function markAllNotificationsRead(): Promise<void> {
   const { error } = await supabase
     .from("notifications")

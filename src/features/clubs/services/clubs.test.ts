@@ -28,8 +28,6 @@ function rpcResult(data: unknown = null, error: unknown = null) {
   return { data, error } as unknown as Awaited<ReturnType<typeof supabase.rpc>>;
 }
 
-// ---------------------------------------------------------------- createClub
-
 const baseInput: CreateClubInput = {
   clubName: "  Clube da Fantasia  ",
   description: "Lemos fantasia todo mês",
@@ -127,8 +125,6 @@ describe("createClub", () => {
   });
 });
 
-// ---------------------------------------------------------------- updateClub
-
 describe("updateClub", () => {
   beforeEach(() => {
     rpcMock.mockReset();
@@ -193,8 +189,6 @@ describe("updateClub", () => {
   });
 });
 
-// ---------------------------------------------------------------- deleteClub
-
 describe("deleteClub", () => {
   beforeEach(() => {
     rpcMock.mockReset();
@@ -216,8 +210,6 @@ describe("deleteClub", () => {
     await expect(deleteClub("club-1")).rejects.toThrow("não é admin");
   });
 });
-
-// ------------------------------------------------------------------- getClub
 
 const rawClubDetail = {
   id: "club-1",
@@ -387,8 +379,6 @@ describe("getClub", () => {
   });
 });
 
-// ----------------------------------------------------------------- listClubs
-
 const rawClubListItem = {
   id: "club-1",
   name: "Clube da Fantasia",
@@ -496,8 +486,6 @@ describe("listClubs", () => {
   });
 });
 
-// ----------------------------------------------------------------- leaveClub
-
 describe("leaveClub", () => {
   beforeEach(() => {
     rpcMock.mockReset();
@@ -523,8 +511,6 @@ describe("leaveClub", () => {
     );
   });
 });
-
-// -------------------------------------------------------- setClubHeaderColor
 
 describe("setClubHeaderColor", () => {
   beforeEach(() => {

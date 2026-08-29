@@ -4,9 +4,6 @@ import { supabase } from "@/lib/supabase";
 import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { GOOGLE_SIGNUP_PENDING_KEY } from "../../services/signInWithGoogle";
 
-// Retorno do OAuth em /cadastrar: a conta já existe (trigger de profiles
-// incluso), então o wizard entra em modo Google — o passo 1 vira
-// "complete seu perfil" (foto/bio/localização), sem email e senha.
 export function useGoogleSignUpReturn() {
   useEffect(() => {
     if (!localStorage.getItem(GOOGLE_SIGNUP_PENDING_KEY)) return;
@@ -28,8 +25,6 @@ export function useGoogleSignUpReturn() {
       const name = metadata.name ?? metadata.full_name ?? "";
       const avatarUrl = metadata.avatar_url ?? metadata.picture ?? "";
 
-      // garante nome e foto no perfil mesmo se o usuário abandonar o
-      // wizard aqui — o trigger handle_new_user pode não copiar o metadata
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -42,7 +37,6 @@ export function useGoogleSignUpReturn() {
         console.error("Error saving Google profile data:", error);
       }
 
-      // descarta restos de um cadastro anterior abandonado
       const { reset, update } = useSignUpWizardStore.getState();
       reset();
       update("account", {
@@ -66,8 +60,6 @@ export function useGoogleSignUpReturn() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN" && session) {
-        // setTimeout evita deadlock: o supabase-js segura um lock enquanto
-        // notifica os listeners, e completeFromSession chama o client
         setTimeout(() => completeFromSession(session), 0);
       }
     });

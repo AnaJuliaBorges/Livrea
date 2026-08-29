@@ -23,7 +23,6 @@ function renderSection() {
   );
 }
 
-// mesma citação em edições diferentes (páginas diferentes) + uma solitária
 const highlights: ClubBookHighlight[] = [
   {
     userId: "u1",
@@ -78,7 +77,6 @@ describe("HighlightsSection", () => {
     expect(screen.getByText("Quem marcou esta citação")).toBeInTheDocument();
     expect(screen.getByText("Ana Júlia")).toBeInTheDocument();
     expect(screen.getByText("Bruna")).toBeInTheDocument();
-    // "Página 42" aparece no card da lista (representante) e no modal
     expect(screen.getAllByText("Página 42")).toHaveLength(2);
     expect(screen.getByText("Página 57")).toBeInTheDocument();
     expect(screen.queryByText("Pedro")).not.toBeInTheDocument();

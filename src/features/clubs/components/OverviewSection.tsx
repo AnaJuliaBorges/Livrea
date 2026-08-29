@@ -23,9 +23,6 @@ interface Props {
   club: Club;
 }
 
-// nextMeeting.date vem como "YYYY-MM-DD" puro (sem hora/timezone) da RPC —
-// reformata por string em vez de `new Date()` pra não sofrer o bug clássico
-// de fuso (UTC-3 "voltaria" um dia na conversão)
 function toBrazilianDate(isoDate: string) {
   const [year, month, day] = isoDate.split("-");
   return year && month && day ? `${day}/${month}/${year}` : isoDate;

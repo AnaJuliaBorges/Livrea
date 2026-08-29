@@ -7,10 +7,6 @@ import { cn } from "@/lib/utils";
 import { useWelcomeTour } from "../hooks/useWelcomeTour";
 import { welcomeTourSteps } from "../model/steps";
 
-/**
- * Modal de boas-vindas mostrado no primeiro acesso do shell logado.
- * Mesmo padrão do ConfirmDialog (overlay fixo próprio, sem Radix Dialog).
- */
 export function WelcomeTour() {
   const { isOpen, dismiss } = useWelcomeTour();
   const [index, setIndex] = useState(0);

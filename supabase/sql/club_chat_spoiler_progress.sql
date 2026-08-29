@@ -1,16 +1,3 @@
--- Spoiler relativo ao progresso de leitura. Rodar no SQL Editor e apagar.
--- (Se ainda não rodou club_chat.sql, rode ele ANTES deste.)
---
--- Regra: mensagem de spoiler grava a % de leitura do remetente na leitura
--- atual do clube (snapshot em spoiler_progress). Ao buscar mensagens, quem
--- já está igual ou além desse ponto recebe hide_spoiler=false (sem borrão;
--- a tag "Spoiler" continua no front). Sem leitura atual, sem progresso do
--- remetente ou do leitor → borra como antes (só libera com prova).
---
--- get_member_reading_progress reutiliza a MESMA regra de % da aba Leitores
--- (get_club_reading_readers): melhor edição equivalente, 'read' = 100,
--- current_page/total_pages com teto de 100. Retorna null sem dados.
-
 alter table public.club_messages
   add column if not exists spoiler_progress integer;
 
@@ -69,7 +56,6 @@ begin
     raise exception 'mensagem vazia';
   end if;
 
-  -- snapshot da % do remetente na leitura atual do clube (só pra spoiler)
   if coalesce(p_is_spoiler, false) then
     select cr.book_id into v_book_id
     from club_readings cr
@@ -140,8 +126,6 @@ as $$
       cm.id,
       cm.content,
       cm.is_spoiler,
-      -- só libera o borrão quando dá pra provar que o leitor já passou do
-      -- ponto do remetente; qualquer dado faltando mantém escondido
       (
         cm.is_spoiler
         and not (

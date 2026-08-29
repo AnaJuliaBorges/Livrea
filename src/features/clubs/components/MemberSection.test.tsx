@@ -233,7 +233,6 @@ describe("MembersSection", () => {
     renderMembers({ ...baseClub, isOwner: true });
 
     await screen.findByText("Dona Ana");
-    // só o participante comum tem ação, o dono não
     expect(screen.getAllByRole("button", { name: "Tornar admin" })).toHaveLength(
       1,
     );
@@ -261,7 +260,6 @@ describe("MembersSection", () => {
       screen.getByRole("button", { name: "Remover Lucas Martins do clube" }),
     );
 
-    // dialog de confirmação
     await screen.findByText("Remover participante");
     await user.click(screen.getByRole("button", { name: "Remover" }));
 

@@ -1,11 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
 
-// Este spec era o único que batia no Supabase real, com credenciais que
-// deixaram de valer — e nenhum dos dois testes tinha asserção (um só chamava
-// page.goto no fim, o outro um .isVisible() solto, que devolve boolean e
-// nunca falha). Passavam por acidente e falhavam por rede. Agora seguem o
-// mesmo padrão de mock do resto da suíte (ver tests/profile.spec.tsx).
-
 const EMAIL = "e2e@livrea.test";
 const PASSWORD = "senha-e2e";
 const USER_ID = "e2e-user";
@@ -27,8 +21,6 @@ const fakeUser = {
   phone: "",
   confirmed_at: nowIso,
   last_sign_in_at: nowIso,
-  // o provider decide o destino no useAuthRedirect: "google" pode desviar
-  // para /cadastrar, "email" vai direto para /clubes
   app_metadata: { provider: "email", providers: ["email"] },
   user_metadata: {},
   identities: [],
@@ -36,8 +28,6 @@ const fakeUser = {
   updated_at: nowIso,
 };
 
-// JWT fake, apenas com formato válido — o cliente Supabase só o decodifica,
-// não valida a assinatura no browser.
 function fakeJwt() {
   const encode = (payload: object) =>
     Buffer.from(JSON.stringify(payload)).toString("base64url");
@@ -67,9 +57,6 @@ async function preflight(route: {
   await route.fulfill({ status: 204, headers: corsHeaders });
 }
 
-// `succeeds: false` reproduz a resposta do GoTrue para senha errada — o
-// useLogin depende do error_code "invalid_credentials" para escolher a
-// mensagem em português.
 async function setupAuthMocks(page: Page, { succeeds = true } = {}) {
   await page.route("**/auth/v1/token*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
@@ -105,7 +92,6 @@ async function setupAuthMocks(page: Page, { succeeds = true } = {}) {
     await route.fulfill(jsonResponse(fakeUser));
   });
 
-  // o useLogin busca o perfil logo após autenticar (useAuth.getUser)
   await page.route("**/rest/v1/profiles*", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(
@@ -113,9 +99,6 @@ async function setupAuthMocks(page: Page, { succeeds = true } = {}) {
     );
   });
 
-  // rede de segurança: /clubes dispara várias queries próprias que este spec
-  // não verifica — sem isso elas vazariam para o Supabase real e deixariam o
-  // teste lento e dependente de rede, que é o problema que estamos corrigindo
   await page.route("**/rest/v1/**", async (route) => {
     if (route.request().method() === "OPTIONS") return preflight(route);
     await route.fulfill(jsonResponse([]));
@@ -138,7 +121,6 @@ test.describe("Autenticação no Livrea", () => {
 
     await fillLoginForm(page);
 
-    // quem navega é o useAuthRedirect ao receber o SIGNED_IN, não o submit
     await expect(page).toHaveURL(/\/clubes/);
   });
 
@@ -151,7 +133,6 @@ test.describe("Autenticação no Livrea", () => {
     await fillLoginForm(page);
 
     await expect(page.getByText("Email ou senha inválidos")).toBeVisible();
-    // a asserção que faltava: falhar o login não pode deixar entrar
     await expect(page).toHaveURL(/\/login/);
   });
 });

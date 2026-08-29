@@ -31,8 +31,6 @@ type BuilderResult = {
   count?: number | null;
 };
 
-// builder encadeável e "thenable" — await em qualquer ponto da cadeia resolve
-// no mesmo resultado, como o query builder real do supabase-js
 function makeBuilder(result: BuilderResult) {
   const builder = {
     select: vi.fn(),

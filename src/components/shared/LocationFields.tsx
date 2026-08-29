@@ -16,11 +16,6 @@ import {
 } from "@/components/ui";
 import { useStates, useCities } from "@/hooks/useLocations";
 
-// Par Estado/Cidade para forms RHF que tenham os campos numéricos
-// `state_id` e `city_id` (cadastro, edição de perfil). Autocontido:
-// carrega estados/cidades, zera a cidade ao trocar o estado e resolve o
-// rótulo manualmente no SelectValue (o Radix não resolve o rótulo de um
-// valor controlado antes do dropdown abrir).
 export function LocationFields<T extends FieldValues>({
   control,
   className = "grid grid-cols-2 gap-4",

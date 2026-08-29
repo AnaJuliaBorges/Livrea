@@ -1,21 +1,3 @@
-// Edge Function isbndb — proxy autenticado para a api2.isbndb.com.
-//
-// A chave da ISBNDB (API paga, sem restrição por domínio) fica no secret
-// ISBNDB_API_KEY do projeto — nunca no bundle do frontend. O deploy padrão
-// exige JWT válido, então só usuário logado consome a cota.
-//
-// Ações (POST JSON):
-//   { action: "books",   term, pageSize?, page? }  → busca por texto
-//   { action: "subject", term, pageSize?, page? }  → busca por gênero
-//   { action: "book",    term }                    → livro único por ISBN
-//
-// A resposta repassa o JSON da ISBNDB ({ books: [...] } / { book: {...} })
-// para os mappers do front continuarem iguais. Livro inexistente ("book"
-// com 404 na ISBNDB) vira 200 { book: null } — não é erro.
-//
-// Deploy: supabase functions deploy isbndb  (ou colar no Dashboard)
-// Secret: supabase secrets set ISBNDB_API_KEY=...
-
 const ISBNDB_BASE_URL = "https://api2.isbndb.com";
 
 const corsHeaders = {
@@ -58,7 +40,6 @@ Deno.serve(async (req) => {
     return json({ error: "term é obrigatório" }, 400);
   }
 
-  // limites de sanidade na cota — o front nunca pede mais que 20
   const pageSize = Math.min(Math.max(Number(payload.pageSize) || 20, 1), 50);
   const page = Math.max(Number(payload.page) || 1, 1);
 

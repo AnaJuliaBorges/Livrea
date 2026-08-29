@@ -25,7 +25,6 @@ export default function FourthStep() {
         handleSubmit();
       }}
       onKeyDown={(event) => {
-        // Enter na busca não deve finalizar o cadastro
         if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
           event.preventDefault();
         }

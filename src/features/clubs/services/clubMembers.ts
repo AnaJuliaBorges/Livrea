@@ -1,5 +1,3 @@
-// Participantes do clube: listagem e gestão de papéis (owner-only, o
-// backend valida). Antes um arquivo por RPC; agrupado por agregado.
 import { supabase } from "@/lib/supabase";
 import type { ClubMember } from "../dtos";
 
@@ -27,7 +25,6 @@ export async function getClubMembers(clubId: string): Promise<ClubMember[]> {
   }));
 }
 
-// Owner-only (o backend valida): nomeia um participante como admin.
 export async function promoteClubMember(
   clubId: string,
   userId: string,
@@ -40,7 +37,6 @@ export async function promoteClubMember(
   if (error) throw error;
 }
 
-// Owner-only: rebaixa um admin de volta a participante comum.
 export async function demoteClubMember(
   clubId: string,
   userId: string,
@@ -53,7 +49,6 @@ export async function demoteClubMember(
   if (error) throw error;
 }
 
-// Owner-only: remove um participante do clube.
 export async function removeClubMember(
   clubId: string,
   userId: string,

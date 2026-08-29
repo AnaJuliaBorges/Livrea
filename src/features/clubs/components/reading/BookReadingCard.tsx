@@ -4,8 +4,6 @@ import { useBook } from "@/features/books";
 import { ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-// Card de livro reaproveitado pela leitura atual e por cada item do
-// histórico — cada instância busca seu próprio livro via useBook.
 export function BookReadingCard({ bookId }: { bookId: string }) {
   const navigate = useNavigate();
   const { data: book, isLoading } = useBook(bookId);

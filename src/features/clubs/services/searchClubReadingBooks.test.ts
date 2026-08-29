@@ -8,8 +8,6 @@ vi.mock("@/lib/supabase", () => ({
   },
 }));
 
-// o service importa do barrel da feature books: mocka só as buscas
-// externas e mantém o resto real (os mappers precisam funcionar de verdade)
 vi.mock("@/features/books", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/features/books")>()),
   searchGoogleBooks: vi.fn(),

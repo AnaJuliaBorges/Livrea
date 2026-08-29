@@ -6,9 +6,6 @@ import { ALLOWED_IMAGE_MESSAGE, isAllowedImage } from "@/lib/imageUpload";
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
 
-// Seletor de foto de perfil (preview + validação de tipo/tamanho) usado no
-// cadastro (email e Google) e na edição de perfil. O File escolhido fica com
-// o pai (`value`/`onChange`) — só ele sabe a hora de fazer o upload.
 export function AvatarPicker({
   name,
   currentUrl,

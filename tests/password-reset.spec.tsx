@@ -73,7 +73,6 @@ test.describe("Recuperação de senha", () => {
     await page.goto("/redefinir-senha");
 
     await expect(page.getByText("Validando o link...")).toBeVisible();
-    // o estado "inválido" aparece após o timeout de 5s sem sessão
     await expect(
       page.getByText("Link inválido ou expirado", { exact: false }),
     ).toBeVisible({ timeout: 10000 });

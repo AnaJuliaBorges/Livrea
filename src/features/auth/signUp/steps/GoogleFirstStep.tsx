@@ -15,8 +15,6 @@ import { useSignUpWizardStore } from "../store/useSignUpWizardStore";
 import { AvatarPicker } from "@/components/shared/AvatarPicker";
 import { LocationFields } from "@/components/shared/LocationFields";
 
-// Passo 1 do cadastro via Google: a conta já existe, então só completa o
-// perfil — foto (pré-carregada do Google, trocável), bio e localização.
 export default function GoogleFirstStep() {
   const data = useSignUpWizardStore((state) => state.data);
   const setStepButton = useSignUpWizardStore((state) => state.setStepButton);

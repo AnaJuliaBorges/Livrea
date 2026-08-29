@@ -1,6 +1,3 @@
-// Encontros do clube: agendar/atualizar o próximo encontro e presença
-// (lista, confirmar, cancelar). Antes um arquivo por RPC; agrupado por
-// agregado.
 import { supabase } from "@/lib/supabase";
 import type { MeetingAttendanceMember } from "../dtos";
 

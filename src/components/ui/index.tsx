@@ -1,7 +1,5 @@
-// Button
 export { Button } from "./button";
 
-// Field
 export {
   Field,
   FieldLabel,
@@ -15,16 +13,12 @@ export {
   FieldTitle,
 } from "./field";
 
-// Input
 export { Input } from "./input";
 
-// Label
 export { Label } from "./label";
 
-// Progress
 export { Progress } from "./progress";
 
-// Select
 export {
   Select,
   SelectContent,
@@ -38,8 +32,6 @@ export {
   SelectValue,
 } from "./select";
 
-// Separator
 export { Separator } from "./separator";
 
-// Textarea
 export { Textarea } from "./textarea";

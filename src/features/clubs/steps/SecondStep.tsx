@@ -15,7 +15,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCities, useStates } from "@/hooks/useLocations";
 import { useCreateClubStore } from "../store/useCreateClubStore";
 
-// Valores mapeados para o enum club_frequency do banco em services/createClub.ts
 const frequencyOptions = [
   { value: "semanal", label: "Semanal" },
   { value: "quinzenal", label: "Quinzenal" },

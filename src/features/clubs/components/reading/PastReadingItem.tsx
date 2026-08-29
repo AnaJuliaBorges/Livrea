@@ -7,8 +7,6 @@ import { useSetClubReadingNote } from "../../hooks/useSetClubReadingNote";
 import { BookRatingBox } from "./BookRatingBox";
 import { BookReadingCard } from "./BookReadingCard";
 
-// Card do histórico completo (capa/dados + nota do clube + avaliação),
-// pra cada leitura passada do clube.
 export function PastReadingItem({
   clubId,
   bookId,

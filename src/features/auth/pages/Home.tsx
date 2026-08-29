@@ -12,8 +12,6 @@ export default function Home() {
   const handleGoogleLogin = async () => {
     setGoogleError(null);
     try {
-      // volta para /login; o useAuthRedirect de lá leva para /clubes
-      // assim que a sessão do OAuth for detectada
       await signInWithGoogle("/login");
     } catch {
       setGoogleError("Não foi possível entrar com o Google. Tente novamente.");

@@ -5,10 +5,6 @@ import type {
   IsbndbResponse,
 } from "../types/isbndb";
 
-// As chamadas passam pela Edge Function `isbndb` (supabase/functions/isbndb),
-// que guarda a chave da API como secret do servidor — a chave não vai no
-// bundle. A function exige JWT, então só usuário logado consome a cota.
-// Livro inexistente já chega como { book: null } (o 404 é tratado lá).
 async function invokeIsbndb<T>(
   body: {
     action: "books" | "subject" | "book";
@@ -38,8 +34,6 @@ export async function searchIsbndbByGenre(
   return data.books ?? [];
 }
 
-// Endpoint de livro único — o mais completo da ISBNDB (traz synopsis
-// e subjects, que a busca não retorna)
 export async function getIsbndbBookByIsbn(
   isbn: string,
 ): Promise<IsbndbBook | null> {

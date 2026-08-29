@@ -20,7 +20,6 @@ export function useSetUserBookStatus(bookId?: string) {
     mutationFn: (status: UserBookStatus | null) =>
       setUserBookStatus(bookId!, status),
 
-    // otimista: o select da página reflete a escolha na hora
     onMutate: async (status) => {
       await queryClient.cancelQueries({
         queryKey: ["user-book-status", bookId],
@@ -39,7 +38,6 @@ export function useSetUserBookStatus(bookId?: string) {
 
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["user-book-status", bookId] });
-      // as listas Lido/Lendo/Quero ler do perfil vêm da mesma tabela
       queryClient.invalidateQueries({ queryKey: ["my-profile"] });
     },
   });

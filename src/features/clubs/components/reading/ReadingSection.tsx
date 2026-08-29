@@ -19,13 +19,8 @@ interface Props {
 }
 
 export default function ReadingSection({ club }: Props) {
-  // O livro da leitura atual também é usado aqui (BookRatingBox + modal de
-  // exclusão); o React Query deduplica com o useBook do BookReadingCard.
   const { data: book } = useBook(club.currentReading?.id);
 
-  // Qual sub-tela está aberta e sobre QUAL livro (leitura atual ou uma
-  // leitura passada do histórico) — sem o bookId as sub-telas não sabem
-  // de que livro mostrar os dados.
   const [activeView, setActiveView] = useState<{
     tab: string;
     bookId: string;
@@ -101,8 +96,6 @@ export default function ReadingSection({ club }: Props) {
     </div>
   );
 
-  // Sem leitura atual: admin vê o botão pra definir; participante, um aviso.
-  // O histórico continua aparecendo mesmo sem leitura atual definida.
   if (!club.currentReading) {
     return (
       <div className="flex flex-col gap-6 mb-8">

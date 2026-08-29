@@ -23,7 +23,6 @@ vi.mock("@/lib/supabase", () => ({
 const getUserMock = vi.mocked(supabase.auth.getUser);
 const fromMock = vi.mocked(supabase.from);
 
-// encadeamentos por tabela
 const librarySelect = {
   maybeSingle: vi.fn(),
 };

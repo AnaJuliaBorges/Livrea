@@ -49,8 +49,6 @@ export function useSignup() {
 
       if (signInError) throw signInError;
 
-      // garante os dados do perfil mesmo que o trigger handle_new_user
-      // não grave todos os campos do metadata
       if (authData.user?.id) {
         const { error: profileError } = await supabase
           .from("profiles")
@@ -81,7 +79,6 @@ export function useSignup() {
     const userId = authData.user?.id;
 
     if (avatarFile && userId) {
-      // a conta já foi criada; falha no avatar não deve travar o cadastro
       try {
         await uploadAvatar(userId, avatarFile);
       } catch (err) {
@@ -93,7 +90,6 @@ export function useSignup() {
     nextStep();
   };
 
-  // Modo Google: a conta já existe — o passo 1 só completa o perfil
   const submitGoogleStep1 = async (
     formData: GoogleProfileFormInput,
     avatarFile?: File,
@@ -117,7 +113,6 @@ export function useSignup() {
       if (profileError) throw profileError;
 
       if (avatarFile) {
-        // o perfil já foi salvo; falha no avatar não deve travar o cadastro
         try {
           await uploadAvatar(userId, avatarFile);
         } catch (err) {

@@ -68,7 +68,6 @@ describe("RegisterReadHistory", () => {
 
     await user.click(screen.getByLabelText("Excluir registro"));
 
-    // nada é excluído antes de confirmar no modal
     expect(deleteMutate).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole("button", { name: "Excluir" }));
@@ -138,7 +137,6 @@ describe("RegisterReadHistory", () => {
     );
 
     expect(screen.getByText("150 páginas lidas")).toBeInTheDocument();
-    // anotação aparece só no registro que tem
     expect(
       screen.getByText('"Capítulo forte, gostei do plot twist."'),
     ).toBeInTheDocument();
@@ -296,7 +294,6 @@ describe("RegisterReadHistory", () => {
       />,
     );
 
-    // troca a unidade para porcentagem e digita 50%
     await user.click(screen.getByRole("button", { name: "%" }));
     await user.click(screen.getByRole("button", { name: "0%" }));
     const input = screen.getByRole("spinbutton");
@@ -309,7 +306,6 @@ describe("RegisterReadHistory", () => {
     await selectFeeling(user, "amei");
     await user.click(screen.getByText("Salvar registro"));
 
-    // 50% de 300 páginas = 150 (o valor continua sendo salvo em páginas)
     expect(save).toHaveBeenCalledWith({
       currentPage: 150,
       feeling: "amei",

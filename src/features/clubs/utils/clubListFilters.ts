@@ -2,11 +2,6 @@ import { normalizeText } from "@/lib/text";
 import { FILTER_ALL } from "../constants";
 import type { ClubListItem, ClubMatchGroup } from "../dtos";
 
-// Filtros da listagem de clubes. Tudo client-side de propósito: a lista
-// completa já está carregada e a resposta é instantânea. Se um dia a
-// listagem paginar (list_clubs tem p_limit/p_offset), isto precisa migrar
-// pros parâmetros da RPC — filtrar só a página carregada esconderia
-// resultados silenciosamente.
 export type ClubListFilterValues = {
   type: string;
   genre: string;
@@ -36,11 +31,6 @@ export function matchesFilters(
   );
 }
 
-// Indicados: clubes que o usuário não participa, que têm pelo menos um
-// gênero em comum com as preferências do perfil e que ele consegue
-// frequentar — só da sua cidade (match_group "city") ou online. Presenciais
-// de outra cidade/estado ("state"/"other") não entram. Ordenados do maior
-// para o menor número de gêneros em comum.
 const RECOMMENDABLE_GROUPS: ClubMatchGroup[] = ["city", "online"];
 
 export function rankRecommendedClubs(

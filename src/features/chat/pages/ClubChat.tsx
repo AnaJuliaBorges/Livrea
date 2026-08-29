@@ -12,7 +12,6 @@ import { MessageBubble } from "../components/MessageBubble";
 import { dayLabel } from "@/lib/dates";
 import type { ClubMessage } from "../services/clubChat";
 
-// mensagens agrupadas por dia, na ordem em que chegaram
 function groupByDay(messages: ClubMessage[]) {
   const groups: { label: string; messages: ClubMessage[] }[] = [];
 

@@ -1,7 +1,3 @@
-// Whitelist de imagens aceitas nos buckets públicos (avatar, capa de clube).
-// A extensão sai do MIME validado — nunca do nome do arquivo — pra impedir
-// que conteúdo ativo (ex.: .html, .svg com script) seja hospedado e servido
-// pela URL pública do Storage.
 export const ALLOWED_IMAGE_TYPES: Record<string, string> = {
   "image/jpeg": "jpg",
   "image/png": "png",

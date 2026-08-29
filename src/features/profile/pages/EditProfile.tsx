@@ -44,9 +44,6 @@ const editProfileSchema = z.object({
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>;
 
-// O wrapper só libera o form quando os dados existem — assim o
-// useForm nasce com defaultValues corretos e não precisa de reset()
-// tardio (que vive brigando com cache, autofill e ordem das queries).
 export function EditProfile() {
   const { data: profile, isLoading } = useMyProfile();
 
@@ -114,7 +111,6 @@ function EditProfileForm({
   const { mutateAsync: saveGenres } = useSaveProfileGenres();
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  // fora do RHF: não é campo validável, só uma escolha da paleta
   const [headerColor, setHeaderColor] = useState(initialHeaderColor);
 
   const {

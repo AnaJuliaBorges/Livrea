@@ -37,7 +37,6 @@ export function FirstStep({
 
   const handleCoverChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    // permite selecionar o mesmo arquivo de novo depois de trocar
     event.target.value = "";
 
     if (!file) return;

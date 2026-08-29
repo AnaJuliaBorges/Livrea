@@ -1,38 +1,3 @@
-// Edge Function send-push — envia web push para membros do clube.
-//
-// Eventos:
-//   { type: "join_request", clubId }
-//     Chamador pediu para entrar no clube → notifica os admins.
-//     Valida que existe um pedido PENDENTE do chamador nesse clube
-//     (clube público entra direto, não gera pedido nem notificação).
-//   { type: "request_approved", clubId, userId }
-//     Chamador (admin) aprovou userId → notifica o aprovado.
-//     Valida que o chamador é admin do clube e que userId é membro.
-//   { type: "member_promoted", clubId, userId }
-//     userId virou admin → notifica. Valida: chamador admin + alvo com
-//     role 'admin'.
-//   { type: "member_demoted", clubId, userId }
-//     userId deixou de ser admin → notifica. Valida: chamador admin +
-//     alvo com role 'member'.
-//   { type: "member_removed", clubId, userId }
-//     userId foi removido do clube → notifica. Valida: chamador admin +
-//     alvo NÃO é mais membro.
-//   { type: "new_follower", userId }
-//     Chamador começou a seguir userId → notifica o seguido.
-//     Valida que a linha em follows (chamador → userId) existe.
-//   { type: "club_message", clubId }
-//     Chamador mandou mensagem no chat → notifica os demais membros.
-//     Valida: chamador é membro + tem mensagem recente dele no clube (o
-//     conteúdo do preview vem do banco, nunca do payload). Anti-spam: quem
-//     já tem notificação NÃO LIDA deste chat não recebe outra — volta a
-//     ser notificado depois de ler/limpar. Spoiler não vaza no preview.
-//
-// Segurança: o JWT do chamador identifica quem dispara; os dados vêm do
-// banco (service role), nunca do payload. Secrets necessários no projeto:
-//   VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY / VAPID_SUBJECT (mailto:...)
-//
-// Deploy: supabase functions deploy send-push  (ou colar no Dashboard)
-
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3";
 
@@ -46,7 +11,6 @@ webpush.setVapidDetails(
   Deno.env.get("VAPID_PRIVATE_KEY")!,
 );
 
-// service role: lê inscrições/membros de outros usuários (ignora RLS)
 const admin = createClient(supabaseUrl, serviceRoleKey);
 
 const corsHeaders = {
@@ -60,8 +24,6 @@ type PushPayload = { title: string; body: string; url: string };
 async function sendToUsers(userIds: string[], payload: PushPayload) {
   if (userIds.length === 0) return;
 
-  // grava o histórico in-app (tela /notificacoes) pra TODOS os destinatários,
-  // inclusive quem não tem inscrição de push neste momento
   const { error: insertError } = await admin.from("notifications").insert(
     userIds.map((userId) => ({
       user_id: userId,
@@ -91,7 +53,6 @@ async function sendToUsers(userIds: string[], payload: PushPayload) {
           JSON.stringify(payload),
         );
       } catch (err: unknown) {
-        // 404/410 = inscrição morta (usuário revogou/limpou) — remove
         const status = (err as { statusCode?: number }).statusCode;
         if (status === 404 || status === 410) {
           await admin.from("push_subscriptions").delete().eq("id", sub.id);
@@ -109,7 +70,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // identifica o chamador pelo JWT do Authorization header
     const authClient = createClient(supabaseUrl, anonKey, {
       global: { headers: { Authorization: req.headers.get("Authorization")! } },
     });
@@ -126,7 +86,6 @@ Deno.serve(async (req) => {
 
     const { type, clubId, userId } = await req.json();
 
-    // evento de seguidor não envolve clube — tratado antes da busca do clube
     if (type === "new_follower") {
       const { data: follow } = await admin
         .from("follows")
@@ -174,7 +133,6 @@ Deno.serve(async (req) => {
     const clubUrl = `/clubes/${club.id}`;
 
     if (type === "join_request") {
-      // só notifica se existe pedido pendente do chamador (clube privado)
       const { data: pending } = await admin
         .from("club_join_requests")
         .select("id")
@@ -207,7 +165,6 @@ Deno.serve(async (req) => {
         },
       );
     } else if (type === "request_approved") {
-      // chamador precisa ser admin do clube e o alvo precisa já ser membro
       const [{ data: callerAdmin }, { data: targetMember }] =
         await Promise.all([
           admin
@@ -258,7 +215,6 @@ Deno.serve(async (req) => {
             .maybeSingle(),
         ]);
 
-      // o estado atual do alvo tem que bater com o evento anunciado
       const stateMatches =
         type === "member_promoted"
           ? targetMember?.role === "admin"
@@ -286,7 +242,6 @@ Deno.serve(async (req) => {
         member_removed: {
           title: "Removido do clube",
           body: `Você foi removido do clube ${club.name}.`,
-          // sem acesso garantido à página do clube — leva pra listagem
           url: "/clubes",
         },
       };
@@ -311,7 +266,6 @@ Deno.serve(async (req) => {
             .maybeSingle(),
         ]);
 
-      // só notifica se o chamador realmente acabou de mandar mensagem
       const isRecent =
         lastMessage &&
         Date.now() - new Date(lastMessage.created_at).getTime() <
@@ -336,7 +290,6 @@ Deno.serve(async (req) => {
         .map((member) => member.user_id)
         .filter((memberId) => memberId !== user.id);
 
-      // anti-spam: quem já tem notificação não lida deste chat fica de fora
       const { data: unread } = await admin
         .from("notifications")
         .select("user_id")

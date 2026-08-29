@@ -74,7 +74,6 @@ const notifications: AppNotification[] = [
 beforeEach(() => {
   vi.clearAllMocks();
   markAllReadMock.mockResolvedValue(undefined);
-  // padrão: aparelho sem suporte — banner não aparece nos demais testes
   getPermissionMock.mockReturnValue("unsupported");
 });
 

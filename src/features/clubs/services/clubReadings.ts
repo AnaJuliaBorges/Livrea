@@ -1,9 +1,4 @@
-// Leituras do clube: definir/finalizar/remover a leitura atual, nota do
-// admin e os dados da aba Leitura (leitores, nota média, resenhas e
-// destaques dos membros). Antes um arquivo por RPC; agrupado por agregado.
 import { supabase } from "@/lib/supabase";
-
-// ------------------------------------------------------------ setClubReading
 
 export async function setClubReading(
   clubId: string,
@@ -17,12 +12,6 @@ export async function setClubReading(
   if (error) throw error;
 }
 
-// ------------------------------------------------------- completeClubReading
-
-// Fecha a leitura atual (status -> finished) e o encontro agendado pra ela
-// (se houver), sem exigir que um próximo livro já esteja escolhido. `note` é a
-// impressão geral do admin sobre a leitura, gravada na mesma linha e exibida na
-// "Nota do clube" do histórico; vazio/ausente não grava nota.
 export async function completeClubReading(
   clubId: string,
   note?: string,
@@ -35,10 +24,6 @@ export async function completeClubReading(
   if (error) throw error;
 }
 
-// --------------------------------------------------------- deleteClubReading
-
-// Remove a leitura atual sem arquivá-la no histórico (diferente de
-// completeClubReading, que finaliza e manda pro histórico).
 export async function deleteClubReading(clubId: string): Promise<void> {
   const { error } = await supabase.rpc("delete_club_reading", {
     p_club_id: clubId,
@@ -47,9 +32,6 @@ export async function deleteClubReading(clubId: string): Promise<void> {
   if (error) throw error;
 }
 
-// -------------------------------------------------------- setClubReadingNote
-
-// Admin-only (a RPC valida). String vazia limpa a nota.
 export async function setClubReadingNote(
   readingId: string,
   note: string,
@@ -62,17 +44,12 @@ export async function setClubReadingNote(
   if (error) throw error;
 }
 
-// ----------------------------------------------------- getClubReadingReaders
-
 export interface ClubReadingReader {
   userId: string;
   name: string;
   avatarUrl: string | null;
   isAdmin: boolean;
-  // % lida da edição que o próprio membro está lendo (o de-para de edições
-  // equivalentes é feito na RPC por título+autores, não só por ISBN)
   progress: number;
-  // false = ainda não começou (sem registro ou só na lista de desejos)
   started: boolean;
   rating: number | null;
 }
@@ -109,13 +86,9 @@ export async function getClubReadingReaders(
   }));
 }
 
-// -------------------------------------------------------- getClubBookRating
-
 export interface ClubBookRating {
-  // média das notas dos membros do clube pro livro (null = ninguém avaliou)
   clubAverage: number | null;
   clubCount: number;
-  // nota do próprio usuário pro livro (null = ainda não avaliou)
   myRating: number | null;
 }
 
@@ -145,8 +118,6 @@ export async function getClubBookRating(
   };
 }
 
-// ------------------------------------------------------- getClubBookReviews
-
 export interface ClubBookReview {
   userId: string;
   name: string;
@@ -163,8 +134,6 @@ type RawClubBookReview = {
   review: string;
 };
 
-// Resenhas dos membros do clube pro livro — considera edições equivalentes
-// (de-para por título+autores feito na RPC via get_equivalent_editions)
 export async function getClubBookReviews(
   clubId: string,
   bookId: string,
@@ -185,15 +154,10 @@ export async function getClubBookReviews(
   }));
 }
 
-// ----------------------------------------------------- getClubBookHighlights
-
 export interface ClubBookHighlight {
   userId: string;
   name: string;
   avatarUrl: string | null;
-  // página da edição que o próprio membro está lendo — varia entre edições,
-  // por isso o agrupamento de citações é por texto (groupHighlights), não
-  // por página
   page: number;
   quote: string;
 }

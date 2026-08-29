@@ -3,10 +3,7 @@ import { supabase } from "@/lib/supabase";
 export interface ClubMessage {
   id: string;
   content: string;
-  // marcada como spoiler (mostra a tag)
   isSpoiler: boolean;
-  // borrar pra ESTE leitor: falso quando o progresso de leitura dele já
-  // alcançou o ponto do remetente (calculado pela RPC)
   hideSpoiler: boolean;
   createdAt: string;
   isMine: boolean;
@@ -33,7 +30,6 @@ type RawClubMessage = {
   };
 };
 
-// Últimas mensagens em ordem cronológica; a RPC devolve [] pra não-membro.
 export async function getClubMessages(clubId: string): Promise<ClubMessage[]> {
   const { data, error } = await supabase.rpc("get_club_messages", {
     p_club_id: clubId,
@@ -45,7 +41,6 @@ export async function getClubMessages(clubId: string): Promise<ClubMessage[]> {
     id: message.id,
     content: message.content,
     isSpoiler: message.is_spoiler,
-    // RPC antiga (sem comparação de progresso) não manda o campo: borra
     hideSpoiler: message.hide_spoiler ?? message.is_spoiler,
     createdAt: message.created_at,
     isMine: message.is_mine,

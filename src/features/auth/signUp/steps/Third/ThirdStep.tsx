@@ -25,7 +25,6 @@ export default function ThirdStep() {
         handleNext();
       }}
       onKeyDown={(event) => {
-        // Enter na busca não deve avançar o step
         if (event.key === "Enter" && event.target instanceof HTMLInputElement) {
           event.preventDefault();
         }
